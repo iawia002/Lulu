@@ -8,11 +8,16 @@ Lulu
 
 .. code:: console
 
-    $ lulu http://www.fsf.org/blogs/rms/20140407-geneva-tedx-talk-free-software-free-society
-    Site:       fsf.org
-    Title:      TEDxGE2014_Stallman05_LQ
-    Type:       WebM video (video/webm)
-    Size:       27.12 MiB (28435804 Bytes)
+    $ lulu https://www.bilibili.com/video/av18295259/
+    site:                Bilibili
+    title:               【中文八级】俄罗斯人的名字超乎你的想象
+    stream:
+    - format:        flv720
+      container:     flv
+      size:          175.4 MiB (183914793 bytes)
+    # download-with: lulu --format=flv720 [URL]
 
-    Downloading TEDxGE2014_Stallman05_LQ.webm ...
-    100.0% ( 27.1/27.1 MB) ├████████████████████████████████████████┤[1/1]   12 MB/s
+    Downloading 【中文八级】俄罗斯人的名字超乎你的想象.flv ...
+    100% (175.4/175.4MB) ├████████████████████████████████████████┤[1/1]    3 MB/s
+
+    Downloading 【中文八级】俄罗斯人的名字超乎你的想象.cmt.xml ...
