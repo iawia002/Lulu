@@ -4,7 +4,6 @@ __all__ = ['tudou_download', 'tudou_download_playlist', 'tudou_download_by_id', 
 
 from ..common import *
 from xml.dom.minidom import parseString
-import lulu.extractors.acfun
 
 
 def tudou_download_by_iid(iid, title, output_dir = '.', merge = True, info_only = False):
@@ -35,10 +34,9 @@ def tudou_download_by_id(id, title, output_dir = '.', merge = True, info_only = 
 
 def tudou_download(url, output_dir = '.', merge = True, info_only = False, **kwargs):
     if 'acfun.tudou.com' in url:  #wrong way!
+        from .acfun import acfun_download
         url = url.replace('acfun.tudou.com', 'www.acfun.tv')
-        lulu.extractors.acfun.acfun_download(url, output_dir,
-                                               merge,
-                                               info_only)
+        acfun_download(url, output_dir, merge,info_only)
         return  #throw you back
 
     # Embedded player
