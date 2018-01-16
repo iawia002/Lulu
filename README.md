@@ -1,6 +1,8 @@
 # Lulu
 
-Lulu is a friendly you-get fork (⏬ Dumb downloader that scrapes the web).
+[![Build Status](https://travis-ci.org/iawia002/Lulu.svg?branch=master)](https://travis-ci.org/iawia002/Lulu)
+
+Lulu is a friendly [you-get](https://github.com/soimort/you-get) fork (⏬ Dumb downloader that scrapes the web).
 
 
 ## Why fork?

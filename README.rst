@@ -1,6 +1,9 @@
 Lulu
 ====
 
+.. image:: https://travis-ci.org/iawia002/Lulu.svg?branch=master
+    :target: https://travis-ci.org/iawia002/Lulu
+
 `Lulu <https://github.com/iawia002/Lulu>`__ is a friendly you-get fork (⏬ Dumb downloader that scrapes the web)
 
 .. code:: console
