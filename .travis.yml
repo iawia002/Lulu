@@ -1,0 +1,31 @@
+dist: trusty
+
+matrix:
+  fast_finish: true
+
+language: python
+
+python:
+  - 3.3
+  - 3.4
+  - 3.5
+  - 3.6
+  - nightly
+  - pypy3
+
+cache:
+  pip: true
+
+# command to install dependencies
+install:
+  - pip install coverage
+  - pip install codecov
+
+before_script:
+  - export PYTHONPATH=$PYTHONPATH:$(pwd)
+
+# command to run tests
+script: coverage run tests/runtests.py
+
+after_success:
+  - codecov
