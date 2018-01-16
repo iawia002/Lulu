@@ -4,7 +4,7 @@ import io
 import os
 import sys
 from shutil import rmtree
-from setuptools import setup, Command
+from setuptools import find_packages, setup, Command
 
 
 # Package meta-data.
@@ -77,7 +77,7 @@ setup(
     author=AUTHOR,
     author_email=EMAIL,
     url=URL,
-    packages=[NAME],
+    packages=find_packages(exclude=('tests',)),
     entry_points={
         'console_scripts': ['lulu=lulu.__main__:main'],
     },
