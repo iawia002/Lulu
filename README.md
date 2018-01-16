@@ -27,23 +27,22 @@ upgrade:
 
 ## Get Started
 
-Here's how you use `Lulu` to download a video from [YouTube](https://www.youtube.com/watch?v=jNQXAC9IVRw):
+Here's how you use `Lulu` to download a video from [Bilibili](https://www.bilibili.com/video/av18295259/):
 
 ```console
-$ lulu https://www.youtube.com/watch?v=jNQXAC9IVRw
-site:                YouTube
-title:               Me at the zoo
+$ lulu https://www.bilibili.com/video/av18295259/
+site:                Bilibili
+title:               【中文八级】俄罗斯人的名字超乎你的想象
 stream:
-    - itag:          43
-      container:     webm
-      quality:       medium
-      size:          0.5 MiB (564215 bytes)
-    # download-with: lulu --itag=43 [URL]
+    - format:        flv720
+      container:     flv
+      size:          175.4 MiB (183914793 bytes)
+    # download-with: lulu --format=flv720 [URL]
 
-Downloading Me at the zoo.webm ...
- 100% (  0.5/  0.5MB) ├██████████████████████████████████┤[1/1]    6 MB/s
+Downloading 【中文八级】俄罗斯人的名字超乎你的想象.flv ...
+ 100% (175.4/175.4MB) ├████████████████████████████████████████┤[1/1]    3 MB/s
 
-Saving Me at the zoo.en.srt ... Done.
+Downloading 【中文八级】俄罗斯人的名字超乎你的想象.cmt.xml ...
 ```
 
 ### Download a video
