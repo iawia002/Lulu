@@ -2,7 +2,8 @@
 
 import unittest
 
-from you_get.util.fs import *
+from lulu.util.fs import *
+
 
 class TestUtil(unittest.TestCase):
     def test_legitimize(self):

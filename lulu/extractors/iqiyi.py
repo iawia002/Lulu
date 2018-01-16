@@ -156,7 +156,7 @@ class Iqiyi(VideoExtractor):
             except Exception as e:
                 log.i("vd: {} is not handled".format(stream['vd']))
                 log.i("info is {}".format(stream))
-    
+
 
     def download(self, **kwargs):
         """Override the original one
@@ -204,7 +204,7 @@ class Iqiyi(VideoExtractor):
             if not urls:
                 log.wtf('[Failed] Cannot extract video source.')
             # For legacy main()
-            
+
             #Here's the change!!
             download_url_ffmpeg(urls[0], self.title, 'mp4', output_dir=kwargs['output_dir'], merge=kwargs['merge'], stream=False)
 
@@ -218,12 +218,12 @@ class Iqiyi(VideoExtractor):
                 with open(os.path.join(kwargs['output_dir'], filename),
                           'w', encoding='utf-8') as x:
                     x.write(srt)
-                print('Done.')    
+                print('Done.')
 
 '''
         if info["code"] != "A000000":
             log.e("[error] outdated iQIYI key")
-            log.wtf("is your you-get up-to-date?")
+            log.wtf("is your lulu up-to-date?")
 
         self.title = info["data"]["vi"]["vn"]
         self.title = self.title.replace('\u200b', '')

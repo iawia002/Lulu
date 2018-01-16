@@ -113,9 +113,9 @@ class VideoExtractor():
             print("      m3u8_url:      {}".format(stream['m3u8_url']))
 
         if 'itag' in stream:
-            print("    # download-with: %s" % log.sprint("you-get --itag=%s [URL]" % stream_id, log.UNDERLINE))
+            print("    # download-with: %s" % log.sprint("lulu --itag=%s [URL]" % stream_id, log.UNDERLINE))
         else:
-            print("    # download-with: %s" % log.sprint("you-get --format=%s [URL]" % stream_id, log.UNDERLINE))
+            print("    # download-with: %s" % log.sprint("lulu --format=%s [URL]" % stream_id, log.UNDERLINE))
 
         print()
 

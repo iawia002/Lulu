@@ -2,17 +2,16 @@
 
 import unittest
 
-from you_get.extractors import (
+from lulu.extractors import (
     imgur,
     magisto,
     youtube,
     yixia,
     bilibili,
-    douyin,
 )
 
 
-class YouGetTests(unittest.TestCase):
+class LuluTests(unittest.TestCase):
     def test_imgur(self):
         imgur.download('http://imgur.com/WVLk5nD', info_only=True)
         imgur.download('http://imgur.com/gallery/WVLk5nD', info_only=True)

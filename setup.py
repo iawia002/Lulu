@@ -1,45 +1,103 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
-PROJ_NAME = 'you-get'
-PACKAGE_NAME = 'you_get'
+import io
+import os
+import sys
+from shutil import rmtree
+from setuptools import setup, Command
 
-PROJ_METADATA = '%s.json' % PROJ_NAME
 
-import os, json, imp
+# Package meta-data.
+NAME = 'lulu'
+DESCRIPTION = (
+    'A friendly you-get fork '
+    '(⏬ Dumb downloader that scrapes the web)'
+)
+URL = 'https://github.com/iawia002/Lulu'
+EMAIL = 'z2d@jifangcheng.com'
+AUTHOR = 'iawia002'
+
+# What packages are required for this module to be executed?
+REQUIRED = [
+]
+
 here = os.path.abspath(os.path.dirname(__file__))
-proj_info = json.loads(open(os.path.join(here, PROJ_METADATA), encoding='utf-8').read())
-try:
-    README = open(os.path.join(here, 'README.rst'), encoding='utf-8').read()
-except:
-    README = ""
-CHANGELOG = open(os.path.join(here, 'CHANGELOG.rst'), encoding='utf-8').read()
-VERSION = imp.load_source('version', os.path.join(here, 'src/%s/version.py' % PACKAGE_NAME)).__version__
 
-from setuptools import setup, find_packages
+# Import the README and use it as the long-description.
+with io.open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
+    long_description = '\n' + f.read()
+
+# Load the package's __version__.py module as a dictionary.
+about = {}
+with open(os.path.join(here, NAME, 'version.py')) as f:
+    exec(f.read(), about)
+
+
+class UploadCommand(Command):
+    """Support setup.py upload."""
+
+    description = 'Build and publish the package.'
+    user_options = []
+
+    @staticmethod
+    def status(s):
+        """Prints things in bold."""
+        print('\033[1m{0}\033[0m'.format(s))
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        try:
+            self.status('Removing previous builds…')
+            rmtree(os.path.join(here, 'dist'))
+        except OSError:
+            pass
+
+        self.status('Building Source and Wheel (universal) distribution…')
+        os.system('{0} setup.py sdist bdist_wheel --universal'.format(
+            sys.executable
+        ))
+
+        self.status('Uploading the package to PyPi via Twine…')
+        os.system('twine upload dist/*')
+
+        sys.exit()
+
+
+# Where the magic happens:
 setup(
-    name = proj_info['name'],
-    version = VERSION,
-
-    author = proj_info['author'],
-    author_email = proj_info['author_email'],
-    url = proj_info['url'],
-    license = proj_info['license'],
-
-    description = proj_info['description'],
-    keywords = proj_info['keywords'],
-
-    long_description = README,
-
-    packages = find_packages('src'),
-    package_dir = {'' : 'src'},
-
-    test_suite = 'tests',
-
-    platforms = 'any',
-    zip_safe = True,
-    include_package_data = True,
-
-    classifiers = proj_info['classifiers'],
-
-    entry_points = {'console_scripts': proj_info['console_scripts']}
+    name=NAME,
+    version=about['__version__'],
+    description=DESCRIPTION,
+    long_description=long_description,
+    author=AUTHOR,
+    author_email=EMAIL,
+    url=URL,
+    packages=[NAME],
+    entry_points={
+        'console_scripts': ['lulu=lulu.__main__:main'],
+    },
+    install_requires=REQUIRED,
+    include_package_data=True,
+    zip_safe=False,
+    license='MIT',
+    classifiers=[
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3',
+        "Programming Language :: Python :: 3 :: Only",
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: Implementation :: CPython',
+    ],
+    # $ setup.py publish support.
+    cmdclass={
+        'upload': UploadCommand,
+    },
 )

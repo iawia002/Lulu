@@ -1,6 +1,6 @@
-# Bash completion definition for you-get.
+# Bash completion definition for lulu.
 
-_you-get () {
+_lulu () {
     COMPREPLY=()
     local IFS=$' \n'
     local cur=$2 prev=$3
@@ -28,4 +28,4 @@ _you-get () {
     return 0
 }
 
-complete -F _you-get you-get
+complete -F _lulu lulu

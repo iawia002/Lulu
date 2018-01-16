@@ -34,7 +34,7 @@ def ximalaya_download_by_id(id, title = None, output_dir = '.', info_only = Fals
         elif stream_id == '0':
             url = json_data['play_path']
     logging.debug('ximalaya_download_by_id: %s' % url)
-    ext = 'm4a' 
+    ext = 'm4a'
     urls = [url]
     print('Site:        %s' % site_info)
     print('title:       %s' % title)
@@ -68,7 +68,7 @@ def ximalaya_download_page(playlist_url, output_dir = '.', info_only = False, st
                 print("something wrong with %s, perhaps paid item?" % id)
     else:
         raise NotImplementedError(playlist_url)
-    
+
 def ximalaya_download_playlist(url, output_dir='.', info_only=False, stream_id=None, **kwargs):
     match_result = re.match(r'http://www\.ximalaya\.com/(\d+)/album/(\d+)', url)
     if not match_result:
@@ -91,8 +91,8 @@ def print_stream_info(stream_id):
     print('      container:   %s' % 'm4a')
     print('      bitrate:     %s' % stream_types[int(stream_id)]['bitrate'])
     print('      size:        %s' % 'N/A')
-    print('    # download-with: you-get --itag=%s [URL]' % stream_id)
+    print('    # download-with: lulu --itag=%s [URL]' % stream_id)
 
 site_info = 'ximalaya.com'
 download = ximalaya_download
-download_playlist = ximalaya_download_playlist 
+download_playlist = ximalaya_download_playlist

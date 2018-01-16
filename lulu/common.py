@@ -1282,8 +1282,8 @@ def script_main(download, download_playlist, **kwargs):
         )
 
     parser = argparse.ArgumentParser(
-        prog='you-get',
-        usage='you-get [OPTION]... URL...',
+        prog='lulu',
+        usage='lulu [OPTION]... URL...',
         description='A tiny downloader that scrapes the web',
         add_help=False,
     )
@@ -1498,10 +1498,9 @@ def script_main(download, download_playlist, **kwargs):
                 'don\'t panic, c\'est la vie. please try the following steps:'
             )
             log.e('  (1) Rule out any network problem.')
-            log.e('  (2) Make sure you-get is up-to-date.')
+            log.e('  (2) Make sure lulu is up-to-date.')
             log.e('  (3) Check if the issue is already known, on')
-            log.e('        https://github.com/soimort/you-get/wiki/Known-Bugs')
-            log.e('        https://github.com/soimort/you-get/issues')
+            log.e('        https://github.com/iawia002/Lulu/issues')
             log.e('  (4) Run the command with \'--debug\' option,')
             log.e('      and report this issue with the full output.')
         else:
@@ -1526,7 +1525,7 @@ def google_search(url):
             unescape_html(v[0][1]),
             v[1] if v[1] else '?'
         ))
-        print('# you-get %s' % log.sprint(v[0][0], log.UNDERLINE))
+        print('# lulu %s' % log.sprint(v[0][0], log.UNDERLINE))
         print()
     print('Best matched result:')
     return(videos[0][0])
@@ -1550,7 +1549,7 @@ def url_to_module(url):
     k = r1(r'([^.]+)', domain)
     if k in SITES:
         return (
-            import_module('.'.join(['you_get', 'extractors', SITES[k]])),
+            import_module('.'.join(['lulu', 'extractors', SITES[k]])),
             url
         )
     else:
@@ -1566,7 +1565,7 @@ def url_to_module(url):
         if location and location != url and not location.startswith('/'):
             return url_to_module(location)
         else:
-            return import_module('you_get.extractors.universal'), url
+            return import_module('lulu.extractors.universal'), url
 
 
 def any_download(url, **kwargs):
