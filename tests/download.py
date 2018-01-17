@@ -10,6 +10,7 @@ from lulu.extractors import (
     bilibili,
     douyin,
     miaopai,
+    netease,
 )
 
 
@@ -56,6 +57,14 @@ class LuluTests(unittest.TestCase):
 
     def test_weibo(self):
         miaopai.download('https://m.weibo.cn/status/FEFq863WF', info_only=True)
+
+    def test_netease(self):
+        netease.download(
+            'http://music.163.com/#/album?id=35757233', info_only=True
+        )
+        netease.download(
+            'http://music.163.com/#/song?id=490602750', info_only=True
+        )
 
 
 if __name__ == '__main__':
