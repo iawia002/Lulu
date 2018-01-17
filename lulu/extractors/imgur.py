@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import json
+
 from ..common import *
 from ..extractor import VideoExtractor
 from .universal import *

@@ -11,6 +11,7 @@ import urllib.request
 import urllib.parse
 from xml.dom.minidom import parseString
 
+from lulu.config import FAKE_HEADERS
 from ..common import *
 from ..util.log import *
 from ..extractor import *
@@ -19,6 +20,7 @@ from .qq import qq_download_by_vid
 from .sina import sina_download_by_vid
 from .tudou import tudou_download_by_id
 from .youku import youku_download_by_vid
+
 
 class Bilibili(VideoExtractor):
     name = 'Bilibili'
@@ -70,7 +72,7 @@ class Bilibili(VideoExtractor):
 
         xml_str = get_content(api_url, headers={
             'referer': self.url,
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/601.7.8 (KHTML, like Gecko) Version/9.1.3 Safari/601.7.8',  # noqa
+            'User-Agent': FAKE_HEADERS['User-Agent'],
         })
         return xml_str
 
@@ -115,7 +117,7 @@ class Bilibili(VideoExtractor):
             aid = re.search(r'av(\d+)', self.url).group(1)
             self.url = 'http://www.bilibili.com/video/av{}/'.format(aid)
 
-        self.ua = fake_headers['User-Agent']
+        self.ua = FAKE_HEADERS['User-Agent']
         self.url = url_locations([self.url])[0]
         frag = urllib.parse.urlparse(self.url).fragment
         # http://www.bilibili.com/video/av3141144/index_2.html#page=3

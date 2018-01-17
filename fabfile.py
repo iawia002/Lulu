@@ -5,10 +5,11 @@ from fabric.api import (
 )
 
 
-def test():
-    local(
-        'PYTHONPATH=./ coverage run tests/runtests.py'
+def test(proxy=False):
+    cmd = 'PYTHONPATH=./ {} coverage run tests/runtests.py'.format(
+        'proxychains4' if proxy else ''
     )
+    local(cmd)
 
 
 def upload():

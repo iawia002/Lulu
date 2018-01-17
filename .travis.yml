@@ -3,6 +3,8 @@ dist: trusty
 matrix:
   fast_finish: true
 
+sudo: false
+
 language: python
 
 python:
