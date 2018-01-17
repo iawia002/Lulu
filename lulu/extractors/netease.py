@@ -16,6 +16,7 @@ from lulu.common import (
     url_info,
     print_info,
     get_content,
+    post_content,
     get_location,
     get_filename,
     download_urls,
@@ -26,6 +27,57 @@ from lulu.common import (
 
 
 __all__ = ['netease_download']
+
+
+header = config.FAKE_HEADERS
+header.update({
+    'Referer': 'http://music.163.com/',
+    'Host': 'music.163.com',
+})
+
+
+def rsa_encrypt(text, pubKey, modulus):
+    text = text[::-1]
+    rs = int(
+        codecs.encode(bytes(text, encoding='utf8'), 'hex'), 16
+    )**int(pubKey, 16) % int(modulus, 16)
+    return format(rs, 'x').zfill(256)
+
+
+def aes_encrypt(text, secKey):
+    pad = 16 - len(text) % 16
+    text = text + pad * chr(pad)
+    encryptor = AES.new(secKey, 2, '0102030405060708')
+    ciphertext = encryptor.encrypt(text)
+    ciphertext = base64.b64encode(ciphertext)
+    return ciphertext
+
+
+def create_params(song_id):
+    text = '{{"ids":[{}], br:"320000", csrf_token:"csrf"}}'.format(song_id)
+    nonce = '0CoJUm6Qyw8W8jud'
+    nonce2 = 16 * 'F'
+    encText = aes_encrypt(aes_encrypt(text, nonce).decode('utf-8'), nonce2)
+    return encText
+
+
+def get_mp3_link(song_id):
+    data = {
+        'params': create_params(song_id),
+        'encSecKey': rsa_encrypt(
+            config.NETEASE_MUSIC_SECKEY, config.NETEASE_MUSIC_PUBKEY,
+            config.NETEASE_MUSIC_COMMENT_MODULE
+        )
+    }
+    url = config.NETEASE_MP3_URL
+    try:
+        req = loads(post_content(
+            url, headers=header,
+            post_data=data, decoded=False
+        ))
+    except Exception as e:
+        raise
+    return req['data'][0]['url']
 
 
 def netease_hymn():
@@ -191,15 +243,7 @@ def netease_song_download(
     song, output_dir='.', info_only=False, playlist_prefix=""
 ):
     title = "%s%s. %s" % (playlist_prefix, song['position'], song['name'])
-    songNet = 'p' + song['mp3Url'].split('/')[2][1:]
-
-    if 'hMusic' in song and song['hMusic'] is not None:
-        url_best = make_url(songNet, song['hMusic']['dfsId'])
-    elif 'mp3Url' in song:
-        url_best = song['mp3Url']
-    elif 'bMusic' in song:
-        url_best = make_url(songNet, song['bMusic']['dfsId'])
-
+    url_best = get_mp3_link(song['id'])
     netease_download_common(
         title, url_best, output_dir=output_dir, info_only=info_only
     )
