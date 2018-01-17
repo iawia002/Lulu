@@ -4,6 +4,7 @@ import json
 # save info from common.print_info()
 last_info = None
 
+
 def output(video_extractor, pretty_print=True):
     ve = video_extractor
     out = {}
@@ -28,9 +29,11 @@ def output(video_extractor, pretty_print=True):
     else:
         print(json.dumps(out))
 
+
 # a fake VideoExtractor object to save info
 class VideoExtractor(object):
     pass
+
 
 def print_info(site_info=None, title=None, type=None, size=None):
     global last_info
@@ -41,13 +44,16 @@ def print_info(site_info=None, title=None, type=None, size=None):
     ve.title = title
     ve.url = None
 
-def download_urls(urls=None, title=None, ext=None, total_size=None, refer=None):
+
+def download_urls(
+    urls=None, title=None, ext=None, total_size=None, refer=None
+):
     ve = last_info
     if not ve:
         ve = VideoExtractor()
         ve.name = ''
         ve.url = urls
-        ve.title=title
+        ve.title = title
     # save download info in streams
     stream = {}
     stream['container'] = ext
@@ -59,4 +65,3 @@ def download_urls(urls=None, title=None, ext=None, total_size=None, refer=None):
     ve.streams = {}
     ve.streams['__default__'] = stream
     output(ve)
-

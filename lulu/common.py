@@ -5,127 +5,30 @@ import os
 import re
 import sys
 import time
-import json
 import socket
 import locale
 import logging
 import argparse
 from http import cookiejar
 from importlib import import_module
-from urllib import request, parse, error
+from urllib import (
+    request,
+    parse,
+    error
+)
 
-from .version import __version__
-from .util import log, term
-from .util.git import get_version
-from .util.strings import get_filename, unescape_html
-from . import json_output as json_output_
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8')
+from lulu import config
+from lulu.util import log, term
+from lulu.version import __version__
+from lulu.util.git import get_version
+from lulu import json_output as json_output_
+from lulu.util.strings import (
+    get_filename,
+    unescape_html
+)
 
-SITES = {
-    '163'              : 'netease',
-    '56'               : 'w56',
-    'acfun'            : 'acfun',
-    'archive'          : 'archive',
-    'baidu'            : 'baidu',
-    'bandcamp'         : 'bandcamp',
-    'baomihua'         : 'baomihua',
-    'bigthink'         : 'bigthink',
-    'bilibili'         : 'bilibili',
-    'cctv'             : 'cntv',
-    'cntv'             : 'cntv',
-    'cbs'              : 'cbs',
-    'coub'             : 'coub',
-    'dailymotion'      : 'dailymotion',
-    'dilidili'         : 'dilidili',
-    'douban'           : 'douban',
-    'douyin'           : 'douyin',
-    'douyu'            : 'douyutv',
-    'ehow'             : 'ehow',
-    'facebook'         : 'facebook',
-    'fantasy'          : 'fantasy',
-    'fc2'              : 'fc2video',
-    'flickr'           : 'flickr',
-    'freesound'        : 'freesound',
-    'fun'              : 'funshion',
-    'google'           : 'google',
-    'giphy'            : 'giphy',
-    'heavy-music'      : 'heavymusic',
-    'huaban'           : 'huaban',
-    'huomao'           : 'huomaotv',
-    'iask'             : 'sina',
-    'icourses'         : 'icourses',
-    'ifeng'            : 'ifeng',
-    'imgur'            : 'imgur',
-    'in'               : 'alive',
-    'infoq'            : 'infoq',
-    'instagram'        : 'instagram',
-    'interest'         : 'interest',
-    'iqilu'            : 'iqilu',
-    'iqiyi'            : 'iqiyi',
-    'ixigua'           : 'ixigua',
-    'isuntv'           : 'suntv',
-    'joy'              : 'joy',
-    'kankanews'        : 'bilibili',
-    'khanacademy'      : 'khan',
-    'ku6'              : 'ku6',
-    'kuaishou'         : 'kuaishou',
-    'kugou'            : 'kugou',
-    'kuwo'             : 'kuwo',
-    'le'               : 'le',
-    'letv'             : 'le',
-    'lizhi'            : 'lizhi',
-    'magisto'          : 'magisto',
-    'metacafe'         : 'metacafe',
-    'mgtv'             : 'mgtv',
-    'miomio'           : 'miomio',
-    'mixcloud'         : 'mixcloud',
-    'mtv81'            : 'mtv81',
-    'musicplayon'      : 'musicplayon',
-    'naver'            : 'naver',
-    '7gogo'            : 'nanagogo',
-    'nicovideo'        : 'nicovideo',
-    'panda'            : 'panda',
-    'pinterest'        : 'pinterest',
-    'pixnet'           : 'pixnet',
-    'pptv'             : 'pptv',
-    'qingting'         : 'qingting',
-    'qq'               : 'qq',
-    'quanmin'          : 'quanmin',
-    'showroom-live'    : 'showroom',
-    'sina'             : 'sina',
-    'smgbb'            : 'bilibili',
-    'sohu'             : 'sohu',
-    'soundcloud'       : 'soundcloud',
-    'ted'              : 'ted',
-    'theplatform'      : 'theplatform',
-    'tucao'            : 'tucao',
-    'tudou'            : 'tudou',
-    'tumblr'           : 'tumblr',
-    'twimg'            : 'twitter',
-    'twitter'          : 'twitter',
-    'ucas'             : 'ucas',
-    'videomega'        : 'videomega',
-    'vidto'            : 'vidto',
-    'vimeo'            : 'vimeo',
-    'wanmen'           : 'wanmen',
-    'weibo'            : 'miaopai',
-    'veoh'             : 'veoh',
-    'vine'             : 'vine',
-    'vk'               : 'vk',
-    'xiami'            : 'xiami',
-    'xiaokaxiu'        : 'yixia',
-    'xiaojiadianvideo' : 'fc2video',
-    'ximalaya'         : 'ximalaya',
-    'yinyuetai'        : 'yinyuetai',
-    'miaopai'          : 'yixia',
-    'yizhibo'          : 'yizhibo',
-    'youku'            : 'youku',
-    'iwara'            : 'iwara',
-    'youtu'            : 'youtube',
-    'youtube'          : 'youtube',
-    'zhanqi'           : 'zhanqi',
-    '365yg'            : 'toutiao',
-}
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf8')
+
 
 dry_run = False
 json_output = False
@@ -135,13 +38,6 @@ extractor_proxy = None
 cookies = None
 output_filename = None
 
-fake_headers = {
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',  # noqa
-    'Accept-Charset': 'UTF-8,*;q=0.5',
-    'Accept-Encoding': 'gzip,deflate,sdch',
-    'Accept-Language': 'en-US,en;q=0.8',
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:51.0) Gecko/20100101 Firefox/51.0',  # noqa
-}
 
 if sys.stdout.isatty():
     default_encoding = sys.stdout.encoding.lower()
@@ -191,7 +87,7 @@ def general_m3u8_extractor(url, headers={}):
 def maybe_print(*s):
     try:
         print(*s)
-    except:
+    except Exception:
         pass
 
 
@@ -219,15 +115,18 @@ def r1_of(patterns, text):
 
 
 def match1(text, *patterns):
-    """Scans through a string for substrings matched some patterns (first-subgroups only).
+    """Scans through a string for substrings matched some patterns
+    (first-subgroups only).
 
     Args:
         text: A string to be scanned.
         patterns: Arbitrary number of regex patterns.
 
     Returns:
-        When only one pattern is given, returns a string (None if no match found).
-        When more than one pattern are given, returns a list of strings ([] if no match found).
+        When only one pattern is given, returns a string
+        (None if no match found).
+        When more than one pattern are given, returns a list of strings
+        ([] if no match found).
     """
 
     if len(patterns) == 1:
@@ -284,7 +183,7 @@ def parse_query_param(url, param):
 
     try:
         return parse.parse_qs(parse.urlparse(url).query)[param][0]
-    except:
+    except Exception:
         return None
 
 
@@ -335,7 +234,7 @@ def get_response(url, faker=False):
 
     if faker:
         response = request.urlopen(
-            request.Request(url, headers=fake_headers), None
+            request.Request(url, headers=config.FAKE_HEADERS), None
         )
     else:
         response = request.urlopen(url)
@@ -397,7 +296,8 @@ def get_content(url, headers={}, decoded=True):
     Args:
         url: A URL.
         headers: Request headers used by the client.
-        decoded: Whether decode the response body using UTF-8 or the charset specified in Content-Type.
+        decoded: Whether decode the response body using UTF-8 or the charset
+        specified in Content-Type.
 
     Returns:
         The content as a string.
@@ -439,7 +339,8 @@ def post_content(url, headers={}, post_data={}, decoded=True):
     Args:
         url: A URL.
         headers: Request headers used by the client.
-        decoded: Whether decode the response body using UTF-8 or the charset specified in Content-Type.
+        decoded: Whether decode the response body using UTF-8 or the charset
+        specified in Content-Type.
 
     Returns:
         The content as a string.
@@ -478,7 +379,7 @@ def post_content(url, headers={}, post_data={}, decoded=True):
 def url_size(url, faker=False, headers={}):
     if faker:
         response = urlopen_with_retry(
-            request.Request(url, headers=fake_headers)
+            request.Request(url, headers=config.FAKE_HEADERS)
         )
     elif headers:
         response = urlopen_with_retry(request.Request(url, headers=headers))
@@ -510,7 +411,7 @@ def url_info(url, faker=False, headers={}):
 
     if faker:
         response = urlopen_with_retry(
-            request.Request(url, headers=fake_headers)
+            request.Request(url, headers=config.FAKE_HEADERS)
         )
     elif headers:
         response = urlopen_with_retry(request.Request(url, headers=headers))
@@ -554,7 +455,7 @@ def url_info(url, faker=False, headers={}):
                     ext = filename.split('.')[-1]
                 else:
                     ext = None
-            except:
+            except Exception:
                 ext = None
         else:
             ext = None
@@ -574,7 +475,7 @@ def url_locations(urls, faker=False, headers={}):
 
         if faker:
             response = urlopen_with_retry(
-                request.Request(url, headers=fake_headers)
+                request.Request(url, headers=config.FAKE_HEADERS)
             )
         elif headers:
             response = urlopen_with_retry(
@@ -635,7 +536,7 @@ def url_save(
 
     if received < file_size:
         if faker:
-            tmp_headers = fake_headers
+            tmp_headers = config.FAKE_HEADERS
         '''
         if parameter headers passed in, we have it copied as tmp_header
         elif headers:
@@ -666,7 +567,7 @@ def url_save(
                 response.headers['content-range'][6:].split('/')[1]
             )
             range_length = end_length - range_start
-        except:
+        except Exception:
             content_length = response.headers['content-length']
             range_length = int(content_length) if content_length is not None \
                 else float('inf')
@@ -868,7 +769,7 @@ def download_urls(
     if not total_size:
         try:
             total_size = urls_size(urls, faker=faker, headers=headers)
-        except:
+        except Exception:
             import traceback
             traceback.print_exc(file=sys.stdout)
             pass
@@ -904,7 +805,6 @@ def download_urls(
             filename = '%s[%02d].%s' % (title, i, ext)
             filepath = os.path.join(output_dir, filename)
             parts.append(filepath)
-            # print 'Downloading %s [%s/%s]...' % (tr(filename), i + 1, len(urls))
             bar.update_piece(i + 1)
             url_save(
                 url, filepath, bar, refer=refer, is_part=True, faker=faker,
@@ -936,7 +836,7 @@ def download_urls(
                     from .processor.join_flv import concat_flv
                     concat_flv(parts, output_filepath)
                 print('Merged into %s' % output_filename)
-            except:
+            except Exception:
                 raise
             else:
                 for part in parts:
@@ -952,7 +852,7 @@ def download_urls(
                     from .processor.join_mp4 import concat_mp4
                     concat_mp4(parts, output_filepath)
                 print('Merged into %s' % output_filename)
-            except:
+            except Exception:
                 raise
             else:
                 for part in parts:
@@ -968,7 +868,7 @@ def download_urls(
                     from .processor.join_ts import concat_ts
                     concat_ts(parts, output_filepath)
                 print('Merged into %s' % output_filename)
-            except:
+            except Exception:
                 raise
             else:
                 for part in parts:
@@ -1189,15 +1089,19 @@ def set_http_proxy(proxy):
 
 def print_more_compatible(*args, **kwargs):
     import builtins as __builtin__
-    """Overload default print function as py (<3.3) does not support 'flush' keyword.
-    Although the function name can be same as print to get itself overloaded automatically,
-    I'd rather leave it with a different name and only overload it when importing to make less confusion.
+    """Overload default print function as py (<3.3) does not support 'flush'
+    keyword.
+    Although the function name can be same as print to get itself overloaded
+    automatically,
+    I'd rather leave it with a different name and only overload it when
+    importing to make less confusion.
     """
     # nothing happens on py3.3 and later
     if sys.version_info[:2] >= (3, 3):
         return __builtin__.print(*args, **kwargs)
 
-    # in lower pyver (e.g. 3.2.x), remove 'flush' keyword and flush it as requested
+    # in lower pyver (e.g. 3.2.x), remove 'flush' keyword and flush it as
+    # requested
     doFlush = kwargs.pop('flush', False)
     ret = __builtin__.print(*args, **kwargs)
     if doFlush:
@@ -1513,7 +1417,7 @@ def script_main(download, download_playlist, **kwargs):
 def google_search(url):
     keywords = r1(r'https?://(.*)', url)
     url = 'https://www.google.com/search?tbm=vid&q=%s' % parse.quote(keywords)
-    page = get_content(url, headers=fake_headers)
+    page = get_content(url, headers=config.FAKE_HEADERS)
     videos = re.findall(
         r'<a href="(https?://[^"]+)" onmousedown="[^"]+">([^<]+)<', page
     )
@@ -1547,9 +1451,9 @@ def url_to_module(url):
     assert domain, 'unsupported url: ' + url
 
     k = r1(r'([^.]+)', domain)
-    if k in SITES:
+    if k in config.SITES:
         return (
-            import_module('.'.join(['lulu', 'extractors', SITES[k]])),
+            import_module('.'.join(['lulu', 'extractors', config.SITES[k]])),
             url
         )
     else:
@@ -1559,7 +1463,7 @@ def url_to_module(url):
             conn = http.client.HTTPSConnection(video_host)
         else:
             conn = http.client.HTTPConnection(video_host)
-        conn.request('HEAD', video_url, headers=fake_headers)
+        conn.request('HEAD', video_url, headers=config.FAKE_HEADERS)
         res = conn.getresponse()
         location = res.getheader('location')
         if location and location != url and not location.startswith('/'):
