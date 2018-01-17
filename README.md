@@ -26,6 +26,31 @@ upgrade:
 
     $ pip3 install -U lulu
 
+## Deployment
+
+Install [pipenv](https://github.com/pypa/pipenv):
+
+    $ pip3 install pipenv
+
+and [fabric](https://github.com/fabric/fabric) (**Note: fabric doesn't support python3 now, install using pip2**):
+
+    $ pip install fabric
+
+Initialize virtualenv
+
+    $ pipenv --python 3
+
+Install all dependencies:
+
+    $ pipenv install --dev
+
+Use the shell:
+
+    $ pipenv shell
+
+Run the tests:
+
+    $ fab test
 
 ## Get Started
 
