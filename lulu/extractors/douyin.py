@@ -3,36 +3,26 @@
 import re
 import json
 
-from ..common import (
-    url_size,
-    print_info,
+from lulu.common import (
     get_content,
-    download_urls,
     playlist_not_supported,
 )
+from lulu.extractor import SimpleExtractor
 
 
 __all__ = ['douyin_download_by_url']
+site_info = 'douyin'
 
 
-def douyin_download_by_url(url, **kwargs):
-    page_content = get_content(url)
-    match_rule = re.compile(r'var data = \[(.*?)\];')
-    video_info = json.loads(match_rule.findall(page_content)[0])
-    video_url = video_info['video']['play_addr']['url_list'][0]
-    title = video_info['cha_list'][0]['cha_name']
-    video_format = 'mp4'
-    size = url_size(video_url)
-    print_info(
-        site_info='douyin.com', title=title,
-        type=video_format, size=size
-    )
-    if not kwargs['info_only']:
-        download_urls(
-            urls=[video_url], title=title, ext=video_format, total_size=size,
-            **kwargs
-        )
+class DouYin(SimpleExtractor):
+    def extract(self, url):
+        self.site_info = site_info
+        page_content = get_content(url)
+        match_rule = re.compile(r'var data = \[(.*?)\];')
+        video_info = json.loads(match_rule.findall(page_content)[0])
+        self.urls = [video_info['video']['play_addr']['url_list'][0]]
+        self.title = video_info['cha_list'][0]['cha_name']
 
 
-download = douyin_download_by_url
-download_playlist = playlist_not_supported('douyin')
+download = douyin_download_by_url = DouYin()
+download_playlist = playlist_not_supported(site_info)

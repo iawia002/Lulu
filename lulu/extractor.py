@@ -4,7 +4,10 @@ import os
 
 from lulu.common import (
     dry_run,
+    url_size,
+    urls_size,
     set_proxy,
+    print_info,
     parse_host,
     unset_proxy,
     maybe_print,
@@ -319,4 +322,32 @@ class VideoExtractor:
 
 
 class SimpleExtractor:
-    pass
+    def __init__(self):
+        self.site_info = None
+        self.urls = []
+        self.size = None
+        self.title = None
+        self.video_format = 'mp4'
+
+    def __call__(self, url, **kwargs):
+        self.extract(url)
+
+        if self.size:
+            size = self.size
+        else:
+            if len(self.urls) == 1:
+                size = url_size(self.urls[0])
+            else:
+                size = urls_size(self.urls)
+        print_info(
+            site_info=self.site_info, title=self.title,
+            type=self.video_format, size=size
+        )
+        if not kwargs['info_only']:
+            download_urls(
+                urls=self.urls, title=self.title, ext=self.video_format,
+                total_size=size, **kwargs
+            )
+
+    def extract(self, url):
+        raise NotImplementedError()
