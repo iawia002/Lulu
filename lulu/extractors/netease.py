@@ -70,14 +70,12 @@ def get_mp3_link(song_id):
         )
     }
     url = config.NETEASE_MP3_URL
-    try:
-        req = loads(post_content(
-            url, headers=header,
-            post_data=data, decoded=False
-        ))
-    except Exception as e:
-        raise
-    return req['data'][0]['url']
+    req = post_content(
+        url, headers=header,
+        post_data=data, decoded=False
+    )
+    data = loads(req.decode('utf-8'))
+    return data['data'][0]['url']
 
 
 def netease_hymn():

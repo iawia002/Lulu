@@ -8,23 +8,22 @@ sudo: false
 language: python
 
 python:
-  - 3.3
   - 3.4
   - 3.5
   - 3.6
   - nightly
-  - pypy3
 
 cache:
   pip: true
 
 # command to install dependencies
 install:
-  - pip install coverage
   - pip install codecov
+  - pip install pipenv
 
 before_script:
   - export PYTHONPATH=$PYTHONPATH:$(pwd)
+  - pipenv install --dev
 
 # command to run tests
 script: coverage run tests/runtests.py
