@@ -8,3 +8,8 @@ verify_ssl = true
 
 coverage = "*"
 twine = "*"
+
+
+[packages]
+
+pycrypto = "*"
