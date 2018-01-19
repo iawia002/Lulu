@@ -325,31 +325,36 @@ class SimpleExtractor:
     def __init__(self):
         self.need_download = True
         self.site_info = None
-        self.urls = []
-        self.size = None
-        self.title = None
-        self.file_format = 'mp4'
 
     def __call__(self, url, **kwargs):
-        self.extract(url, **kwargs)
+        '''
+        data = {
+            'urls': [],
+            'title': '',
+            'file_format': '',
+            'size': '',
+        }
+        '''
+        data = self.extract(url, **kwargs)
 
         if not self.need_download:
             return
 
-        if self.size:
-            size = self.size
-        else:
-            if len(self.urls) == 1:
-                size = url_size(self.urls[0])
+        file_format = data.get('file_format', 'mp4')
+        size = data.get('size')
+        urls = data['urls']
+        if not size:
+            if len(urls) == 1:
+                size = url_size(urls[0])
             else:
-                size = urls_size(self.urls)
+                size = urls_size(urls)
         print_info(
-            site_info=self.site_info, title=self.title,
-            type=self.file_format, size=size
+            site_info=self.site_info, title=data['title'],
+            type=file_format, size=size
         )
         if not kwargs['info_only']:
             download_urls(
-                urls=self.urls, title=self.title, ext=self.file_format,
+                urls=urls, title=data['title'], ext=file_format,
                 total_size=size, **kwargs
             )
 

@@ -112,10 +112,12 @@ class Netease(SimpleExtractor):
                 _, _, size = url_info(url)
                 ext = 'mp4'
 
-            self.urls = [url]
-            self.title = title
-            self.file_format = ext
-            self.size = size
+            return {
+                'urls': [url],
+                'title': title,
+                'file_format': ext,
+                'size': size,
+            }
 
     def netease_cloud_music_download(
         self, url, output_dir='.', info_only=False, **kwargs
