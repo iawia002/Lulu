@@ -11,6 +11,7 @@ from lulu.extractors import (
     douyin,
     miaopai,
     # netease,
+    youku,
 )
 
 
@@ -67,6 +68,16 @@ class LuluTests(unittest.TestCase):
         # netease.download(
         #     'http://music.163.com/#/song?id=490602750', info_only=True
         # )
+
+    def test_youku(self):
+        youku.download(
+            'http://v.youku.com/v_show/id_XMzMzMDk5MzcyNA==.html',
+            info_only=True
+        )
+        youku.download(
+            'http://v.youku.com/v_show/id_XMzI2NTUyOTIxMg==.html',
+            info_only=True
+        )
 
 
 if __name__ == '__main__':
