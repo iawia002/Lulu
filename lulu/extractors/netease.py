@@ -146,12 +146,10 @@ class Netease(SimpleExtractor):
                 self.netease_song_download(
                     song, output_dir=new_dir, info_only=info_only
                 )
-                try:  # download lyrics
-                    self.netease_lyric_download(
-                        song, output_dir=new_dir, info_only=info_only, **kwargs
-                    )
-                except Exception:
-                    pass
+                # download lyrics
+                self.netease_lyric_download(
+                    song, output_dir=new_dir, info_only=info_only, **kwargs
+                )
 
         elif 'playlist' in url:
             j = json.loads(get_content(
@@ -173,14 +171,12 @@ class Netease(SimpleExtractor):
                     song, output_dir=new_dir, info_only=info_only,
                     playlist_prefix=playlist_prefix
                 )
-                try:  # download lyrics
-                    self.netease_lyric_download(
-                        song, output_dir=new_dir,
-                        info_only=info_only, playlist_prefix=playlist_prefix,
-                        **kwargs
-                    )
-                except Exception:
-                    pass
+                # download lyrics
+                self.netease_lyric_download(
+                    song, output_dir=new_dir,
+                    info_only=info_only, playlist_prefix=playlist_prefix,
+                    **kwargs
+                )
 
         elif 'song' in url:
             j = json.loads(get_content(
@@ -192,12 +188,10 @@ class Netease(SimpleExtractor):
             self.netease_song_download(
                 song, output_dir=output_dir, info_only=info_only
             )
-            try:  # download lyrics
-                self.netease_lyric_download(
-                    song, output_dir=output_dir, info_only=info_only, **kwargs
-                )
-            except Exception:
-                pass
+            # download lyrics
+            self.netease_lyric_download(
+                song, output_dir=output_dir, info_only=info_only, **kwargs
+            )
 
         elif 'program' in url:
             j = json.loads(get_content(
@@ -234,10 +228,9 @@ class Netease(SimpleExtractor):
     def netease_lyric_download(
         self, song, output_dir, info_only, playlist_prefix='', **kwargs
     ):
-        if info_only:
+        if info_only or not kwargs.get('caption'):
             return
 
-        assert kwargs['caption']
         data = json.loads(get_content(
             'http://music.163.com/api/song/lyric/?'
             'id={}&lv=-1&csrf_token='.format(song['id']),

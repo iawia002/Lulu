@@ -15,7 +15,7 @@ site_info = 'douyin'
 
 
 class DouYin(SimpleExtractor):
-    def extract(self, url):
+    def extract(self, url, **kwargs):
         self.site_info = site_info
         page_content = get_content(url)
         match_rule = re.compile(r'var data = \[(.*?)\];')
