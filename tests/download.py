@@ -12,6 +12,7 @@ from lulu.extractors import (
     miaopai,
     # netease,
     youku,
+    qq,
 )
 
 
@@ -76,6 +77,21 @@ class LuluTests(unittest.TestCase):
         )
         youku.download(
             'http://v.youku.com/v_show/id_XMzI2NTUyOTIxMg==.html',
+            info_only=True
+        )
+
+    def test_qq(self):
+        qq.download('https://v.qq.com/x/page/n0528cwq4xr.html', info_only=True)
+        qq.download(
+            'https://v.qq.com/x/cover/ps6mnfqyrfo7es3/q0181hpdvo5.html?',
+            info_only=True
+        )
+        qq.download(
+            'http://v.qq.com/cover/p/ps6mnfqyrfo7es3.html?vid=q0181hpdvo5',
+            info_only=True
+        )
+        qq.download(
+            'https://v.qq.com/x/cover/9hpjiv5fhiyn86u/t0522x58xma.html',
             info_only=True
         )
 
