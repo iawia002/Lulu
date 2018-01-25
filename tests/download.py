@@ -13,6 +13,7 @@ from lulu.extractors import (
     # netease,
     youku,
     qq,
+    acfun,
 )
 
 
@@ -94,6 +95,10 @@ class LuluTests(unittest.TestCase):
             'https://v.qq.com/x/cover/9hpjiv5fhiyn86u/t0522x58xma.html',
             info_only=True
         )
+
+    def test_acfun(self):
+        acfun.download('http://www.acfun.cn/v/ac4209715', info_only=True)
+        acfun.download('http://www.acfun.cn/v/ac4210425', info_only=True)
 
 
 if __name__ == '__main__':
