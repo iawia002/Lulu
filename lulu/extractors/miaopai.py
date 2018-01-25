@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import re
 import json
 
 from lulu import config
@@ -48,16 +47,17 @@ def miaopai_download(
         fid = match1(url, r'/p/230444(\w+)')
         miaopai_download_by_fid('1034:'+fid, output_dir, merge, info_only)
     else:
-        mobile_page = get_content(url, headers=config.FAKE_HEADERS_MOBILE)
-        match_rule = re.compile(
-            r'var \$render_data = \[(.*?)\]\[0\]',
-            re.DOTALL
+        status_id = url.split('?')[0].split('/')[-1]
+        video_info = json.loads(
+            get_content(
+                'https://m.weibo.cn/statuses/show?id={}'.format(status_id),
+                headers=config.FAKE_HEADERS_MOBILE
+            )
         )
-        video_info = json.loads(match_rule.findall(mobile_page)[0])
-        video_url = video_info['status']['page_info']['media_info'][
+        video_url = video_info['data']['page_info']['media_info'][
             'stream_url'
         ]
-        title = video_info['status']['page_info']['content2']
+        title = video_info['data']['page_info']['content2']
         video_format = 'mp4'
         size = url_size(video_url)
         print_info(
