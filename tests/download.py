@@ -57,6 +57,10 @@ class LuluTests(unittest.TestCase):
             'https://www.douyin.com/share/video/6492273288897629454',
             info_only=True
         )
+        douyin.download(
+            'https://www.douyin.com/share/video/6511578018618543368',
+            info_only=True
+        )
 
     def test_weibo(self):
         miaopai.download('https://m.weibo.cn/status/FEFq863WF', info_only=True)
