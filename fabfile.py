@@ -12,6 +12,16 @@ def test(proxy=False):
     local(cmd)
 
 
+def test_download(func):
+    '''
+    fab test_download:acfun
+    '''
+    cmd = 'PYTHONPATH=./ python tests/download.py LuluTests.test_{}'.format(
+        func
+    )
+    local(cmd)
+
+
 def upload():
     local(
         'python3 setup.py upload'
