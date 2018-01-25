@@ -1,26 +1,46 @@
 #!/usr/bin/env python
 
-__all__ = ['acfun_download']
-
-from ..common import *
-
-from .le import letvcloud_download_by_vu
-from .qq import qq_download_by_vid
-from .sina import sina_download_by_vid
-from .tudou import tudou_download_by_iid
-from .youku import youku_download_by_vid
-
-import json
+import os
 import re
-import base64
 import time
+import json
+import base64
 
-def get_srt_json(id):
-    url = 'http://danmu.aixifan.com/V2/%s' % id
+from lulu.extractors.qq import qq_download_by_vid
+from lulu.extractors.sina import sina_download_by_vid
+from lulu.extractors.le import letvcloud_download_by_vu
+from lulu.extractors.tudou import tudou_download_by_iid
+from lulu.extractors.youku import youku_download_by_vid
+from lulu.common import (
+    r1,
+    rc4,
+    match1,
+    dry_run,
+    url_info,
+    print_info,
+    get_content,
+    get_filename,
+    unescape_html,
+    download_urls,
+    escape_file_path,
+    playlist_not_supported,
+)
+
+
+__all__ = ['acfun_download']
+site_info = 'AcFun.cn'
+
+
+def get_srt_json(v_id):
+    url = 'http://danmu.aixifan.com/V2/{}'.format(v_id)
     return get_content(url)
 
+
 def youku_acfun_proxy(vid, sign, ref):
-    endpoint = 'http://player.acfun.cn/flash_data?vid={}&ct=85&ev=3&sign={}&time={}'
+    endpoint = (
+        'http://player.acfun.cn/flash_data?'
+        'vid={}&ct=85&ev=3&sign={}&time={}'
+    )
     url = endpoint.format(vid, sign, str(int(time.time() * 1000)))
     json_data = json.loads(get_content(url, headers=dict(referer=ref)))['data']
     enc_text = base64.b64decode(json_data)
@@ -39,7 +59,10 @@ def youku_acfun_proxy(vid, sign, ref):
 
     return yk_streams
 
-def acfun_download_by_vid(vid, title, output_dir='.', merge=True, info_only=False, **kwargs):
+
+def acfun_download_by_vid(
+    vid, title, output_dir='.', merge=True, info_only=False, **kwargs
+):
     """str, str, str, bool, bool ->None
 
     Download Acfun video by vid.
@@ -47,47 +70,69 @@ def acfun_download_by_vid(vid, title, output_dir='.', merge=True, info_only=Fals
     Call Acfun API, decide which site to use, and pass the job to its
     extractor.
     """
-
-    #first call the main parasing API
-    info = json.loads(get_content('http://www.acfun.tv/video/getVideo.aspx?id=' + vid))
+    # first call the main parasing API
+    info = json.loads(
+        get_content(
+            'http://www.acfun.tv/video/getVideo.aspx?id={}'.format(vid)
+        )
+    )
 
     sourceType = info['sourceType']
 
-    #decide sourceId to know which extractor to use
-    if 'sourceId' in info: sourceId = info['sourceId']
+    # decide sourceId to know which extractor to use
+    if 'sourceId' in info:
+        sourceId = info['sourceId']
     # danmakuId = info['danmakuId']
 
-    #call extractor decided by sourceId
+    # call extractor decided by sourceId
     if sourceType == 'sina':
-        sina_download_by_vid(sourceId, title, output_dir=output_dir, merge=merge, info_only=info_only)
+        sina_download_by_vid(
+            sourceId, title, output_dir=output_dir, merge=merge,
+            info_only=info_only
+        )
     elif sourceType == 'youku':
-        youku_download_by_vid(sourceId, title=title, output_dir=output_dir, merge=merge, info_only=info_only, **kwargs)
+        youku_download_by_vid(
+            sourceId, title=title, output_dir=output_dir, merge=merge,
+            info_only=info_only, **kwargs
+        )
     elif sourceType == 'tudou':
-        tudou_download_by_iid(sourceId, title, output_dir=output_dir, merge=merge, info_only=info_only)
+        tudou_download_by_iid(
+            sourceId, title, output_dir=output_dir, merge=merge,
+            info_only=info_only
+        )
     elif sourceType == 'qq':
-        qq_download_by_vid(sourceId, title, output_dir=output_dir, merge=merge, info_only=info_only)
+        qq_download_by_vid(
+            sourceId, title, output_dir=output_dir, merge=merge,
+            info_only=info_only
+        )
     elif sourceType == 'letv':
-        letvcloud_download_by_vu(sourceId, '2d8c027396', title, output_dir=output_dir, merge=merge, info_only=info_only)
+        letvcloud_download_by_vu(
+            sourceId, '2d8c027396', title, output_dir=output_dir, merge=merge,
+            info_only=info_only
+        )
     elif sourceType == 'zhuzhan':
-        #As in Jul.28.2016, Acfun is using embsig to anti hotlink so we need to pass this
-#In Mar. 2017 there is a dedicated ``acfun_proxy'' in youku cloud player
-#old code removed
-        url = 'http://www.acfun.cn/v/ac' + vid
+        # As in Jul.28.2016, Acfun is using embsig to anti hotlink so we need
+        # to pass this In Mar. 2017 there is a dedicated ``acfun_proxy'' in
+        # youku cloud player old code removed
+        url = 'http://www.acfun.cn/v/ac{}'.format(vid)
         yk_streams = youku_acfun_proxy(info['sourceId'], info['encode'], url)
         seq = ['mp4hd3', 'mp4hd2', 'mp4hd', 'flvhd']
         for t in seq:
             if yk_streams.get(t):
                 preferred = yk_streams[t]
                 break
-#total_size in the json could be incorrect(F.I. 0)
+        # total_size in the json could be incorrect(F.I. 0)
         size = 0
         for url in preferred[0]:
             _, _, seg_size = url_info(url)
             size += seg_size
-#fallback to flvhd is not quite possible
+        # fallback to flvhd is not quite possible
         print_info(site_info, title, 'mp4', size)
         if not info_only:
-            download_urls(preferred[0], title, 'mp4', size, output_dir=output_dir, merge=merge)
+            download_urls(
+                preferred[0], title, 'mp4', size, output_dir=output_dir,
+                merge=merge
+            )
     else:
         raise NotImplementedError(sourceType)
 
@@ -99,10 +144,15 @@ def acfun_download_by_vid(vid, title, output_dir='.', merge=True, info_only=Fals
             title = get_filename(title)
             print('Downloading %s ...\n' % (title + '.cmt.json'))
             cmt = get_srt_json(vid)
-            with open(os.path.join(output_dir, title + '.cmt.json'), 'w', encoding='utf-8') as x:
+            with open(
+                os.path.join(output_dir, title + '.cmt.json'),
+                'w',
+                encoding='utf-8'
+            ) as x:
                 x.write(cmt)
-        except:
+        except Exception:
             pass
+
 
 def acfun_download(url, output_dir='.', merge=True, info_only=False, **kwargs):
     assert re.match(r'http://[^\.]*\.*acfun\.[^\.]+/\D/\D\D(\d+)', url)
@@ -112,20 +162,20 @@ def acfun_download(url, output_dir='.', merge=True, info_only=False, **kwargs):
     title = unescape_html(title)
     title = escape_file_path(title)
     assert title
-    if match1(url, r'_(\d+)$'): # current P
-        title = title + " " + r1(r'active">([^<]*)', html)
+    if match1(url, r'_(\d+)$'):  # current P
+        title = '{} {}'.format(title, r1(r'active">([^<]*)', html))
 
     vid = r1('data-vid="(\d+)"', html)
     up = r1('data-name="([^"]+)"', html)
     p_title = r1('active">([^<]+)', html)
-    title = '%s (%s)' % (title, up)
-    if p_title: title = '%s - %s' % (title, p_title)
-    acfun_download_by_vid(vid, title,
-                          output_dir=output_dir,
-                          merge=merge,
-                          info_only=info_only,
-                          **kwargs)
+    title = '{} ({})'.format(title, up)
+    if p_title:
+        title = '{} - {}'.format(title, p_title)
+    acfun_download_by_vid(
+        vid, title, output_dir=output_dir, merge=merge, info_only=info_only,
+        **kwargs
+    )
 
-site_info = "AcFun.tv"
+
 download = acfun_download
-download_playlist = playlist_not_supported('acfun')
+download_playlist = playlist_not_supported(site_info)
