@@ -1,7 +1,12 @@
 #!/usr/bin/env python
 
 import unittest
+from urllib.error import URLError
 
+from tests.util import (
+    skipOnCI,
+    skipOnAppVeyor,
+)
 from lulu.extractors import (
     imgur,
     magisto,
@@ -10,7 +15,7 @@ from lulu.extractors import (
     bilibili,
     douyin,
     miaopai,
-    # netease,
+    netease,
     youku,
     qq,
     acfun,
@@ -38,6 +43,7 @@ class LuluTests(unittest.TestCase):
             info_only=True
         )
 
+    @skipOnAppVeyor
     def test_yixia(self):
         yixia.download(
             'http://m.miaopai.com/show/channel/vlvreCo4OZiNdk5Jn1WvdopmAvdIJwi8',  # noqa
@@ -63,20 +69,27 @@ class LuluTests(unittest.TestCase):
         )
 
     def test_weibo(self):
-        miaopai.download('https://m.weibo.cn/status/FEFq863WF', info_only=True)
-        miaopai.download(
-            'https://m.weibo.cn/status/4199826726109820', info_only=True
-        )
+        try:
+            miaopai.download(
+                'https://m.weibo.cn/status/FEFq863WF', info_only=True
+            )
+            miaopai.download(
+                'https://m.weibo.cn/status/4199826726109820', info_only=True
+            )
+        except URLError:
+            return
+        except Exception:
+            raise
 
+    @skipOnCI
     def test_netease(self):
         # failed on travis, don't know why, maybe ip issue?
-        pass
-        # netease.download(
-        #     'http://music.163.com/#/album?id=35757233', info_only=True
-        # )
-        # netease.download(
-        #     'http://music.163.com/#/song?id=490602750', info_only=True
-        # )
+        netease.download(
+            'http://music.163.com/#/album?id=35757233', info_only=True
+        )
+        netease.download(
+            'http://music.163.com/#/song?id=490602750', info_only=True
+        )
 
     def test_youku(self):
         youku.download(
