@@ -11,7 +11,6 @@ python:
   - 3.4
   - 3.5
   - 3.6
-  - nightly
 
 cache:
   pip: true
@@ -23,6 +22,7 @@ install:
 
 before_script:
   - export CI=True
+  - export TRAVIS=True
   - export PYTHONPATH=$PYTHONPATH:$(pwd)
   - pipenv install --dev
 
