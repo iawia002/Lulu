@@ -19,7 +19,7 @@ AUTHOR = 'iawia002'
 
 # What packages are required for this module to be executed?
 REQUIRED = [
-    'pycrypto==2.6.1',
+    'cryptography==2.1.4',
 ]
 
 here = os.path.abspath(os.path.dirname(__file__))
