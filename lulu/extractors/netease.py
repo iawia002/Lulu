@@ -6,8 +6,6 @@ import codecs
 import base64
 from copy import copy
 
-from Crypto.Cipher import AES
-
 from lulu import config
 from lulu.util import fs
 from lulu.extractor import SimpleExtractor
@@ -55,10 +53,21 @@ class Netease(SimpleExtractor):
         return format(rs, 'x').zfill(256)
 
     def aes_encrypt(self, text, sec_key):
+        from cryptography.hazmat.primitives.ciphers import (
+            Cipher, algorithms, modes
+        )
+        from cryptography.hazmat.backends import default_backend
+        backend = default_backend()
         pad = 16 - len(text) % 16
         text = text + pad * chr(pad)
-        encryptor = AES.new(sec_key, 2, '0102030405060708')
-        ciphertext = encryptor.encrypt(text)
+        cipher = Cipher(
+            algorithms.AES(sec_key.encode('utf-8')),
+            modes.CBC(b'0102030405060708'),
+            backend=backend
+        )
+        encryptor = cipher.encryptor()
+        ciphertext = encryptor.update(text.encode('utf-8')) \
+            + encryptor.finalize()
         ciphertext = base64.b64encode(ciphertext)
         return ciphertext
 

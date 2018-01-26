@@ -6,10 +6,10 @@ verify_ssl = true
 
 [dev-packages]
 
-coverage = "*"
+coverage = "==4.4.2"
 twine = "*"
 
 
 [packages]
 
-pycrypto = "*"
+cryptography = "==2.1.4"
