@@ -87,32 +87,36 @@ class Youku(VideoExtractor):
         self.api_error_code = None
         self.api_error_msg = None
 
-        self.ccode = '0507'
+        self.ccodes = ['0507', '0508', '0512', '0513', '0514']
         self.utid = None
 
     def youku_ups(self):
-        url = 'https://ups.youku.com/ups/get.json?vid={}&ccode={}'.format(
-            self.vid, self.ccode
-        )
-        url += '&client_ip=192.168.1.1'
-        url += '&utid=' + self.utid
-        url += '&client_ts=' + str(int(time.time()))
-        if self.password_protected:
-            url += '&password=' + self.password
-        headers = dict(Referer=self.referer)
-        headers['User-Agent'] = self.ua
-        api_meta = json.loads(get_content(url, headers=headers))
+        for ccode in self.ccodes:
+            url = 'https://ups.youku.com/ups/get.json?vid={}&ccode={}'.format(
+                self.vid, ccode
+            )
+            url += '&client_ip=192.168.1.1'
+            url += '&utid=' + self.utid
+            url += '&client_ts=' + str(int(time.time()))
+            if self.password_protected:
+                url += '&password=' + self.password
+            headers = dict(Referer=self.referer)
+            headers['User-Agent'] = self.ua
+            api_meta = json.loads(get_content(url, headers=headers))
+            self.api_data = api_meta['data']
 
-        self.api_data = api_meta['data']
-        data_error = self.api_data.get('error')
-        if data_error:
-            self.api_error_code = data_error.get('code')
-            self.api_error_msg = data_error.get('note')
-        if 'videos' in self.api_data:
-            if 'list' in self.api_data['videos']:
-                self.video_list = self.api_data['videos']['list']
-            if 'next' in self.api_data['videos']:
-                self.video_next = self.api_data['videos']['next']
+            data_error = self.api_data.get('error')
+            # {'error': {'note': '客户端无权播放,201', 'code': -6004}}
+            if data_error:
+                self.api_error_code = data_error.get('code')
+                self.api_error_msg = data_error.get('note')
+            else:
+                if 'videos' in self.api_data:
+                    if 'list' in self.api_data['videos']:
+                        self.video_list = self.api_data['videos']['list']
+                    if 'next' in self.api_data['videos']:
+                        self.video_next = self.api_data['videos']['next']
+                break
 
     @classmethod
     def change_cdn(cls, url):
@@ -165,9 +169,6 @@ class Youku(VideoExtractor):
 
                 if self.vid is None:
                     log.wtf('Cannot fetch vid')
-
-        if kwargs.get('src') and kwargs['src'] == 'tudou':
-            self.ccode = '0512'
 
         if kwargs.get('password') and kwargs['password']:
             self.password_protected = True
