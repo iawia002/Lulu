@@ -7,6 +7,8 @@ environment:
 build: off
 
 init:
+  - SET CI=True
+  - SET APPVEYOR=True
   - SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%
   - SET PYTHONIOENCODING=utf-8
   - SET PYTHONPATH=%APPVEYOR_BUILD_FOLDER%
