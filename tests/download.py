@@ -44,6 +44,7 @@ class LuluTests(unittest.TestCase):
         )
 
     @skipOnAppVeyor
+    @ignore_network_issue
     def test_yixia(self):
         yixia.download(
             'http://m.miaopai.com/show/channel/vlvreCo4OZiNdk5Jn1WvdopmAvdIJwi8',  # noqa
@@ -97,6 +98,7 @@ class LuluTests(unittest.TestCase):
             info_only=True
         )
 
+    @ignore_network_issue
     def test_qq(self):
         qq.download('https://v.qq.com/x/page/n0528cwq4xr.html', info_only=True)
         qq.download(
