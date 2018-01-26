@@ -20,3 +20,7 @@ install:
 
 test_script:
   - pipenv run coverage run tests/runtests.py
+
+branches:
+  only:
+    - master
