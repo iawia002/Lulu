@@ -5,7 +5,7 @@ import unittest
 from tests.util import (
     skipOnCI,
     skipOnAppVeyor,
-    skip_network_issue,
+    ignore_network_issue,
 )
 from lulu.extractors import (
     imgur,
@@ -68,7 +68,7 @@ class LuluTests(unittest.TestCase):
             info_only=True
         )
 
-    @skip_network_issue
+    @ignore_network_issue
     def test_weibo(self):
         miaopai.download(
             'https://m.weibo.cn/status/FEFq863WF', info_only=True

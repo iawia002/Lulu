@@ -12,12 +12,12 @@ skipOnAppVeyor = unittest.skipIf('APPVEYOR' in os.environ, NETWORK_ISSUE)
 skipOnTravis = unittest.skipIf('TRAVIS' in os.environ, NETWORK_ISSUE)
 
 
-def skip_network_issue(func):
+def ignore_network_issue(func):
     def wrapper(*args, **kwargs):
         try:
             func(*args, **kwargs)
         except URLError as err:
-            print('urllib error {}'.format(err))
+            print('urllib error: {}'.format(err))
             return
         except Exception:
             raise
