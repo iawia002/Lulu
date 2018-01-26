@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+from copy import copy
 
 from lulu.common import (
     dry_run,
@@ -15,6 +16,7 @@ from lulu.common import (
     download_urls,
     print_more_compatible as print,
 )
+from lulu import config
 from lulu.util import log
 from lulu import json_output
 
@@ -272,7 +274,7 @@ class VideoExtractor:
             if not urls:
                 log.wtf('[Failed] Cannot extract video source.')
             # For legacy main()
-            headers = {}
+            headers = copy(config.FAKE_HEADERS)
             if self.ua is not None:
                 headers['User-Agent'] = self.ua
             if self.referer is not None:

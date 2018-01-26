@@ -1,14 +1,17 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
-from ..common import *
-from ..extractor import VideoExtractor
-
+import re
 import time
-import traceback
 import json
 import urllib.request
 import urllib.parse
+
+from lulu.util import log
+from lulu.extractor import VideoExtractor
+from lulu.common import (
+    cookies,
+    get_content,
+)
 
 
 def fetch_cna():
@@ -32,13 +35,19 @@ def fetch_cna():
             name, value = n_v.split('=')
             if name == 'cna':
                 return quote_cna(value)
-    log.w('It seems that the client failed to fetch a cna cookie. Please load your own cookie if possible')
+    log.w(
+        'It seems that the client failed to fetch a cna cookie. '
+        'Please load your own cookie if possible'
+    )
     return quote_cna('DOG4EdW4qzsCAbZyXbU+t7Jt')
 
 
 class Youku(VideoExtractor):
-    name = "优酷 (Youku)"
-    mobile_ua = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.101 Safari/537.36'
+    name = '优酷 (Youku)'
+    mobile_ua = (
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 '
+        '(KHTML, like Gecko) Chrome/60.0.3112.101 Safari/537.36'
+    )
     dispatcher_url = 'vali.cp31.ott.cibntv.net'
 
     # Last updated: 2017-10-13
@@ -78,30 +87,36 @@ class Youku(VideoExtractor):
         self.api_error_code = None
         self.api_error_msg = None
 
-        self.ccode = '0507'
+        self.ccodes = ['0507', '0508', '0512', '0513', '0514']
         self.utid = None
 
     def youku_ups(self):
-        url = 'https://ups.youku.com/ups/get.json?vid={}&ccode={}'.format(self.vid, self.ccode)
-        url += '&client_ip=192.168.1.1'
-        url += '&utid=' + self.utid
-        url += '&client_ts=' + str(int(time.time()))
-        if self.password_protected:
-            url += '&password=' + self.password
-        headers = dict(Referer=self.referer)
-        headers['User-Agent'] = self.ua
-        api_meta = json.loads(get_content(url, headers=headers))
+        for ccode in self.ccodes:
+            url = 'https://ups.youku.com/ups/get.json?vid={}&ccode={}'.format(
+                self.vid, ccode
+            )
+            url += '&client_ip=192.168.1.1'
+            url += '&utid=' + self.utid
+            url += '&client_ts=' + str(int(time.time()))
+            if self.password_protected:
+                url += '&password=' + self.password
+            headers = dict(Referer=self.referer)
+            headers['User-Agent'] = self.ua
+            api_meta = json.loads(get_content(url, headers=headers))
+            self.api_data = api_meta['data']
 
-        self.api_data = api_meta['data']
-        data_error = self.api_data.get('error')
-        if data_error:
-            self.api_error_code = data_error.get('code')
-            self.api_error_msg = data_error.get('note')
-        if 'videos' in self.api_data:
-            if 'list' in self.api_data['videos']:
-                self.video_list = self.api_data['videos']['list']
-            if 'next' in self.api_data['videos']:
-                self.video_next = self.api_data['videos']['next']
+            data_error = self.api_data.get('error')
+            # {'error': {'note': '客户端无权播放,201', 'code': -6004}}
+            if data_error:
+                self.api_error_code = data_error.get('code')
+                self.api_error_msg = data_error.get('note')
+            else:
+                if 'videos' in self.api_data:
+                    if 'list' in self.api_data['videos']:
+                        self.video_list = self.api_data['videos']['list']
+                    if 'next' in self.api_data['videos']:
+                        self.video_next = self.api_data['videos']['next']
+                break
 
     @classmethod
     def change_cdn(cls, url):
@@ -121,10 +136,12 @@ class Youku(VideoExtractor):
     def get_vid_from_url(self):
         # It's unreliable. check #1633
         b64p = r'([a-zA-Z0-9=]+)'
-        p_list = [r'youku\.com/v_show/id_'+b64p,
-                  r'player\.youku\.com/player\.php/sid/'+b64p+r'/v\.swf',
-                  r'loader\.swf\?VideoIDS='+b64p,
-                  r'player\.youku\.com/embed/'+b64p]
+        p_list = [
+            r'youku\.com/v_show/id_'+b64p,
+            r'player\.youku\.com/player\.php/sid/'+b64p+r'/v\.swf',
+            r'loader\.swf\?VideoIDS='+b64p,
+            r'player\.youku\.com/embed/'+b64p
+        ]
         if not self.url:
             raise Exception('No url')
         for p in p_list:
@@ -153,9 +170,6 @@ class Youku(VideoExtractor):
                 if self.vid is None:
                     log.wtf('Cannot fetch vid')
 
-        if kwargs.get('src') and kwargs['src'] == 'tudou':
-            self.ccode = '0512'
-
         if kwargs.get('password') and kwargs['password']:
             self.password_protected = True
             self.password = kwargs['password']
@@ -175,7 +189,8 @@ class Youku(VideoExtractor):
         if self.api_data.get('stream') is None:
             if self.api_error_code == -2002:  # wrong password
                 self.password_protected = True
-                # it can be True already(from cli). offer another chance to retry
+                # it can be True already(from cli).
+                # offer another chance to retry
                 self.password = input(log.sprint('Password: ', log.YELLOW))
                 self.youku_ups()
 
@@ -192,14 +207,17 @@ class Youku(VideoExtractor):
         for stream in self.api_data['stream']:
             stream_id = stream['stream_type']
             is_preview = False
-            if stream_id in stream_types and stream['audio_lang'] == audio_lang:
+            if stream_id in stream_types \
+                    and stream['audio_lang'] == audio_lang:
                 if 'alias-of' in stream_types[stream_id]:
                     stream_id = stream_types[stream_id]['alias-of']
 
                 if stream_id not in self.streams:
                     self.streams[stream_id] = {
                         'container': stream_types[stream_id]['container'],
-                        'video_profile': stream_types[stream_id]['video_profile'],
+                        'video_profile': stream_types[stream_id][
+                            'video_profile'
+                        ],
                         'size': stream['size'],
                         'pieces': [{
                             'segs': stream['segs']
@@ -209,7 +227,9 @@ class Youku(VideoExtractor):
                     src = []
                     for seg in stream['segs']:
                         if seg.get('cdn_url'):
-                            src.append(self.__class__.change_cdn(seg['cdn_url']))
+                            src.append(
+                                self.__class__.change_cdn(seg['cdn_url'])
+                            )
                         else:
                             is_preview = True
                     self.streams[stream_id]['src'] = src
@@ -221,7 +241,9 @@ class Youku(VideoExtractor):
                     src = []
                     for seg in stream['segs']:
                         if seg.get('cdn_url'):
-                            src.append(self.__class__.change_cdn(seg['cdn_url']))
+                            src.append(
+                                self.__class__.change_cdn(seg['cdn_url'])
+                            )
                         else:
                             is_preview = True
                     self.streams[stream_id]['src'].extend(src)
@@ -234,7 +256,9 @@ class Youku(VideoExtractor):
             if al:
                 self.audiolang = al
                 for i in self.audiolang:
-                    i['url'] = 'http://v.youku.com/v_show/id_{}'.format(i['vid'])
+                    i['url'] = 'http://v.youku.com/v_show/id_{}'.format(
+                        i['vid']
+                    )
 
 
 def youku_download_playlist_by_url(url, **kwargs):
@@ -268,32 +292,52 @@ def youku_download_playlist_by_url(url, **kwargs):
         # official playlist
         page = get_content(url)
         show_id = re.search(r'showid:"(\d+)"', page).group(1)
-        ep = 'http://list.youku.com/show/module?id={}&tab=showInfo&callback=jQuery'.format(show_id)
+        ep = (
+            'http://list.youku.com/show/module?id={}&tab=showInfo&'
+            'callback=jQuery'.format(show_id)
+        )
         xhr_page = get_content(ep).replace('\/', '/').replace('\"', '"')
-        video_url = re.search(r'(v.youku.com/v_show/id_(?:[A-Za-z0-9=]+)\.html)', xhr_page).group(1)
+        video_url = re.search(
+            r'(v.youku.com/v_show/id_(?:[A-Za-z0-9=]+)\.html)',
+            xhr_page
+        ).group(1)
         youku_download_playlist_by_url('http://'+video_url, **kwargs)
         return
-    elif re.match('https?://list.youku.com/albumlist/show/id_(\d+)\.html', url):
+    elif re.match(
+        'https?://list.youku.com/albumlist/show/id_(\d+)\.html', url
+    ):
         # http://list.youku.com/albumlist/show/id_2336634.html
         # UGC playlist
-        list_id = re.search('https?://list.youku.com/albumlist/show/id_(\d+)\.html', url).group(1)
-        ep = 'http://list.youku.com/albumlist/items?id={}&page={}&size=20&ascending=1&callback=tuijsonp6'
+        list_id = re.search(
+            'https?://list.youku.com/albumlist/show/id_(\d+)\.html', url
+        ).group(1)
+        ep = (
+            'http://list.youku.com/albumlist/items?id={}&page={}&size=20&'
+            'ascending=1&callback=tuijsonp6'
+        )
 
         first_u = ep.format(list_id, 1)
         xhr_page = get_content(first_u)
         json_data = json.loads(re.search(js_cb_pt, xhr_page).group(1))
         video_cnt = json_data['data']['total']
         xhr_html = json_data['html']
-        v_urls = re.findall(r'(v.youku.com/v_show/id_(?:[A-Za-z0-9=]+)\.html)', xhr_html)
+        v_urls = re.findall(
+            r'(v.youku.com/v_show/id_(?:[A-Za-z0-9=]+)\.html)', xhr_html
+        )
 
         if video_cnt > 20:
             req_cnt = video_cnt // 20
             for i in range(2, req_cnt+2):
                 req_u = ep.format(list_id, i)
                 xhr_page = get_content(req_u)
-                json_data = json.loads(re.search(js_cb_pt, xhr_page).group(1).replace('\/', '/'))
+                json_data = json.loads(
+                    re.search(js_cb_pt, xhr_page).group(1).replace('\/', '/')
+                )
                 xhr_html = json_data['html']
-                page_videos = re.findall(r'(v.youku.com/v_show/id_(?:[A-Za-z0-9=]+)\.html)', xhr_html)
+                page_videos = re.findall(
+                    r'(v.youku.com/v_show/id_(?:[A-Za-z0-9=]+)\.html)',
+                    xhr_html
+                )
                 v_urls.extend(page_videos)
         for u in v_urls[0::2]:
             url = 'http://' + u
@@ -307,6 +351,7 @@ def youku_download_by_url(url, **kwargs):
 
 def youku_download_by_vid(vid, **kwargs):
     Youku().download_by_vid(vid, **kwargs)
+
 
 download = youku_download_by_url
 download_playlist = youku_download_playlist_by_url

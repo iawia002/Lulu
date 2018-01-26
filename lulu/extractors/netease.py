@@ -4,6 +4,7 @@ import os
 import json
 import codecs
 import base64
+from copy import copy
 
 from Crypto.Cipher import AES
 
@@ -30,7 +31,7 @@ __all__ = ['netease_download']
 site_info = '163.com'
 
 
-header = config.FAKE_HEADERS
+header = copy(config.FAKE_HEADERS)
 header.update({
     'Referer': 'http://music.163.com/',
     'Host': 'music.163.com',
