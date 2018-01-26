@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
 import unittest
-from urllib.error import URLError
 
 from tests.util import (
     skipOnCI,
     skipOnAppVeyor,
+    ignore_network_issue,
 )
 from lulu.extractors import (
     imgur,
@@ -44,6 +44,7 @@ class LuluTests(unittest.TestCase):
         )
 
     @skipOnAppVeyor
+    @ignore_network_issue
     def test_yixia(self):
         yixia.download(
             'http://m.miaopai.com/show/channel/vlvreCo4OZiNdk5Jn1WvdopmAvdIJwi8',  # noqa
@@ -68,18 +69,14 @@ class LuluTests(unittest.TestCase):
             info_only=True
         )
 
+    @ignore_network_issue
     def test_weibo(self):
-        try:
-            miaopai.download(
-                'https://m.weibo.cn/status/FEFq863WF', info_only=True
-            )
-            miaopai.download(
-                'https://m.weibo.cn/status/4199826726109820', info_only=True
-            )
-        except URLError:
-            return
-        except Exception:
-            raise
+        miaopai.download(
+            'https://m.weibo.cn/status/FEFq863WF', info_only=True
+        )
+        miaopai.download(
+            'https://m.weibo.cn/status/4199826726109820', info_only=True
+        )
 
     @skipOnCI
     def test_netease(self):
@@ -101,6 +98,7 @@ class LuluTests(unittest.TestCase):
             info_only=True
         )
 
+    @ignore_network_issue
     def test_qq(self):
         qq.download('https://v.qq.com/x/page/n0528cwq4xr.html', info_only=True)
         qq.download(

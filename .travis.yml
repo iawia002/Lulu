@@ -31,3 +31,7 @@ script: coverage run tests/runtests.py
 
 after_success:
   - codecov
+
+branches:
+  only:
+    - master
