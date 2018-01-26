@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
 import unittest
-from urllib.error import URLError
 
 from tests.util import (
     skipOnCI,
     skipOnAppVeyor,
+    skip_network_issue,
 )
 from lulu.extractors import (
     imgur,
@@ -68,18 +68,14 @@ class LuluTests(unittest.TestCase):
             info_only=True
         )
 
+    @skip_network_issue
     def test_weibo(self):
-        try:
-            miaopai.download(
-                'https://m.weibo.cn/status/FEFq863WF', info_only=True
-            )
-            miaopai.download(
-                'https://m.weibo.cn/status/4199826726109820', info_only=True
-            )
-        except URLError:
-            return
-        except Exception:
-            raise
+        miaopai.download(
+            'https://m.weibo.cn/status/FEFq863WF', info_only=True
+        )
+        miaopai.download(
+            'https://m.weibo.cn/status/4199826726109820', info_only=True
+        )
 
     @skipOnCI
     def test_netease(self):
