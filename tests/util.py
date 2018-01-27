@@ -18,7 +18,7 @@ def ignore_network_issue(func):
         try:
             func(*args, **kwargs)
         except URLError as err:
-            print('urllib error: {}'.format(err))
+            print('{}: urllib error: {}'.format(func.__name__, err))
             return
         except Exception:
             raise
