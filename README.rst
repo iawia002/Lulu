@@ -4,6 +4,9 @@ Lulu
 .. image:: https://travis-ci.org/iawia002/Lulu.svg?branch=master
     :target: https://travis-ci.org/iawia002/Lulu
 
+.. image:: https://ci.appveyor.com/api/projects/status/ph9ypng9g01mdr6d/branch/master?svg=true
+    :target: https://ci.appveyor.com/project/iawia002/lulu/branch/master
+
 `Lulu <https://github.com/iawia002/Lulu>`__ is a friendly you-get fork (⏬ Dumb downloader that scrapes the web)
 
 .. code:: console
