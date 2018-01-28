@@ -130,7 +130,10 @@ class Bilibili(VideoExtractor):
         self.referer = self.url
         self.page = get_content(self.url)
 
-        m = re.search(r'<h1.*?>(.*?)</h1>', self.page)
+        # <h1 title="【椭奇】想变得可爱 ❤所以请察觉到我啊>ω<">【椭奇】想变得可爱 ❤所以请察觉到我啊>ω<</h1>
+        # <h1 title 不要相信歌词，他们为了押韵什么都干得出来"">"不要相信歌词，他们为了押韵什么都干得出来"</h1>
+        # <h1 title="国漫六大女神，颜值丝毫不输日漫女主，你最喜欢哪一个？最后难道不是公认？">国漫六大女神，颜值丝毫不输日漫女主，你最喜欢哪一个？最后难道不是公认？</h1>  # noqa
+        m = re.search(r'<h1.*?">(.*?)</h1>', self.page)
         if m is not None:
             self.title = m.group(1)
         if self.title is None:

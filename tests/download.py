@@ -58,6 +58,9 @@ class LuluTests(unittest.TestCase):
         bilibili.download(
             'https://www.bilibili.com/video/av13228063/', info_only=True
         )
+        bilibili.download(
+            'https://www.bilibili.com/video/av18764071/', info_only=True
+        )
 
     def test_douyin(self):
         douyin.download(
