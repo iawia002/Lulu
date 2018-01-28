@@ -20,6 +20,7 @@ from lulu.extractors import (
     qq,
     acfun,
 )
+from lulu.common import any_download_playlist
 
 
 class LuluTests(unittest.TestCase):
@@ -52,6 +53,9 @@ class LuluTests(unittest.TestCase):
         )
 
     def test_bilibili(self):
+        any_download_playlist(
+            'https://www.bilibili.com/video/av16907446/', info_only=True
+        )
         bilibili.download(
             'https://www.bilibili.com/video/av16907446/', info_only=True
         )
