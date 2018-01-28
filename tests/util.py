@@ -17,9 +17,9 @@ skipOnTravis = unittest.skipIf('TRAVIS' in os.environ, NETWORK_ISSUE)
 
 
 class ErrorMessageFormatter(Formatter):
-    def __init__(self, namespace={}):
+    def __init__(self, **kwargs):
         super().__init__()
-        self.namespace = namespace
+        self.namespace = kwargs
 
     def get_value(self, key, args, kwargs):
         if isinstance(key, str):
@@ -34,9 +34,7 @@ class ErrorMessageFormatter(Formatter):
 def ignore_network_issue(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        error = ErrorMessageFormatter({
-            'func_name': func.__name__,
-        })
+        error = ErrorMessageFormatter(func_name=func.__name__)
         error_message = '{func_name}: {module_name} error: {err}'
         try:
             func(*args, **kwargs)
