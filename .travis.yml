@@ -24,7 +24,7 @@ before_script:
   - export CI=True
   - export TRAVIS=True
   - export PYTHONPATH=$PYTHONPATH:$(pwd)
-  - pipenv install --dev
+  - pipenv install
 
 # command to run tests
 script: coverage run tests/runtests.py

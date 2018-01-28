@@ -6,10 +6,11 @@ verify_ssl = true
 
 [dev-packages]
 
-coverage = "==4.4.2"
 twine = "*"
+ipdb = "*"
 
 
 [packages]
 
+coverage = "==4.4.2"
 cryptography = "==2.1.4"
