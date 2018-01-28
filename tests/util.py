@@ -45,6 +45,7 @@ def ignore_network_issue(func):
                 error_message, module_name='urllib', err=err
             ))
         except IncompleteRead as err:
+            # test_qq: httplib error: IncompleteRead(126198 bytes read, 62466 more expected)  # noqa
             print(error.format(
                 error_message, module_name='httplib', err=err
             ))
