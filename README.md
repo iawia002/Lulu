@@ -3,6 +3,7 @@
 [![PyPI](https://img.shields.io/pypi/v/lulu.svg)](https://pypi.python.org/pypi/lulu/)
 [![Build Status](https://travis-ci.org/iawia002/Lulu.svg?branch=master)](https://travis-ci.org/iawia002/Lulu)
 [![Build status](https://ci.appveyor.com/api/projects/status/ph9ypng9g01mdr6d/branch/master?svg=true)](https://ci.appveyor.com/project/iawia002/lulu/branch/master)
+[![codecov](https://codecov.io/gh/iawia002/Lulu/branch/master/graph/badge.svg)](https://codecov.io/gh/iawia002/Lulu)
 
 Lulu is a friendly [you-get](https://github.com/soimort/you-get) fork (⏬ Dumb downloader that scrapes the web).
 
