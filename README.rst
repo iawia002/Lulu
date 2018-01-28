@@ -24,3 +24,5 @@ Lulu
     100% (175.4/175.4MB) ├████████████████████████████████████████┤[1/1]    3 MB/s
 
     Downloading 【中文八级】俄罗斯人的名字超乎你的想象.cmt.xml ...
+
+Full documentation is on `GitHub <https://github.com/iawia002/Lulu/blob/master/README.md>`__
