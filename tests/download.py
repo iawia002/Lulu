@@ -56,6 +56,9 @@ class LuluTests(unittest.TestCase):
         any_download_playlist(
             'https://www.bilibili.com/video/av16907446/', info_only=True
         )
+        any_download_playlist(
+            'https://bangumi.bilibili.com/anime/5584', info_only=True
+        )
         bilibili.download(
             'https://www.bilibili.com/video/av16907446/', info_only=True
         )
