@@ -1,39 +1,41 @@
 #!/usr/bin/env python
 
-import urllib.request
-import urllib.parse
-import json
 import re
 
-from ..util import log
-from ..common import get_content, download_urls, print_info, playlist_not_supported, url_size
+from lulu.common import (
+    get_content,
+    playlist_not_supported,
+)
+from lulu.extractor import SimpleExtractor
+
 
 __all__ = ['kuaishou_download_by_url']
+site_info = 'kuaishou.com'
 
 
-def kuaishou_download_by_url(url, info_only=False, **kwargs):
-    page = get_content(url)
-    # size = video_list[-1]['size']
-    # result wrong size
-    try:
-        og_video_url = re.search(r"<meta\s+property=\"og:video:url\"\s+content=\"(.+?)\"/>", page).group(1)
-        video_url = og_video_url
-        title = url.split('/')[-1]
-        size = url_size(video_url)
-        video_format = video_url.split('.')[-1]
-        print_info(site_info, title, video_format, size)
-        if not info_only:
-            download_urls([video_url], title, video_format, size, **kwargs)
-    except:# extract image
-        og_image_url = re.search(r"<meta\s+property=\"og:image\"\s+content=\"(.+?)\"/>", page).group(1)
-        image_url = og_image_url
-        title = url.split('/')[-1]
-        size = url_size(image_url)
-        image_format = image_url.split('.')[-1]
-        print_info(site_info, title, image_format, size)
-        if not info_only:
-            download_urls([image_url], title, image_format, size, **kwargs)
+class Kuaishou(SimpleExtractor):
+    def extract(self, url, **kwargs):
+        self.site_info = site_info
+        page = get_content(url)
+        title = re.search(
+            r'<meta\s+property="og:title"\s+content="(.+?)"/>', page
+        ).group(1)
+        try:
+            url = re.search(
+                r'<meta\s+property="og:video:url"\s+content="(.+?)"/>', page
+            ).group(1)
+            file_format = url.split('.')[-1]
+        except Exception:  # extract image
+            url = re.search(
+                r'<meta\s+property="og:image"\s+content="(.+?)"/>', page
+            ).group(1)
+            file_format = url.split('.')[-1]
+        return {
+            'title': title,
+            'urls': [url],
+            'file_format': file_format,
+        }
 
-site_info = "kuaishou.com"
-download = kuaishou_download_by_url
-download_playlist = playlist_not_supported('kuaishou')
+
+download = kuaishou_download_by_url = Kuaishou()
+download_playlist = playlist_not_supported(site_info)
