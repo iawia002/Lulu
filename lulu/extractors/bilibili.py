@@ -418,7 +418,7 @@ def bilibili_download_playlist_by_url(url, **kwargs):
         base_url = url.split('#')[0]
         for ep_id in ep_ids:
             ep_url = '#'.join([base_url, ep_id])
-            Bilibili().download_by_url(ep_url, **kwargs)
+            site.download_by_url(ep_url, **kwargs)
     else:
         aid = re.search(r'av(\d+)', url).group(1)
         page_list = json.loads(get_content(
@@ -432,7 +432,7 @@ def bilibili_download_playlist_by_url(url, **kwargs):
                 )
             )
             subtitle = page_list[no-1]['pagename']
-            Bilibili().download_by_url(page_url, subtitle=subtitle, **kwargs)
+            site.download_by_url(page_url, subtitle=subtitle, **kwargs)
 
 
 site = Bilibili()
