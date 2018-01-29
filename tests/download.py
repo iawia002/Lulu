@@ -8,17 +8,18 @@ from tests.util import (
     ignore_network_issue,
 )
 from lulu.extractors import (
-    imgur,
-    magisto,
-    youtube,
-    yixia,
-    bilibili,
-    douyin,
-    miaopai,
-    netease,
-    youku,
     qq,
     acfun,
+    imgur,
+    yixia,
+    youku,
+    douyin,
+    magisto,
+    miaopai,
+    netease,
+    youtube,
+    bilibili,
+    kuaishou,
 )
 from lulu.common import any_download_playlist
 
@@ -127,6 +128,17 @@ class LuluTests(unittest.TestCase):
     def test_acfun(self):
         acfun.download('http://www.acfun.cn/v/ac4209715', info_only=True)
         acfun.download('http://www.acfun.cn/v/ac4210425', info_only=True)
+
+    @ignore_network_issue
+    def test_kuaishou(self):
+        kuaishou.download(
+            'https://www.kuaishou.com/photo/84224949/4007135407',
+            info_only=True
+        )
+        kuaishou.download(
+            'https://www.kuaishou.com/photo/84224949/4267454322',
+            info_only=True
+        )
 
 
 if __name__ == '__main__':
