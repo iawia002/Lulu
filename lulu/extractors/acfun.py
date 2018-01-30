@@ -6,13 +6,13 @@ import time
 import json
 import base64
 
+from lulu.util.parser import get_parser
 from lulu.extractors.qq import qq_download_by_vid
 from lulu.extractors.sina import sina_download_by_vid
 from lulu.extractors.le import letvcloud_download_by_vu
 from lulu.extractors.tudou import tudou_download_by_iid
 from lulu.extractors.youku import youku_download_by_vid
 from lulu.common import (
-    r1,
     rc4,
     match1,
     dry_run,
@@ -157,17 +157,14 @@ def acfun_download_by_vid(
 def acfun_download(url, output_dir='.', merge=True, info_only=False, **kwargs):
     assert re.match(r'http://[^\.]*\.*acfun\.[^\.]+/\D/\D\D(\d+)', url)
     html = get_content(url)
-
-    title = r1(r'data-title="([^"]+)"', html)
-    title = unescape_html(title)
-    title = escape_file_path(title)
-    assert title
+    parser = get_parser(html)
+    title = parser.find(id='pageInfo')['data-title']
     if match1(url, r'_(\d+)$'):  # current P
-        title = '{} {}'.format(title, r1(r'active">([^<]*)', html))
+        title = '{} {}'.format(title, match1(html, r'active">([^<]*)'))
 
-    vid = r1('data-vid="(\d+)"', html)
-    up = r1('data-name="([^"]+)"', html)
-    p_title = r1('active">([^<]+)', html)
+    vid = match1(html, 'data-vid="(\d+)"')
+    up = match1(html, 'data-name="([^"]+)"')
+    p_title = match1(html, 'active">([^<]+)')
     title = '{} ({})'.format(title, up)
     if p_title:
         title = '{} - {}'.format(title, p_title)

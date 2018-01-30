@@ -70,7 +70,7 @@ def rc4(key, data):
     return bytes(out_list)
 
 
-def general_m3u8_extractor(url, headers={}):
+def general_m3u8_extractor(url, headers=config.FAKE_HEADERS):
     m3u8_list = get_content(url, headers=headers).split('\n')
     urls = []
     for line in m3u8_list:
@@ -1417,7 +1417,7 @@ def script_main(download, download_playlist, **kwargs):
 def google_search(url):
     keywords = r1(r'https?://(.*)', url)
     url = 'https://www.google.com/search?tbm=vid&q=%s' % parse.quote(keywords)
-    page = get_content(url, headers=config.FAKE_HEADERS)
+    page = get_content(url)
     videos = re.findall(
         r'<a href="(https?://[^"]+)" onmousedown="[^"]+">([^<]+)<', page
     )

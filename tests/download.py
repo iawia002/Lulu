@@ -14,6 +14,7 @@ from lulu.extractors import (
     yixia,
     youku,
     douyin,
+    huaban,
     magisto,
     miaopai,
     netease,
@@ -140,6 +141,12 @@ class LuluTests(unittest.TestCase):
         )
         kuaishou.download(
             'https://www.kuaishou.com/photo/84224949/4267454322',
+            info_only=True
+        )
+
+    def test_huaban(self):
+        huaban.download(
+            'http://huaban.com/boards/16687763/',
             info_only=True
         )
 

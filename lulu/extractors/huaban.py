@@ -1,18 +1,22 @@
 #!/usr/bin/env python
 
-import json
-import os
 import re
-import math
-import traceback
+import os
+import json
 import urllib.parse as urlparse
 
-from ..common import *
+from lulu.common import (
+    match1,
+    url_size,
+    print_info,
+    get_content,
+    download_urls,
+    playlist_not_supported,
+)
+
 
 __all__ = ['huaban_download']
-
 site_info = '花瓣 (Huaban)'
-
 LIMIT = 100
 
 
@@ -40,7 +44,7 @@ def construct_url(url, **params):
 
 def extract_json_data(url, **params):
     url = construct_url(url, **params)
-    html = get_content(url, headers=fake_headers)
+    html = get_content(url)
     json_string = match1(html, r'app.page\["board"\] = (.*?});')
     json_data = json.loads(json_string)
     return json_data
@@ -54,8 +58,9 @@ def extract_board_data(url):
     pin_count -= len(pin_list)
 
     while pin_count > 0:
-        json_data = extract_json_data(url, max=pin_list[-1]['pin_id'],
-                                      limit=LIMIT)
+        json_data = extract_json_data(
+            url, max=pin_list[-1]['pin_id'], limit=LIMIT
+        )
         pins = json_data['pins']
         pin_list += pins
         pin_count -= len(pins)
@@ -64,13 +69,15 @@ def extract_board_data(url):
 
 
 def huaban_download_board(url, output_dir, **kwargs):
-    kwargs['merge'] = False
     board = extract_board_data(url)
     output_dir = os.path.join(output_dir, board.title)
-    print_info(site_info, board.title, 'jpg', float('Inf'))
-    for pin in board.pins:
-        download_urls([pin.url], pin.id, pin.ext, float('Inf'),
-                      output_dir=output_dir, faker=True, **kwargs)
+    print_info(site_info, board.title, 'jpg', 0)
+    if not kwargs['info_only']:
+        for pin in board.pins:
+            download_urls(
+                [pin.url], pin.id, pin.ext, url_size(pin.url),
+                output_dir=output_dir, faker=True, **kwargs
+            )
 
 
 def huaban_download(url, output_dir='.', **kwargs):
@@ -78,8 +85,8 @@ def huaban_download(url, output_dir='.', **kwargs):
         huaban_download_board(url, output_dir, **kwargs)
     else:
         print('Only board (画板) pages are supported currently')
-        print('ex: http://huaban.com/boards/12345678/')
+        print('For example: http://huaban.com/boards/16687763/')
 
 
 download = huaban_download
-download_playlist = playlist_not_supported("huaban")
+download_playlist = playlist_not_supported(site_info)
