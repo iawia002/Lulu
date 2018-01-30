@@ -74,6 +74,7 @@ class LuluTests(unittest.TestCase):
             'https://www.bilibili.com/bangumi/play/ep113875', info_only=True
         )
 
+    @ignore_network_issue
     def test_douyin(self):
         douyin.download(
             'https://www.douyin.com/share/video/6492273288897629454',
@@ -129,6 +130,7 @@ class LuluTests(unittest.TestCase):
             info_only=True
         )
 
+    @ignore_network_issue
     def test_acfun(self):
         acfun.download('http://www.acfun.cn/v/ac4209715', info_only=True)
         acfun.download('http://www.acfun.cn/v/ac4210425', info_only=True)
