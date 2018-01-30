@@ -33,16 +33,16 @@ def tumblr_download(
 
     html = parse.unquote(get_content(url)).replace('\/', '/')
     feed = match1(
-        r'<meta property="og:type" content="tumblr-feed:(\w+)" />', html
+        html, r'<meta property="og:type" content="tumblr-feed:(\w+)" />'
     )
 
     if feed in ['photo', 'photoset', 'entry'] or feed is None:
         # try to extract photos
         page_title = match1(
-            r'<meta name="description" content="([^"\n]+)', html
+            html, r'<meta name="description" content="([^"\n]+)'
         ) or match1(
-            r'<meta property="og:description" content="([^"\n]+)', html
-        ) or match1(r'<title>([^<\n]*)', html)
+            html, r'<meta property="og:description" content="([^"\n]+)'
+        ) or match1(html, r'<title>([^<\n]*)')
         urls = re.findall(
             r'(https?://[^;"&]+/tumblr_[^;"]+_\d+\.jpg)', html
         ) + re.findall(
@@ -53,8 +53,8 @@ def tumblr_download(
         for url in urls:
             filename = parse.unquote(url.split('/')[-1])
             title = '.'.join(filename.split('.')[:-1])
-            tumblr_id = match1(r'^tumblr_(.+)_\d+$', title)
-            quality = int(match1(r'^tumblr_.+_(\d+)$', title))
+            tumblr_id = match1(title, r'^tumblr_(.+)_\d+$')
+            quality = int(match1(title, r'^tumblr_.+_(\d+)$'))
             ext = filename.split('.')[-1]
             try:
                 size = url_size(url)
@@ -88,30 +88,30 @@ def tumblr_download(
 
     # feed == 'audio' or feed == 'video' or feed is None
     # try to extract video / audio
-    real_url = match1(r'source src=\\x22([^\\]+)\\', html)
+    real_url = match1(html, r'source src=\\x22([^\\]+)\\')
     if not real_url:
-        real_url = match1(r'audio_file=([^&]+)&', html)
+        real_url = match1(html, r'audio_file=([^&]+)&')
         if real_url:
             real_url = (
                 '{}?plead=please-dont-download-this-or-our-lawyers-wont-let-us'
                 '-host-audio'.format(real_url)
             )
     if not real_url:
-        real_url = match1(r'<source src="([^"]*)"', html)
+        real_url = match1(html, r'<source src="([^"]*)"')
     if not real_url:
         iframe_url = match1(
+            html,
             r'<[^>]+tumblr_video_container[^>]+><iframe[^>]+'
-            r'src=[\'"]([^\'"]*)[\'"]',
-            html
+            r'src=[\'"]([^\'"]*)[\'"]'
         )
         if iframe_url:
             iframe_html = get_content(iframe_url)
             real_url = match1(
-                r'<video[^>]*>[\n ]*<source[^>]+src=[\'"]([^\'"]*)[\'"]',
-                iframe_html
+                iframe_html,
+                r'<video[^>]*>[\n ]*<source[^>]+src=[\'"]([^\'"]*)[\'"]'
             )
         else:
-            iframe_url = match1(r'<iframe[^>]+src=[\'"]([^\'"]*)[\'"]', html)
+            iframe_url = match1(html, r'<iframe[^>]+src=[\'"]([^\'"]*)[\'"]')
             if iframe_url[:2] == '//':
                 iframe_url = 'http:' + iframe_url
             if re.search(r'player\.vimeo\.com', iframe_url):
@@ -134,16 +134,14 @@ def tumblr_download(
                 return
             else:
                 iframe_html = get_content(iframe_url)
-                real_url = match1(r'<source src="([^"]*)"', iframe_html)
+                real_url = match1(iframe_html, r'<source src="([^"]*)"')
 
     title = unescape(
         match1(
-            r'<meta property="og:title" content="([^"]*)" />', html
+            html, r'<meta property="og:title" content="([^"]*)" />'
         ) or match1(
-            r'<meta property="og:description" content="([^"]*)" />', html
-        ) or match1(
-            r'<title>([^<\n]*)', html
-        ) or url.split('/')[4]
+            html, r'<meta property="og:description" content="([^"]*)" />'
+        ) or match1(html, r'<title>([^<\n]*)') or url.split('/')[4]
     ).replace('\n', '')
 
     type, ext, size = url_info(real_url)
