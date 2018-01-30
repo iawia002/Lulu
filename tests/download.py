@@ -105,6 +105,7 @@ class LuluTests(unittest.TestCase):
             'http://music.163.com/#/song?id=490602750', info_only=True
         )
 
+    @ignore_network_issue
     def test_youku(self):
         youku.download(
             'http://v.youku.com/v_show/id_XMzMzMDk5MzcyNA==.html',
