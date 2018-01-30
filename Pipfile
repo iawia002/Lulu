@@ -14,3 +14,4 @@ ipdb = "*"
 
 coverage = "==4.4.2"
 cryptography = "==2.1.4"
+beautifulsoup4 = "==4.6.0"

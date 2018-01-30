@@ -11,6 +11,7 @@ import http.cookiejar
 from xml.dom.minidom import parseString
 
 from lulu.util import log
+from lulu.util.parser import get_parser
 from lulu.config import FAKE_HEADERS
 from lulu.extractor import VideoExtractor
 from lulu.extractors.qq import qq_download_by_vid
@@ -147,19 +148,8 @@ class Bilibili(VideoExtractor):
                 )
         self.referer = self.url
         self.page = get_content(self.url)
-
-        # <h1 title="【椭奇】想变得可爱 ❤所以请察觉到我啊>ω<">【椭奇】想变得可爱 ❤所以请察觉到我啊>ω<</h1>
-        # <h1 title 不要相信歌词，他们为了押韵什么都干得出来"">"不要相信歌词，他们为了押韵什么都干得出来"</h1>
-        # <h1 title="国漫六大女神，颜值丝毫不输日漫女主，你最喜欢哪一个？最后难道不是公认？">国漫六大女神，颜值丝毫不输日漫女主，你最喜欢哪一个？最后难道不是公认？</h1>  # noqa
-        m = re.search(r'<h1.*?">(.*?)</h1>', self.page)
-        if m is not None:
-            self.title = m.group(1)
-        if self.title is None:
-            m = re.search(
-                r'<meta property="og:title" content="([^"]+)">', self.page
-            )
-            if m is not None:
-                self.title = m.group(1)
+        self.parser = get_parser(self.page)
+        self.title = self.parser.h1.text.strip()
         if 'subtitle' in kwargs:
             subtitle = kwargs['subtitle']
             self.title = '{} {}'.format(self.title, subtitle)
@@ -315,11 +305,15 @@ class Bilibili(VideoExtractor):
         )
         ep_info = json.loads(cont)['result']['currentEpisode']
 
-        index_title = ep_info['indexTitle']
-        long_title = ep_info['longTitle'].strip()
+        index_title = ep_info['indexTitle']  # 集数
+        long_title = ep_info['longTitle'].strip()  # 本集标题
         cid = ep_info['danmaku']
-
-        self.title = '{} {} {}'.format(self.title, index_title, long_title)
+        if long_title:
+            long_title = ' {}'.format(long_title)
+        # 如果有标题的话，在标题前面加一个空格
+        # name 1 title
+        # name 1
+        self.title = '{} {}{}'.format(self.title, index_title, long_title)
         self.download_by_vid(cid, bangumi=True, **kwargs)
 
 

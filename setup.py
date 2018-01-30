@@ -20,6 +20,7 @@ AUTHOR = 'iawia002'
 # What packages are required for this module to be executed?
 REQUIRED = [
     'cryptography==2.1.4',
+    'beautifulsoup4==4.6.0',
 ]
 
 here = os.path.abspath(os.path.dirname(__file__))
