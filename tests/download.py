@@ -21,6 +21,7 @@ from lulu.extractors import (
     youtube,
     bilibili,
     kuaishou,
+    instagram,
 )
 from lulu.common import any_download_playlist
 
@@ -146,9 +147,27 @@ class LuluTests(unittest.TestCase):
             info_only=True
         )
 
+    @ignore_network_issue
     def test_huaban(self):
         huaban.download(
             'http://huaban.com/boards/16687763/',
+            info_only=True
+        )
+
+    def test_instagram(self):
+        # Single picture
+        instagram.download(
+            'https://www.instagram.com/p/Bei7whzgfMq',
+            info_only=True
+        )
+        # Album
+        instagram.download(
+            'https://www.instagram.com/p/BdZ7sPTgchP/',
+            info_only=True
+        )
+        # Video
+        instagram.download(
+            'https://www.instagram.com/p/BYQ0PMWlAQY/',
             info_only=True
         )
 
