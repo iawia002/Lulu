@@ -1,28 +1,44 @@
 #!/usr/bin/env python
 
-__all__ = ['vine_download']
-
-from ..common import *
 import json
+
+from lulu.common import (
+    match1,
+    url_info,
+    print_info,
+    get_content,
+    download_urls,
+    playlist_not_supported,
+)
+
+
+__all__ = ['vine_download']
+site_info = 'Vine.co'
 
 
 def vine_download(url, output_dir='.', merge=True, info_only=False, **kwargs):
     html = get_content(url)
-
-    video_id = r1(r'vine.co/v/([^/]+)', url)
-    title = r1(r'<title>([^<]*)</title>', html)
-    stream = r1(r'<meta property="twitter:player:stream" content="([^"]*)">', html)
+    video_id = match1(url, r'vine.co/v/([^/]+)')
+    title = match1(html, r'<title>([^<]*)</title>')
+    stream = match1(
+        html,
+        r'<meta property="twitter:player:stream" content="([^"]*)">'
+    )
     if not stream:  # https://vine.co/v/.../card
-        stream = r1(r'"videoUrl":"([^"]+)"', html)
+        stream = match1(html, r'"videoUrl":"([^"]+)"')
         if stream:
             stream = stream.replace('\\/', '/')
         else:
-            posts_url = 'https://archive.vine.co/posts/' + video_id + '.json'
+            posts_url = 'https://archive.vine.co/posts/{}.json'.format(
+                video_id
+            )
             json_data = json.loads(get_content(posts_url))
             stream = json_data['videoDashUrl']
             title = json_data['description']
-            if title == "":
-                title = json_data['username'].replace(" ", "_") + "_" + video_id
+            if title == '':
+                title = '{}_{}'.format(
+                    json_data['username'].replace(' ', '_'), video_id
+                )
 
     mime, ext, size = url_info(stream)
 
@@ -31,6 +47,5 @@ def vine_download(url, output_dir='.', merge=True, info_only=False, **kwargs):
         download_urls([stream], title, ext, size, output_dir, merge=merge)
 
 
-site_info = "Vine.co"
 download = vine_download
-download_playlist = playlist_not_supported('vine')
+download_playlist = playlist_not_supported(site_info)
