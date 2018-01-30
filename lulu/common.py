@@ -290,7 +290,7 @@ def urlopen_with_retry(*args, **kwargs):
                 raise http_error
 
 
-def get_content(url, headers={}, decoded=True):
+def get_content(url, headers=config.FAKE_HEADERS, decoded=True):
     """Gets the content of a URL via sending a HTTP GET request.
 
     Args:
