@@ -399,6 +399,9 @@ def parse_cid_playurl(xml):
         return [], 0
 
 
+site = Bilibili()
+
+
 def bilibili_download_playlist_by_url(url, **kwargs):
     url = url_locations([url])[0]
     # a bangumi here? possible?
@@ -412,25 +415,23 @@ def bilibili_download_playlist_by_url(url, **kwargs):
         base_url = url.split('#')[0]
         for ep_id in ep_ids:
             ep_url = '#'.join([base_url, ep_id])
-            site.download_by_url(ep_url, **kwargs)
+            Bilibili().download_by_url(ep_url, **kwargs)
     else:
         aid = re.search(r'av(\d+)', url).group(1)
         page_list = json.loads(get_content(
-            'http://www.bilibili.com/widget/getPageList?aid={}'.format(aid)
+            'https://www.bilibili.com/widget/getPageList?aid={}'.format(aid)
         ))
         page_cnt = len(page_list)
         for no in range(1, page_cnt+1):
             page_url = (
-                'http://www.bilibili.com/video/av{}/index_{}.html'.format(
+                'https://www.bilibili.com/video/av{}/index_{}.html'.format(
                     aid, no
                 )
             )
             subtitle = page_list[no-1]['pagename']
-            site.download_by_url(page_url, subtitle=subtitle, **kwargs)
+            # 循环里面不能用同一个实例，self.streams 不会改变的，它里面始终存的是第一个地址的最高清晰度的 url，parse_bili_xml L109  # noqa
+            Bilibili().download_by_url(page_url, subtitle=subtitle, **kwargs)
 
 
-site = Bilibili()
-download = site.download_by_url
+download = bilibili_download = site.download_by_url
 download_playlist = bilibili_download_playlist_by_url
-
-bilibili_download = download
