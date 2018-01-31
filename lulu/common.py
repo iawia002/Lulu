@@ -20,7 +20,6 @@ from urllib import (
 from lulu import config
 from lulu.util import log, term
 from lulu.version import __version__
-from lulu.util.git import get_version
 from lulu import json_output as json_output_
 from lulu.util.strings import (
     get_filename,
@@ -1176,9 +1175,7 @@ def script_main(download, download_playlist, **kwargs):
     logging.basicConfig(format='[%(levelname)s] %(message)s')
 
     def print_version():
-        version = get_version(
-            kwargs['repo_path'] if 'repo_path' in kwargs else __version__
-        )
+        version = __version__
         log.i(
             'version {}, a tiny downloader that scrapes the web.'.format(
                 version

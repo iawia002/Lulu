@@ -11,7 +11,7 @@ sys.path.insert(1, os.path.join(_filepath, _srcdir))
 if sys.version_info[0] == 3:
     import lulu
     if __name__ == '__main__':
-        lulu.main(repo_path=_filepath)
+        lulu.main()
 else:  # Python 2
     from lulu.util import log
     log.e('[fatal] Python 3 is required!')
