@@ -16,8 +16,9 @@ def test_download(func):
     '''
     fab test_download:acfun
     '''
-    cmd = 'PYTHONPATH=./ python tests/download.py LuluTests.test_{}'.format(
-        func
+    cmd = (
+        'PYTHONPATH=./ python tests/test_extractors.py '
+        'TestExtractors.test_{}'.format(func)
     )
     local(cmd)
 

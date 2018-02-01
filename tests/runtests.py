@@ -5,7 +5,9 @@ import unittest
 
 
 TEST_MODULES = [
-    'tests.download',
+    'tests.test_util',
+    'tests.test_common',
+    'tests.test_extractors',
 ]
 
 
