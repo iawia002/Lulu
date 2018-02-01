@@ -26,7 +26,7 @@ from lulu.extractors import (
 from lulu.common import any_download_playlist
 
 
-class LuluTests(unittest.TestCase):
+class TestExtractors(unittest.TestCase):
     def test_imgur(self):
         imgur.download('http://imgur.com/WVLk5nD', info_only=True)
         imgur.download('http://imgur.com/gallery/WVLk5nD', info_only=True)

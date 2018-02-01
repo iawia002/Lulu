@@ -2,6 +2,7 @@
 
 import platform
 
+
 def legitimize(text, os=platform.system()):
     """Converts a string to a valid filename.
     """
@@ -41,5 +42,5 @@ def legitimize(text, os=platform.system()):
         if text.startswith("."):
             text = text[1:]
 
-    text = text[:80] # Trim to 82 Unicode characters long
+    text = text[:80]  # Trim to 82 Unicode characters long
     return text
