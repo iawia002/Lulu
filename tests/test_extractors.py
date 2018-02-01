@@ -47,6 +47,9 @@ class TestExtractors(unittest.TestCase):
             'v%3DldAKIzq7bvs%26feature%3Dshare',
             info_only=True
         )
+        youtube.download(
+            'https://www.youtube.com/watch?v=Gnbch2osEeo', info_only=True
+        )
 
     @skipOnAppVeyor
     @ignore_network_issue
