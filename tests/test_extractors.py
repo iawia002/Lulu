@@ -43,7 +43,8 @@ class TestExtractors(unittest.TestCase):
         )
         youtube.download('http://youtu.be/pzKerr0JIPA', info_only=True)
         youtube.download(
-            'http://www.youtube.com/attribution_link?u=/watch?v%3DldAKIzq7bvs%26feature%3Dshare',  # noqa
+            'http://www.youtube.com/attribution_link?u=/watch?'
+            'v%3DldAKIzq7bvs%26feature%3Dshare',
             info_only=True
         )
 
@@ -51,7 +52,8 @@ class TestExtractors(unittest.TestCase):
     @ignore_network_issue
     def test_yixia(self):
         yixia.download(
-            'http://m.miaopai.com/show/channel/vlvreCo4OZiNdk5Jn1WvdopmAvdIJwi8',  # noqa
+            'http://m.miaopai.com/show/channel/'
+            'vlvreCo4OZiNdk5Jn1WvdopmAvdIJwi8',
             info_only=True
         )
 
