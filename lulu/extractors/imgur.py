@@ -1,13 +1,19 @@
 #!/usr/bin/env python
 
+import re
 import json
 
-from ..common import *
-from ..extractor import VideoExtractor
-from .universal import *
+from lulu.common import (
+    match1,
+    url_info,
+    urls_size,
+    get_content,
+)
+from lulu.extractor import VideoExtractor
+
 
 class Imgur(VideoExtractor):
-    name = "Imgur"
+    name = 'Imgur'
 
     stream_types = [
         {'id': 'original'},
@@ -19,21 +25,27 @@ class Imgur(VideoExtractor):
             # album
             content = get_content(self.url)
             album = match1(content, r'album\s*:\s*({.*}),') or \
-                    match1(content, r'image\s*:\s*({.*}),')
+                match1(content, r'image\s*:\s*({.*}),')
             album = json.loads(album)
-            count = album['album_images']['count']
+            # count = album['album_images']['count']
             images = album['album_images']['images']
             ext = images[0]['ext']
             self.streams = {
                 'original': {
-                    'src': ['http://i.imgur.com/%s%s' % (i['hash'], ext)
-                            for i in images],
+                    'src': [
+                        'http://i.imgur.com/{}{}'.format(
+                            i['hash'], ext
+                        ) for i in images
+                    ],
                     'size': sum([i['size'] for i in images]),
                     'container': ext[1:]
                 },
                 'thumbnail': {
-                    'src': ['http://i.imgur.com/%ss%s' % (i['hash'], '.jpg')
-                            for i in images],
+                    'src': [
+                        'http://i.imgur.com/{}s{}'.format(
+                            i['hash'], '.jpg'
+                        ) for i in images
+                    ],
                     'container': 'jpg'
                 }
             }
@@ -49,7 +61,7 @@ class Imgur(VideoExtractor):
                     'container': container
                 }
             }
-            self.title = r1(r'i\.imgur\.com/([^./]*)', self.url)
+            self.title = match1(self.url, r'i\.imgur\.com/([^./]*)')
 
         else:
             # gallery image
@@ -58,12 +70,18 @@ class Imgur(VideoExtractor):
             ext = image['ext']
             self.streams = {
                 'original': {
-                    'src': ['http://i.imgur.com/%s%s' % (image['hash'], ext)],
+                    'src': [
+                        'http://i.imgur.com/{}{}'.format(image['hash'], ext)
+                    ],
                     'size': image['size'],
                     'container': ext[1:]
                 },
                 'thumbnail': {
-                    'src': ['http://i.imgur.com/%ss%s' % (image['hash'], '.jpg')],
+                    'src': [
+                        'http://i.imgur.com/{}s{}'.format(
+                            image['hash'], '.jpg'
+                        )
+                    ],
                     'container': 'jpg'
                 }
             }
@@ -74,6 +92,7 @@ class Imgur(VideoExtractor):
             i = kwargs['stream_id']
             if 'size' not in self.streams[i]:
                 self.streams[i]['size'] = urls_size(self.streams[i]['src'])
+
 
 site = Imgur()
 download = site.download_by_url
