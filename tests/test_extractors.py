@@ -12,6 +12,7 @@ from lulu.extractors import (
     vine,
     # acfun,
     imgur,
+    iqiyi,
     yixia,
     youku,
     douyin,
@@ -210,6 +211,15 @@ class TestExtractors(unittest.TestCase):
 
     def test_vine(self):
         vine.download('https://vine.co/v/hVVap7prKjY', info_only=True)
+
+    @ignore_network_issue
+    def test_iqiyi(self):
+        iqiyi.download(
+            'http://www.iqiyi.com/v_19rrfl3cy4.html', info_only=True
+        )
+        iqiyi.download(
+            'http://www.iqiyi.com/v_19rrfdpf2k.html', info_only=True
+        )
 
 
 if __name__ == '__main__':
