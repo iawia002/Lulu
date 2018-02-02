@@ -6,7 +6,6 @@ from lulu.extractors import iqiyi
 from lulu.extractors import bokecc
 from lulu.extractors.netease import netease_download
 from lulu.extractors.bilibili import bilibili_download
-from lulu.extractors.tudou import tudou_download_by_id
 from lulu.extractors.vimeo import vimeo_download_by_id
 from lulu.extractors.iqiyi import iqiyi_download_by_vid
 from lulu.extractors.youku import youku_download_by_vid
@@ -81,14 +80,6 @@ def embed_download(url, output_dir='.', merge=True, info_only=False, **kwargs):
     for vid in set(vids):
         found = True
         youku_download_by_vid(
-            vid, title=title, output_dir=output_dir, merge=merge,
-            info_only=info_only
-        )
-
-    vids = matchall(content, tudou_embed_patterns)
-    for vid in set(vids):
-        found = True
-        tudou_download_by_id(
             vid, title=title, output_dir=output_dir, merge=merge,
             info_only=info_only
         )

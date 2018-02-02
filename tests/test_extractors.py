@@ -11,6 +11,7 @@ from lulu.extractors import (
     qq,
     vine,
     # acfun,
+    tudou,
     imgur,
     iqiyi,
     yixia,
@@ -219,6 +220,21 @@ class TestExtractors(unittest.TestCase):
         )
         iqiyi.download(
             'http://www.iqiyi.com/v_19rrfdpf2k.html', info_only=True
+        )
+
+    @ignore_network_issue
+    def test_tudou(self):
+        tudou.download(
+            'http://new-play.tudou.com/v/824775617.html',
+            info_only=True,
+        )
+        tudou.download(
+            'https://video.tudou.com/v/XMzM2MTA4NTA3Mg==.html',
+            info_only=True,
+        )
+        tudou.download(
+            'http://video.tudou.com/v/XMzM1NTQxMzIyNA==',
+            info_only=True,
         )
 
 
