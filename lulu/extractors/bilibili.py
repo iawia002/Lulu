@@ -16,7 +16,6 @@ from lulu.config import FAKE_HEADERS
 from lulu.extractor import VideoExtractor
 from lulu.extractors.qq import qq_download_by_vid
 from lulu.extractors.sina import sina_download_by_vid
-from lulu.extractors.tudou import tudou_download_by_id
 from lulu.extractors.youku import youku_download_by_vid
 from lulu.common import (
     r1,
@@ -223,11 +222,6 @@ class Bilibili(VideoExtractor):
                 )
             elif t == 'ykid':
                 youku_download_by_vid(
-                    cid, self.title, output_dir=kwargs['output_dir'],
-                    merge=kwargs['merge'], info_only=kwargs['info_only']
-                )
-            elif t == 'uid':
-                tudou_download_by_id(
                     cid, self.title, output_dir=kwargs['output_dir'],
                     merge=kwargs['merge'], info_only=kwargs['info_only']
                 )

@@ -10,7 +10,6 @@ from lulu.util.parser import get_parser
 from lulu.extractors.qq import qq_download_by_vid
 from lulu.extractors.sina import sina_download_by_vid
 from lulu.extractors.le import letvcloud_download_by_vu
-from lulu.extractors.tudou import tudou_download_by_iid
 from lulu.extractors.youku import youku_download_by_vid
 from lulu.common import (
     rc4,
@@ -92,11 +91,6 @@ def acfun_download_by_vid(
         youku_download_by_vid(
             sourceId, title=title, output_dir=output_dir, merge=merge,
             info_only=info_only, **kwargs
-        )
-    elif sourceType == 'tudou':
-        tudou_download_by_iid(
-            sourceId, title, output_dir=output_dir, merge=merge,
-            info_only=info_only
         )
     elif sourceType == 'qq':
         qq_download_by_vid(

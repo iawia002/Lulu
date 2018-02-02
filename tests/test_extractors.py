@@ -9,8 +9,11 @@ from tests.util import (
 )
 from lulu.extractors import (
     qq,
+    vine,
     # acfun,
+    tudou,
     imgur,
+    iqiyi,
     yixia,
     youku,
     douyin,
@@ -23,6 +26,7 @@ from lulu.extractors import (
     bilibili,
     kuaishou,
     instagram,
+    yinyuetai,
 )
 from lulu.common import any_download_playlist
 
@@ -58,6 +62,11 @@ class TestExtractors(unittest.TestCase):
         yixia.download(
             'http://m.miaopai.com/show/channel/'
             'vlvreCo4OZiNdk5Jn1WvdopmAvdIJwi8',
+            info_only=True
+        )
+        yixia.download(
+            'https://www.miaopai.com/show/'
+            '0lZvjbpWeWkKxi2OyrgHIOc8S7cihgbwadeF5g__.htm',
             info_only=True
         )
 
@@ -187,6 +196,45 @@ class TestExtractors(unittest.TestCase):
         ixigua.download_playlist(
             'https://www.ixigua.com/c/user/71141690831/',
             info_only=True
+        )
+
+    @ignore_network_issue
+    def test_yinyuetai(self):
+        yinyuetai.download(
+            'http://v.yinyuetai.com/video/3148502', info_only=True
+        )
+        yinyuetai.download(
+            'http://v.yinyuetai.com/video/3145394', info_only=True
+        )
+        yinyuetai.download_playlist(
+            'http://v.yinyuetai.com/playlist/397007', info_only=True
+        )
+
+    def test_vine(self):
+        vine.download('https://vine.co/v/hVVap7prKjY', info_only=True)
+
+    @skipOnCI
+    def test_iqiyi(self):
+        iqiyi.download(
+            'http://www.iqiyi.com/v_19rrfl3cy4.html', info_only=True
+        )
+        iqiyi.download(
+            'http://www.iqiyi.com/v_19rrfdpf2k.html', info_only=True
+        )
+
+    @ignore_network_issue
+    def test_tudou(self):
+        tudou.download(
+            'http://new-play.tudou.com/v/824775617.html',
+            info_only=True,
+        )
+        tudou.download(
+            'https://video.tudou.com/v/XMzM2MTA4NTA3Mg==.html',
+            info_only=True,
+        )
+        tudou.download(
+            'http://video.tudou.com/v/XMzM1NTQxMzIyNA==',
+            info_only=True,
         )
 
 
