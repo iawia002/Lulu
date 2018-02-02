@@ -63,6 +63,10 @@ def ixigua_download(url, output_dir='.', info_only=False, **kwargs):
     """Download a single video
     Sample URL: https://www.ixigua.com/a6487187567887254029/#mid=59051127876
     """
+    if 'toutiao.com/group' in url:
+        url = 'https://www.ixigua.com/a{}'.format(
+            match1(url, r'.*?toutiao.com/group/(\d+)')
+        )
     try:
         video_info_url, title = get_s(get_content(url))
         video_info = json.loads(get_content(video_info_url))
