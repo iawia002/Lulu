@@ -59,9 +59,6 @@ docs/_build/
 target/
 
 # Misc
-_*
-*_
-!__*.py
 *.3gp
 *.asf
 *.download
