@@ -89,6 +89,9 @@ class TestExtractors(unittest.TestCase):
         bilibili.download(
             'https://www.bilibili.com/bangumi/play/ep113875', info_only=True
         )
+        bilibili.download(
+            'https://www.bilibili.com/bangumi/play/ep191521', info_only=True
+        )
 
     @ignore_network_issue
     def test_douyin(self):

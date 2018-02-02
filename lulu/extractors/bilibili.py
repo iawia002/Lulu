@@ -104,6 +104,8 @@ class Bilibili(VideoExtractor):
             total_size += int(size.firstChild.nodeValue)
             url = durl.getElementsByTagName('url')[0]
             urls_list.append(url.firstChild.nodeValue)
+        if not urls_list:
+            return
         stream_type, container = self.bilibili_stream_type(urls_list)
         if stream_type not in self.streams:
             self.streams[stream_type] = {}
