@@ -213,7 +213,7 @@ class TestExtractors(unittest.TestCase):
     def test_vine(self):
         vine.download('https://vine.co/v/hVVap7prKjY', info_only=True)
 
-    @ignore_network_issue
+    @skipOnCI
     def test_iqiyi(self):
         iqiyi.download(
             'http://www.iqiyi.com/v_19rrfl3cy4.html', info_only=True
