@@ -15,6 +15,7 @@ from lulu.extractors import (
     youku,
     douyin,
     huaban,
+    ixigua,
     magisto,
     miaopai,
     netease,
@@ -174,6 +175,17 @@ class TestExtractors(unittest.TestCase):
         # Video
         instagram.download(
             'https://www.instagram.com/p/BYQ0PMWlAQY/',
+            info_only=True
+        )
+
+    @ignore_network_issue
+    def test_ixigua(self):
+        ixigua.download(
+            'https://www.ixigua.com/a6487187567887254029',
+            info_only=True
+        )
+        ixigua.download_playlist(
+            'https://www.ixigua.com/c/user/71141690831/',
             info_only=True
         )
 
