@@ -322,7 +322,6 @@ Use `--url`/`-u` to get a list of downloadable resource URLs extracted from the 
 | 乐视网   | <http://www.le.com/>           |✓| | |
 | 荔枝FM   | <http://www.lizhi.fm/>         | | |✓|
 | 秒拍     | <http://www.miaopai.com/>      |✓| | |
-| MioMio弹幕网 | <http://www.miomio.tv/>    |✓| | |
 | 痞客邦   | <https://www.pixnet.net/>      |✓| | |
 | PPTV聚力 | <http://www.pptv.com/>         |✓| | |
 | 齐鲁网   | <http://v.iqilu.com/>          |✓| | |
