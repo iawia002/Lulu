@@ -23,6 +23,7 @@ from lulu.extractors import (
     bilibili,
     kuaishou,
     instagram,
+    yinyuetai,
 )
 from lulu.common import any_download_playlist
 
@@ -192,6 +193,18 @@ class TestExtractors(unittest.TestCase):
         ixigua.download_playlist(
             'https://www.ixigua.com/c/user/71141690831/',
             info_only=True
+        )
+
+    @ignore_network_issue
+    def test_yinyuetai(self):
+        yinyuetai.download(
+            'http://v.yinyuetai.com/video/3148502', info_only=True
+        )
+        yinyuetai.download(
+            'http://v.yinyuetai.com/video/3145394', info_only=True
+        )
+        yinyuetai.download_playlist(
+            'http://v.yinyuetai.com/playlist/397007', info_only=True
         )
 
 
