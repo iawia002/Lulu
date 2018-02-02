@@ -9,6 +9,7 @@ from tests.util import (
 )
 from lulu.extractors import (
     qq,
+    vine,
     # acfun,
     imgur,
     yixia,
@@ -206,6 +207,9 @@ class TestExtractors(unittest.TestCase):
         yinyuetai.download_playlist(
             'http://v.yinyuetai.com/playlist/397007', info_only=True
         )
+
+    def test_vine(self):
+        vine.download('https://vine.co/v/hVVap7prKjY', info_only=True)
 
 
 if __name__ == '__main__':
