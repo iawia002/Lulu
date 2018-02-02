@@ -48,7 +48,7 @@ def get_moment(url, user_id, base_url, video_list):
     video_list_data = json.loads(get_content(url))
     if not video_list_data['next']['max_behot_time']:
         return video_list
-    [video_list.append(i["display_url"]) for i in video_list_data["data"]]
+    [video_list.append(i['display_url']) for i in video_list_data['data']]
     max_behot_time = video_list_data['next']['max_behot_time']
     _param = {
         'user_id': user_id,
