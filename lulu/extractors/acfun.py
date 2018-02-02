@@ -20,9 +20,7 @@ from lulu.common import (
     print_info,
     get_content,
     get_filename,
-    unescape_html,
     download_urls,
-    escape_file_path,
     playlist_not_supported,
 )
 
@@ -63,7 +61,7 @@ def youku_acfun_proxy(vid, sign, ref):
 def acfun_download_by_vid(
     vid, title, output_dir='.', merge=True, info_only=False, **kwargs
 ):
-    """str, str, str, bool, bool ->None
+    """str, str, str, bool, bool -> None
 
     Download Acfun video by vid.
 
