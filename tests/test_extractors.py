@@ -16,6 +16,7 @@ from lulu.extractors import (
     iqiyi,
     yixia,
     youku,
+    douban,
     douyin,
     huaban,
     ixigua,
@@ -190,6 +191,7 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    @skipOnCI
     @ignore_network_issue
     def test_ixigua(self):
         ixigua.download(
@@ -238,6 +240,15 @@ class TestExtractors(unittest.TestCase):
         tudou.download(
             'http://video.tudou.com/v/XMzM1NTQxMzIyNA==',
             info_only=True,
+        )
+
+    @ignore_network_issue
+    def test_douban(self):
+        douban.download(
+            'https://movie.douban.com/trailer/226557/#content', info_only=True
+        )
+        douban.download_playlist(
+            'https://movie.douban.com/trailer/226557/#content', info_only=True
         )
 
 

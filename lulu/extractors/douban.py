@@ -1,65 +1,57 @@
 #!/usr/bin/env python
 
+import re
+import os
+from pathlib import Path
+
+from lulu.common import (
+    match1,
+    url_info,
+    print_info,
+    get_content,
+    download_urls,
+)
+from lulu.util.parser import get_parser
+
+
 __all__ = ['douban_download']
+site_info = '豆瓣 douban.com'
 
-import urllib.request, urllib.parse
-from ..common import *
 
-def douban_download(url, output_dir = '.', merge = True, info_only = False, **kwargs):
-    html = get_html(url)
+def douban_download(
+    url, output_dir='.', merge=True, info_only=False, **kwargs
+):
+    html = get_content(url)
+    parser = get_parser(html)
 
     if re.match(r'https?://movie', url):
-        title = match1(html, 'name="description" content="([^"]+)')
+        title = ' '.join(
+            [string.strip() for string in parser.h1.strings]
+        )
         tid = match1(url, 'trailer/(\d+)')
-        real_url = 'https://movie.douban.com/trailer/video_url?tid=%s' % tid
-        type, ext, size = url_info(real_url)
+        real_url = 'https://movie.douban.com/trailer/video_url?tid={}'.format(
+            tid
+        )
+        _type, ext, size = url_info(real_url)
 
-        print_info(site_info, title, type, size)
+        print_info(site_info, title, _type, size)
         if not info_only:
-            download_urls([real_url], title, ext, size, output_dir, merge = merge)
+            download_urls(
+                [real_url], title, ext, size, output_dir, merge=merge
+            )
 
-    elif 'subject' in url:
-        titles = re.findall(r'data-title="([^"]*)">', html)
-        song_id = re.findall(r'<li class="song-item" id="([^"]*)"', html)
-        song_ssid = re.findall(r'data-ssid="([^"]*)"', html)
-        get_song_url = 'http://music.douban.com/j/songlist/get_song_url'
 
-        for i in range(len(titles)):
-            title = titles[i]
-            datas = {
-                'sid': song_id[i],
-                'ssid': song_ssid[i]
-            }
-            post_params = urllib.parse.urlencode(datas).encode('utf-8')
-            try:
-                resp = urllib.request.urlopen(get_song_url, post_params)
-                resp_data = json.loads(resp.read().decode('utf-8'))
-                real_url = resp_data['r']
-                type, ext, size = url_info(real_url)
-                print_info(site_info, title, type, size)
-            except:
-                pass
+def douban_download_playlist(url, output_dir='.', **kwargs):
+    html = get_content(url)
+    parser = get_parser(html)
+    video_dir = Path(output_dir) / parser.h1.a.text
+    if not kwargs['info_only']:
+        if not video_dir.exists():
+            os.mkdir(video_dir)
+    urls = parser.find_all('a', class_='pr-video')
+    for url in urls:
+        douban_download(url['href'], output_dir=video_dir, **kwargs)
 
-            if not info_only:
-                try:
-                    download_urls([real_url], title, ext, size, output_dir, merge = merge)
-                except:
-                    pass
 
-    else:
-        titles = re.findall(r'"name":"([^"]*)"', html)
-        real_urls = [re.sub('\\\\/', '/', i) for i in re.findall(r'"rawUrl":"([^"]*)"', html)]
-
-        for i in range(len(titles)):
-            title = titles[i]
-            real_url = real_urls[i]
-
-            type, ext, size = url_info(real_url)
-
-            print_info(site_info, title, type, size)
-            if not info_only:
-                download_urls([real_url], title, ext, size, output_dir, merge = merge)
-
-site_info = "Douban.com"
 download = douban_download
-download_playlist = playlist_not_supported('douban')
+download_playlist = douban_download_playlist
