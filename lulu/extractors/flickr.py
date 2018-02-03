@@ -1,13 +1,27 @@
 #!/usr/bin/env python
 
-__all__ = ['flickr_download_main']
-
-from ..common import *
-
 import json
 
-pattern_url_photoset = r'https?://www\.flickr\.com/photos/.+/(?:(?:sets)|(?:albums))?/([^/]+)'
-pattern_url_photostream = r'https?://www\.flickr\.com/photos/([^/]+)(?:/|(?:/page))?$'
+from lulu.common import (
+    match1,
+    url_info,
+    print_info,
+    get_content,
+    download_urls,
+    playlist_not_supported,
+)
+
+
+__all__ = ['flickr_download_main']
+site_info = 'flickr.com'
+
+
+pattern_url_photoset = (
+    r'https?://www\.flickr\.com/photos/.+/(?:(?:sets)|(?:albums))?/([^/]+)'
+)
+pattern_url_photostream = (
+    r'https?://www\.flickr\.com/photos/([^/]+)(?:/|(?:/page))?$'
+)
 pattern_url_single_photo = r'https?://www\.flickr\.com/photos/[^/]+/(\d+)'
 pattern_url_gallery = r'https?://www\.flickr\.com/photos/[^/]+/galleries/(\d+)'
 pattern_url_group = r'https?://www\.flickr\.com/groups/([^/]+)'
@@ -24,50 +38,46 @@ tmpl_api_call = (
     'https://api.flickr.com/services/rest?'
     '&format=json&nojsoncallback=1'
     # UNCOMMENT FOR TESTING
-    #'&per_page=5'
+    # '&per_page=5'
     '&per_page=500'
     # this parameter CANNOT take control of 'flickr.galleries.getPhotos'
     # though the doc said it should.
     # it's always considered to be 500
-    '&api_key=%s'
-    '&method=flickr.%s'
-    '&extras=url_sq,url_q,url_t,url_s,url_n,url_m,url_z,url_c,url_l,url_h,url_k,url_o,media'
-    '%s&page=%d'
-)
+    '&api_key={}&method=flickr.{}'
+    '&extras=url_sq,url_q,url_t,url_s,url_n,url_m,url_z,url_c,url_l,url_h,'
+    'url_k,url_o,media'
+    '{}&page={}'
+).format
 
 tmpl_api_call_video_info = (
     'https://api.flickr.com/services/rest?'
     '&format=json&nojsoncallback=1'
     '&method=flickr.video.getStreamInfo'
-    '&api_key=%s'
-    '&photo_id=%s'
-    '&secret=%s'
-)
+    '&api_key={}'
+    '&photo_id={}'
+    '&secret={}'
+).format
 
 tmpl_api_call_photo_info = (
     'https://api.flickr.com/services/rest?'
     '&format=json&nojsoncallback=1'
     '&method=flickr.photos.getInfo'
-    '&api_key=%s'
-    '&photo_id=%s'
-)
+    '&api_key={}'
+    '&photo_id={}'
+).format
 
-# looks that flickr won't return urls for all sizes
-# we required in 'extras field without a acceptable header
-dummy_header = {
-    'User-Agent':'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:53.0) Gecko/20100101 Firefox/53.0'
-}
-def get_content_headered(url):
-    return get_content(url, dummy_header)
 
 def get_photoset_id(url, page):
     return match1(url, pattern_url_photoset)
 
+
 def get_photo_id(url, page):
     return match1(url, pattern_url_single_photo)
 
+
 def get_gallery_id(url, page):
     return match1(url, pattern_url_gallery)
+
 
 def get_api_key(page):
     match = match1(page, pattern_inline_api_key)
@@ -77,21 +87,16 @@ def get_api_key(page):
     # since there's no place for a user to add custom infomation that may
     # misguide the regex in the homepage
     if not match:
-        return match1(get_html('https://flickr.com'), pattern_inline_api_key)
+        return match1(
+            get_content('https://flickr.com'), pattern_inline_api_key
+        )
     return match
+
 
 def get_NSID(url, page):
     return match1(page, pattern_inline_NSID)
 
-# [
-# (
-#   regex_match_url,
-#   remote_api_method,
-#   additional_query_parameter_for_method,
-#   parser_for_additional_parameter,
-#   field_where_photourls_are_saved
-# )
-# ]
+
 url_patterns = [
     # www.flickr.com/photos/{username|NSID}/sets|albums/{album-id}
     (
@@ -138,44 +143,30 @@ url_patterns = [
     )
 ]
 
-def flickr_download_main(url, output_dir = '.', merge = False, info_only = False, **kwargs):
-    urls = None
-    size = 'o' # works for collections only
-    title = None
-    if 'stream_id' in kwargs:
-        size = kwargs['stream_id']
-    if match1(url, pattern_url_single_photo):
-        url, title = get_single_photo_url(url)
-        urls = [url]
-    else:
-        urls, title = fetch_photo_url_list(url, size)
-    index = 0
-    for url in urls:
-        mime, ext, size = url_info(url)
-        print_info('Flickr.com', title, mime, size)
-        if not info_only:
-            suffix = '[%d]' % index
-            download_urls([url], title + suffix, ext, False, output_dir, None, False, False)
-            index = index + 1
 
 def fetch_photo_url_list(url, size):
     for pattern in url_patterns:
         # FIXME: fix multiple matching since the match group is dropped
         if match1(url, pattern[0]):
             return fetch_photo_url_list_impl(url, size, *pattern[1:])
-    raise NotImplementedError('Flickr extractor is not supported for %s.' % url)
+    raise NotImplementedError(
+        'Flickr extractor is not supported for {}.'.format(url)
+    )
 
-def fetch_photo_url_list_impl(url, size, method, id_field, id_parse_func, collection_name):
-    page = get_html(url)
+
+def fetch_photo_url_list_impl(
+    url, size, method, id_field, id_parse_func, collection_name
+):
+    page = get_content(url)
     api_key = get_api_key(page)
     ext_field = ''
     if id_parse_func:
-        ext_field = '&%s=%s' % (id_field, id_parse_func(url, page))
+        ext_field = '&{}={}'.format(id_field, id_parse_func(url, page))
     page_number = 1
     urls = []
     while True:
-        call_url = tmpl_api_call % (api_key, method, ext_field, page_number)
-        photoset = json.loads(get_content_headered(call_url))[collection_name]
+        call_url = tmpl_api_call(api_key, method, ext_field, page_number)
+        photoset = json.loads(get_content(call_url))[collection_name]
         pagen = photoset['page']
         pages = photoset['pages']
         for info in photoset['photo']:
@@ -187,16 +178,21 @@ def fetch_photo_url_list_impl(url, size, method, id_field, id_parse_func, collec
             break
     return urls, match1(page, pattern_inline_title)
 
+
 # image size suffixes used in inline json 'key' field
 # listed in descending order
 size_suffixes = ['o', 'k', 'h', 'l', 'c', 'z', 'm', 'n', 's', 't', 'q', 'sq']
 
+
 def get_orig_video_source(api_key, pid, secret):
-    parsed = json.loads(get_content_headered(tmpl_api_call_video_info % (api_key, pid, secret)))
+    parsed = json.loads(
+        get_content(tmpl_api_call_video_info(api_key, pid, secret))
+    )
     for stream in parsed['streams']['stream']:
         if stream['type'] == 'orig':
             return stream['_content'].replace('\\', '')
     return None
+
 
 def get_url_of_largest(info, api_key, size):
     if info['media'] == 'photo':
@@ -205,24 +201,50 @@ def get_url_of_largest(info, api_key, size):
             sizes = sizes[sizes.index(size):]
         for suffix in sizes:
             if 'url_' + suffix in info:
-                return info['url_' + suffix].replace('\\', '')
+                return info['url_{}'.format(suffix)].replace('\\', '')
         return None
     else:
         return get_orig_video_source(api_key, info['id'], info['secret'])
 
+
 def get_single_photo_url(url):
-    page = get_html(url)
+    page = get_content(url)
     pid = get_photo_id(url, page)
     title = match1(page, pattern_inline_title)
     if match1(page, pattern_inline_video_mark):
         api_key = get_api_key(page)
-        reply = get_content(tmpl_api_call_photo_info % (api_key, get_photo_id(url, page)))
+        reply = get_content(
+            tmpl_api_call_photo_info(api_key, get_photo_id(url, page))
+        )
         secret = json.loads(reply)['photo']['secret']
         return get_orig_video_source(api_key, pid, secret), title
-    #last match always has the best resolution
+    # last match always has the best resolution
     match = match1(page, pattern_inline_img_url)
-    return 'https:' + match.replace('\\', ''), title
+    return 'https:{}'.format(match.replace('\\', '')), title
 
-site_info = "Flickr.com"
+
+def flickr_download_main(url, output_dir='.', info_only=False, **kwargs):
+    urls = None
+    size = 'o'  # works for collections only
+    title = None
+    if 'stream_id' in kwargs:
+        size = kwargs['stream_id']
+    if match1(url, pattern_url_single_photo):
+        url, title = get_single_photo_url(url)
+        urls = [url]
+    else:
+        urls, title = fetch_photo_url_list(url, size)
+    index = 1
+    for url in urls:
+        mime, ext, size = url_info(url)
+        print_info(site_info, title, mime, size)
+        if not info_only:
+            title = '{} {}'.format(title, index)
+            download_urls(
+                [url], title, ext, size, output_dir, **kwargs
+            )
+            index += 1
+
+
 download = flickr_download_main
-download_playlist = playlist_not_supported('flickr');
+download_playlist = playlist_not_supported(site_info)

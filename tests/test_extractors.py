@@ -19,6 +19,7 @@ from lulu.extractors import (
     youku,
     douban,
     douyin,
+    flickr,
     huaban,
     ixigua,
     tumblr,
@@ -307,6 +308,16 @@ class TestExtractors(unittest.TestCase):
     def test_douyutv(self):
         douyutv.download(
             'https://v.douyu.com/show/9DO84vrw2nk7edGr', info_only=True
+        )
+
+    def test_flickr(self):
+        flickr.download(
+            'https://www.flickr.com/photos/albertdros/33589584740',
+            info_only=True
+        )
+        flickr.download(
+            'https://www.flickr.com/photos/albertdros/33167569260',
+            info_only=True
         )
 
 
