@@ -22,6 +22,7 @@ from lulu.extractors import (
     huaban,
     ixigua,
     tumblr,
+    douyutv,
     magisto,
     miaopai,
     netease,
@@ -288,6 +289,12 @@ class TestExtractors(unittest.TestCase):
         )
         dilidili.download(
             'http://www.dilidili.wang/watch/30758/', info_only=True
+        )
+
+    @ignore_network_issue
+    def test_douyutv(self):
+        douyutv.download(
+            'https://v.douyu.com/show/9DO84vrw2nk7edGr', info_only=True
         )
 
 
