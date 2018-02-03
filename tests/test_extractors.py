@@ -11,6 +11,7 @@ from lulu.extractors import (
     qq,
     vine,
     # acfun,
+    baidu,
     tudou,
     imgur,
     iqiyi,
@@ -20,11 +21,14 @@ from lulu.extractors import (
     douyin,
     huaban,
     ixigua,
+    tumblr,
     magisto,
     miaopai,
     netease,
     youtube,
     bilibili,
+    dilidili,
+    facebook,
     kuaishou,
     instagram,
     yinyuetai,
@@ -249,6 +253,41 @@ class TestExtractors(unittest.TestCase):
         )
         douban.download_playlist(
             'https://movie.douban.com/trailer/226557/#content', info_only=True
+        )
+
+    def test_tumblr(self):
+        tumblr.download(
+            'http://fuckyeah-fx.tumblr.com/post/170392654141/'
+            '180202-%E5%AE%8B%E8%8C%9C',
+            info_only=True
+        )
+        tumblr.download(
+            'https://outdoorspastelnature.tumblr.com/post/170380315768/'
+            'feel-at-peace',
+            info_only=True
+        )
+
+    @skipOnCI
+    def test_baidu(self):
+        baidu.download('http://music.baidu.com/song/569080829', info_only=True)
+        baidu.download(
+            'http://music.baidu.com/album/245838807', info_only=True
+        )
+
+    def test_facebook(self):
+        facebook.download(
+            'https://www.facebook.com/JackyardsCovers/videos/'
+            'vb.267832806658747/1215502888558396/',
+            info_only=True
+        )
+
+    @skipOnCI
+    def test_dilidili(self):
+        dilidili.download(
+            'http://www.dilidili.wang/watch3/46604/', info_only=True
+        )
+        dilidili.download(
+            'http://www.dilidili.wang/watch/30758/', info_only=True
         )
 
 

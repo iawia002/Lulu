@@ -144,9 +144,9 @@ def tumblr_download(
         ) or match1(html, r'<title>([^<\n]*)') or url.split('/')[4]
     ).replace('\n', '')
 
-    type, ext, size = url_info(real_url)
+    _type, ext, size = url_info(real_url)
 
-    print_info(site_info, title, type, size)
+    print_info(site_info, title, _type, size)
     if not info_only:
         download_urls([real_url], title, ext, size, output_dir, merge=merge)
 
