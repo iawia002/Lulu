@@ -27,6 +27,7 @@ from lulu.extractors import (
     netease,
     youtube,
     bilibili,
+    dilidili,
     facebook,
     kuaishou,
     instagram,
@@ -266,7 +267,7 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
-    @ignore_network_issue
+    @skipOnCI
     def test_baidu(self):
         baidu.download('http://music.baidu.com/song/569080829', info_only=True)
         baidu.download(
@@ -278,6 +279,15 @@ class TestExtractors(unittest.TestCase):
             'https://www.facebook.com/JackyardsCovers/videos/'
             'vb.267832806658747/1215502888558396/',
             info_only=True
+        )
+
+    @skipOnCI
+    def test_dilidili(self):
+        dilidili.download(
+            'http://www.dilidili.wang/watch3/46604/', info_only=True
+        )
+        dilidili.download(
+            'http://www.dilidili.wang/watch/30758/', info_only=True
         )
 
 
