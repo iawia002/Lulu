@@ -20,6 +20,7 @@ from lulu.extractors import (
     douyin,
     huaban,
     ixigua,
+    tumblr,
     magisto,
     miaopai,
     netease,
@@ -249,6 +250,18 @@ class TestExtractors(unittest.TestCase):
         )
         douban.download_playlist(
             'https://movie.douban.com/trailer/226557/#content', info_only=True
+        )
+
+    def test_tumblr(self):
+        tumblr.download(
+            'http://fuckyeah-fx.tumblr.com/post/170392654141/'
+            '180202-%E5%AE%8B%E8%8C%9C',
+            info_only=True
+        )
+        tumblr.download(
+            'https://outdoorspastelnature.tumblr.com/post/170380315768/'
+            'feel-at-peace',
+            info_only=True
         )
 
 
