@@ -27,6 +27,7 @@ from lulu.extractors import (
     netease,
     youtube,
     bilibili,
+    facebook,
     kuaishou,
     instagram,
     yinyuetai,
@@ -270,6 +271,13 @@ class TestExtractors(unittest.TestCase):
         baidu.download('http://music.baidu.com/song/569080829', info_only=True)
         baidu.download(
             'http://music.baidu.com/album/245838807', info_only=True
+        )
+
+    def test_facebook(self):
+        facebook.download(
+            'https://www.facebook.com/JackyardsCovers/videos/'
+            'vb.267832806658747/1215502888558396/',
+            info_only=True
         )
 
 
