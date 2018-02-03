@@ -22,6 +22,7 @@ from lulu.extractors import (
     huaban,
     ixigua,
     tumblr,
+    zhanqi,
     douyutv,
     magisto,
     miaopai,
@@ -279,6 +280,17 @@ class TestExtractors(unittest.TestCase):
         facebook.download(
             'https://www.facebook.com/JackyardsCovers/videos/'
             'vb.267832806658747/1215502888558396/',
+            info_only=True
+        )
+
+    @ignore_network_issue
+    def test_zhanqi(self):
+        zhanqi.download(
+            'https://www.zhanqi.tv/videos/Lyingman/2017/01/182308.html',
+            info_only=True
+        )
+        zhanqi.download(
+            'https://www.zhanqi.tv/v2/videos/215593.html',
             info_only=True
         )
 
