@@ -11,6 +11,7 @@ from lulu.extractors import (
     qq,
     vine,
     # acfun,
+    baidu,
     tudou,
     imgur,
     iqiyi,
@@ -262,6 +263,13 @@ class TestExtractors(unittest.TestCase):
             'https://outdoorspastelnature.tumblr.com/post/170380315768/'
             'feel-at-peace',
             info_only=True
+        )
+
+    @ignore_network_issue
+    def test_baidu(self):
+        baidu.download('http://music.baidu.com/song/569080829', info_only=True)
+        baidu.download(
+            'http://music.baidu.com/album/245838807', info_only=True
         )
 
 
