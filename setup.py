@@ -10,8 +10,8 @@ from setuptools import find_packages, setup, Command
 # Package meta-data.
 NAME = 'lulu'
 DESCRIPTION = (
-    'A friendly you-get fork '
-    '(⏬ Dumb downloader that scrapes the web)'
+    'A simple and clean video/music/image downloader '
+    'that supports many websites 👾'
 )
 URL = 'https://github.com/iawia002/Lulu'
 EMAIL = 'z2d@jifangcheng.com'
