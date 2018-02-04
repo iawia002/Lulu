@@ -17,7 +17,7 @@ Faster updates
 
 The following dependencies are required and must be installed separately.
 
-* **[Python 3](https://www.python.org/downloads/)**
+* **[Python 3.4+](https://www.python.org/downloads/)**
 * **[FFmpeg](https://www.ffmpeg.org/)** (strongly recommended) or [Libav](https://libav.org/)
 * (Optional) [RTMPDump](https://rtmpdump.mplayerhq.hu/)
 
