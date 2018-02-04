@@ -3,8 +3,9 @@
 import logging
 import os.path
 import subprocess
-from ..util.strings import parameterize
-from ..common import print_more_compatible as print
+
+from lulu.util.strings import parameterize
+from lulu.common import print_more_compatible as print
 
 try:
     from subprocess import DEVNULL
@@ -15,24 +16,32 @@ except ImportError:
     DEVNULL = os.open(os.devnull, os.O_RDWR)
     atexit.register(lambda fd: os.close(fd), DEVNULL)
 
+
 def get_usable_ffmpeg(cmd):
     try:
-        p = subprocess.Popen([cmd, '-version'], stdin=DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p = subprocess.Popen(
+            [cmd, '-version'], stdin=DEVNULL, stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
         out, err = p.communicate()
         vers = str(out, 'utf-8').split('\n')[0].split()
-        assert (vers[0] == 'ffmpeg' and vers[2][0] > '0') or (vers[0] == 'avconv')
-        #set version to 1.0 for nightly build and print warning
+        assert (vers[0] == 'ffmpeg' and vers[2][0] > '0') or \
+            (vers[0] == 'avconv')
+        # set version to 1.0 for nightly build and print warning
         try:
             version = [int(i) for i in vers[2].split('.')]
-        except:
+        except Exception:
             print('It seems that your ffmpeg is a nightly build.')
             print('Please switch to the latest stable if merging failed.')
             version = [1, 0]
         return cmd, 'ffprobe', version
-    except:
+    except Exception:
         return None
 
-FFMPEG, FFPROBE, FFMPEG_VERSION = get_usable_ffmpeg('ffmpeg') or get_usable_ffmpeg('avconv') or (None, None, None)
+
+FFMPEG, FFPROBE, FFMPEG_VERSION = get_usable_ffmpeg('ffmpeg') or \
+    get_usable_ffmpeg('avconv') or (None, None, None)
+
 if logging.getLogger().isEnabledFor(logging.DEBUG):
     LOGLEVEL = ['-loglevel', 'info']
     STDIN = None
@@ -40,8 +49,10 @@ else:
     LOGLEVEL = ['-loglevel', 'quiet']
     STDIN = DEVNULL
 
+
 def has_ffmpeg_installed():
     return FFMPEG is not None
+
 
 # Given a list of segments and the output path, generates the concat
 # list and returns the path to the concat list.
@@ -55,11 +66,13 @@ def generate_concat_list(files, output):
                 concat_list.write('file %s\n' % parameterize(relpath))
     return concat_list_path
 
+
 def ffmpeg_concat_av(files, output, ext):
     print('Merging video parts... ', end="", flush=True)
     params = [FFMPEG] + LOGLEVEL
     for file in files:
-        if os.path.isfile(file): params.extend(['-i', file])
+        if os.path.isfile(file):
+            params.extend(['-i', file])
     params.extend(['-c:v', 'copy'])
     if ext == 'mp4':
         params.extend(['-c:a', 'aac'])
@@ -69,21 +82,28 @@ def ffmpeg_concat_av(files, output, ext):
     params.append(output)
     return subprocess.call(params, stdin=STDIN)
 
+
 def ffmpeg_convert_ts_to_mkv(files, output='output.mkv'):
     for file in files:
         if os.path.isfile(file):
             params = [FFMPEG] + LOGLEVEL
             params.extend(['-y', '-i', file, output])
             subprocess.call(params, stdin=STDIN)
-
     return
+
 
 def ffmpeg_concat_mp4_to_mpg(files, output='output.mpg'):
     # Use concat demuxer on FFmpeg >= 1.1
-    if FFMPEG == 'ffmpeg' and (FFMPEG_VERSION[0] >= 2 or (FFMPEG_VERSION[0] == 1 and FFMPEG_VERSION[1] >= 1)):
+    if FFMPEG == 'ffmpeg' and (
+        FFMPEG_VERSION[0] >= 2 or (
+            FFMPEG_VERSION[0] == 1 and FFMPEG_VERSION[1] >= 1
+        )
+    ):
         concat_list = generate_concat_list(files, output)
-        params = [FFMPEG] + LOGLEVEL + ['-y', '-f', 'concat', '-safe', '-1',
-                                        '-i', concat_list, '-c', 'copy', output]
+        params = [FFMPEG] + LOGLEVEL + [
+            '-y', '-f', 'concat', '-safe', '-1', '-i', concat_list, '-c',
+            'copy', output
+        ]
         if subprocess.call(params, stdin=STDIN) == 0:
             os.remove(output + '.txt')
             return True
@@ -114,8 +134,9 @@ def ffmpeg_concat_mp4_to_mpg(files, output='output.mpg'):
     else:
         raise
 
+
 def ffmpeg_concat_ts_to_mkv(files, output='output.mkv'):
-    print('Merging video parts... ', end="", flush=True)
+    print('Merging video parts... ', end='', flush=True)
     params = [FFMPEG] + LOGLEVEL + ['-isync', '-y', '-i']
     params.append('concat:')
     for file in files:
@@ -128,17 +149,23 @@ def ffmpeg_concat_ts_to_mkv(files, output='output.mkv'):
             return True
         else:
             return False
-    except:
+    except Exception:
         return False
 
+
 def ffmpeg_concat_flv_to_mp4(files, output='output.mp4'):
-    print('Merging video parts... ', end="", flush=True)
+    print('Merging video parts... ', end='', flush=True)
     # Use concat demuxer on FFmpeg >= 1.1
-    if FFMPEG == 'ffmpeg' and (FFMPEG_VERSION[0] >= 2 or (FFMPEG_VERSION[0] == 1 and FFMPEG_VERSION[1] >= 1)):
+    if FFMPEG == 'ffmpeg' and (
+        FFMPEG_VERSION[0] >= 2 or (
+            FFMPEG_VERSION[0] == 1 and FFMPEG_VERSION[1] >= 1
+        )
+    ):
         concat_list = generate_concat_list(files, output)
-        params = [FFMPEG] + LOGLEVEL + ['-y', '-f', 'concat', '-safe', '-1',
-                                        '-i', concat_list, '-c', 'copy',
-                                        '-bsf:a', 'aac_adtstoasc', output]
+        params = [FFMPEG] + LOGLEVEL + [
+            '-y', '-f', 'concat', '-safe', '-1', '-i', concat_list, '-c',
+            'copy', '-bsf:a', 'aac_adtstoasc', output
+        ]
         subprocess.check_call(params, stdin=STDIN)
         os.remove(output + '.txt')
         return True
@@ -147,7 +174,10 @@ def ffmpeg_concat_flv_to_mp4(files, output='output.mp4'):
         if os.path.isfile(file):
             params = [FFMPEG] + LOGLEVEL + ['-y', '-i']
             params.append(file)
-            params += ['-map', '0', '-c', 'copy', '-f', 'mpegts', '-bsf:v', 'h264_mp4toannexb']
+            params += [
+                '-map', '0', '-c', 'copy', '-f', 'mpegts', '-bsf:v',
+                'h264_mp4toannexb'
+            ]
             params.append(file + '.ts')
 
             subprocess.call(params, stdin=STDIN)
@@ -170,14 +200,20 @@ def ffmpeg_concat_flv_to_mp4(files, output='output.mp4'):
     else:
         raise
 
+
 def ffmpeg_concat_mp4_to_mp4(files, output='output.mp4'):
-    print('Merging video parts... ', end="", flush=True)
+    print('Merging video parts... ', end='', flush=True)
     # Use concat demuxer on FFmpeg >= 1.1
-    if FFMPEG == 'ffmpeg' and (FFMPEG_VERSION[0] >= 2 or (FFMPEG_VERSION[0] == 1 and FFMPEG_VERSION[1] >= 1)):
+    if FFMPEG == 'ffmpeg' and (
+        FFMPEG_VERSION[0] >= 2 or (
+            FFMPEG_VERSION[0] == 1 and FFMPEG_VERSION[1] >= 1
+        )
+    ):
         concat_list = generate_concat_list(files, output)
-        params = [FFMPEG] + LOGLEVEL + ['-y', '-f', 'concat', '-safe', '-1',
-                                        '-i', concat_list, '-c', 'copy',
-                                        '-bsf:a', 'aac_adtstoasc', output]
+        params = [FFMPEG] + LOGLEVEL + [
+            '-y', '-f', 'concat', '-safe', '-1', '-i', concat_list, '-c',
+            'copy', '-bsf:a', 'aac_adtstoasc', output
+        ]
         subprocess.check_call(params, stdin=STDIN)
         os.remove(output + '.txt')
         return True
@@ -186,7 +222,9 @@ def ffmpeg_concat_mp4_to_mp4(files, output='output.mp4'):
         if os.path.isfile(file):
             params = [FFMPEG] + LOGLEVEL + ['-y', '-i']
             params.append(file)
-            params += ['-c', 'copy', '-f', 'mpegts', '-bsf:v', 'h264_mp4toannexb']
+            params += [
+                '-c', 'copy', '-f', 'mpegts', '-bsf:v', 'h264_mp4toannexb'
+            ]
             params.append(file + '.ts')
 
             subprocess.call(params, stdin=STDIN)
@@ -207,32 +245,41 @@ def ffmpeg_concat_mp4_to_mp4(files, output='output.mp4'):
         os.remove(file + '.ts')
     return True
 
-def ffmpeg_download_stream(files, title, ext, params={}, output_dir='.', stream=True):
+
+def ffmpeg_download_stream(
+    files, title, ext, params={}, output_dir='.', stream=True, **kwargs
+):
     """str, str->True
     WARNING: NOT THE SAME PARMS AS OTHER FUNCTIONS!!!!!!
     You can basicly download anything with this function
     but better leave it alone with
     """
-    output = title + '.' + ext
+    # https://ffmpeg.org/ffmpeg.html#Main-options
+    output = '{}.{}'.format(title, ext)
 
     if not (output_dir == '.'):
-        output = output_dir + '/' + output
+        output = '{}/{}'.format(output_dir, output)
 
-    print('Downloading streaming content with FFmpeg, press q to stop recording...')
+    print(
+        'Downloading streaming content with FFmpeg, press q to stop '
+        'recording...'
+    )
     if stream:
         ffmpeg_params = [FFMPEG] + ['-y', '-re', '-i']
     else:
         ffmpeg_params = [FFMPEG] + ['-y', '-i']
-    ffmpeg_params.append(files)  #not the same here!!!!
+    ffmpeg_params.append(files)  # not the same here!!!!
 
-    if FFMPEG == 'avconv':  #who cares?
+    if FFMPEG == 'avconv':  # who cares?
         ffmpeg_params += ['-c', 'copy', output]
+    elif kwargs.get('override'):
+        pass
     else:
         ffmpeg_params += ['-c', 'copy', '-bsf:a', 'aac_adtstoasc']
 
     if params is not None:
         if len(params) > 0:
-            for k, v in params:
+            for k, v in params.items():
                 ffmpeg_params.append(k)
                 ffmpeg_params.append(v)
 
@@ -241,19 +288,19 @@ def ffmpeg_download_stream(files, title, ext, params={}, output_dir='.', stream=
     print(' '.join(ffmpeg_params))
 
     try:
-        a = subprocess.Popen(ffmpeg_params, stdin= subprocess.PIPE)
+        a = subprocess.Popen(ffmpeg_params, stdin=subprocess.PIPE)
         a.communicate()
     except KeyboardInterrupt:
         try:
             a.stdin.write('q'.encode('utf-8'))
-        except:
+        except Exception:
             pass
 
     return True
 
 
 def ffmpeg_concat_audio_and_video(files, output, ext):
-    print('Merging video and audio parts... ', end="", flush=True)
+    print('Merging video and audio parts... ', end='', flush=True)
     if has_ffmpeg_installed:
         params = [FFMPEG] + LOGLEVEL
         params.extend(['-f', 'concat'])
@@ -263,7 +310,7 @@ def ffmpeg_concat_audio_and_video(files, output, ext):
         params.extend(['-c:v', 'copy'])
         params.extend(['-c:a', 'aac'])
         params.extend(['-strict', 'experimental'])
-        params.append(output+"."+ext)
+        params.append('{}.{}'.format(output, ext))
         return subprocess.call(params, stdin=STDIN)
     else:
         raise EnvironmentError('No ffmpeg found')
@@ -276,4 +323,6 @@ def ffprobe_get_media_duration(file):
     params.extend(['-show_entries', 'format=duration'])
     params.extend(['-v', 'quiet'])
     params.extend(['-of', 'csv=p=0'])
-    return subprocess.check_output(params, stdin=STDIN, stderr=subprocess.STDOUT).decode().strip()
+    return subprocess.check_output(
+        params, stdin=STDIN, stderr=subprocess.STDOUT
+    ).decode().strip()

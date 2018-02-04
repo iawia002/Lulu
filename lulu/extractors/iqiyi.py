@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import re
-import os
 import json
 import time
 import hashlib
@@ -9,12 +8,8 @@ import hashlib
 from lulu.common import (
     match1,
     get_content,
-    get_filename,
-    download_url_ffmpeg,
-    print_more_compatible as print,
 )
 from lulu.util import log
-from lulu import json_output
 from lulu.util.parser import get_parser
 from lulu.extractor import VideoExtractor
 
@@ -140,84 +135,15 @@ class Iqiyi(VideoExtractor):
                     continue
                 stream_profile = self.id_2_profile[stream_id]
                 self.streams[stream_id] = {
-                    'video_profile': stream_profile, 'container': 'm3u8',
-                    'src': [stream['m3u']], 'size': 0,
-                    'm3u8_url': stream['m3u']
+                    'video_profile': stream_profile,
+                    'container': 'm3u8',
+                    'src': [stream['m3u']],
+                    'size': 0,
+                    'm3u8_url': stream['m3u'],
                 }
             except Exception as e:
                 log.i('vd: {} is not handled'.format(stream['vd']))
                 log.i('info is {}'.format(stream))
-
-    def download(self, **kwargs):
-        """Override the original one
-        Ugly ugly dirty hack
-        """
-        if 'json_output' in kwargs and kwargs['json_output']:
-            json_output.output(self)
-        elif 'info_only' in kwargs and kwargs['info_only']:
-            if 'stream_id' in kwargs and kwargs['stream_id']:
-                # Display the stream
-                stream_id = kwargs['stream_id']
-                if 'index' not in kwargs:
-                    self.p(stream_id)
-                else:
-                    self.p_i(stream_id)
-            else:
-                # Display all available streams
-                if 'index' not in kwargs:
-                    self.p([])
-                else:
-                    stream_id = self.streams_sorted[0]['id'] \
-                        if 'id' in self.streams_sorted[0] \
-                        else self.streams_sorted[0]['itag']
-                    self.p_i(stream_id)
-
-        else:
-            if 'stream_id' in kwargs and kwargs['stream_id']:
-                # Download the stream
-                stream_id = kwargs['stream_id']
-            else:
-                # Download stream with the best quality
-                stream_id = self.streams_sorted[0]['id'] \
-                    if 'id' in self.streams_sorted[0] \
-                    else self.streams_sorted[0]['itag']
-
-            if 'index' not in kwargs:
-                self.p(stream_id)
-            else:
-                self.p_i(stream_id)
-
-            if stream_id in self.streams:
-                urls = self.streams[stream_id]['src']
-                # ext = self.streams[stream_id]['container']
-                # total_size = self.streams[stream_id]['size']
-            else:
-                urls = self.dash_streams[stream_id]['src']
-                # ext = self.dash_streams[stream_id]['container']
-                # total_size = self.dash_streams[stream_id]['size']
-
-            if not urls:
-                log.wtf('[Failed] Cannot extract video source.')
-
-            # Here's the change!
-            download_url_ffmpeg(
-                urls[0], self.title, 'mp4', output_dir=kwargs['output_dir'],
-                merge=kwargs['merge'], stream=False
-            )
-
-            if not kwargs['caption']:
-                print('Skipping captions.')
-                return
-            for lang in self.caption_tracks:
-                filename = '{}.{}.srt'.format(get_filename(self.title), lang)
-                print('Saving {} ... '.format(filename), end='', flush=True)
-                srt = self.caption_tracks[lang]
-                with open(
-                    os.path.join(kwargs['output_dir'], filename),
-                    'w', encoding='utf-8'
-                ) as x:
-                    x.write(srt)
-                print('Done.')
 
 
 site = Iqiyi()
