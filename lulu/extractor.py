@@ -14,6 +14,7 @@ from lulu.common import (
     maybe_print,
     get_filename,
     download_urls,
+    download_url_ffmpeg,
     print_more_compatible as print,
 )
 from lulu import config
@@ -268,27 +269,36 @@ class VideoExtractor:
                 ext = self.dash_streams[stream_id]['container']
                 total_size = self.dash_streams[stream_id]['size']
 
-            if ext == 'm3u8':
-                ext = 'mp4'
-
             if not urls:
                 log.wtf('[Failed] Cannot extract video source.')
-            # For legacy main()
-            headers = copy(config.FAKE_HEADERS)
-            if self.ua is not None:
-                headers['User-Agent'] = self.ua
-            if self.referer is not None:
-                headers['Referer'] = self.referer
-            download_urls(
-                urls,
-                self.title,
-                ext,
-                total_size,
-                headers=headers,
-                output_dir=kwargs['output_dir'],
-                merge=kwargs['merge'],
-                av=stream_id in self.dash_streams
-            )
+
+            if ext == 'm3u8':
+                ffmpeg_kwargs = {}
+                if 'iqiyi' in self.name:
+                    ffmpeg_kwargs['override'] = True
+                    ffmpeg_kwargs['params'] = {'-c': 'copy'}
+                download_url_ffmpeg(
+                    urls[0], self.title, 'mp4',
+                    output_dir=kwargs['output_dir'],
+                    merge=kwargs['merge'], stream=False,
+                    **ffmpeg_kwargs
+                )
+            else:
+                headers = copy(config.FAKE_HEADERS)
+                if self.ua is not None:
+                    headers['User-Agent'] = self.ua
+                if self.referer is not None:
+                    headers['Referer'] = self.referer
+                download_urls(
+                    urls,
+                    self.title,
+                    ext,
+                    total_size,
+                    headers=headers,
+                    output_dir=kwargs['output_dir'],
+                    merge=kwargs['merge'],
+                    av=stream_id in self.dash_streams
+                )
             if 'caption' not in kwargs or not kwargs['caption']:
                 print('Skipping captions or danmuku.')
                 return
@@ -313,11 +323,6 @@ class VideoExtractor:
                 ) as fp:
                     fp.write(self.danmuku)
 
-            # For main_dev()
-            # download_urls(
-            #     urls, self.title, self.streams[stream_id]['container'],
-            #     self.streams[stream_id]['size']
-            # )
         keep_obj = kwargs.get('keep_obj', False)
         if not keep_obj:
             self.__init__()

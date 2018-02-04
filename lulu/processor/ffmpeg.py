@@ -247,13 +247,14 @@ def ffmpeg_concat_mp4_to_mp4(files, output='output.mp4'):
 
 
 def ffmpeg_download_stream(
-    files, title, ext, params={}, output_dir='.', stream=True
+    files, title, ext, params={}, output_dir='.', stream=True, **kwargs
 ):
     """str, str->True
     WARNING: NOT THE SAME PARMS AS OTHER FUNCTIONS!!!!!!
     You can basicly download anything with this function
     but better leave it alone with
     """
+    # https://ffmpeg.org/ffmpeg.html#Main-options
     output = '{}.{}'.format(title, ext)
 
     if not (output_dir == '.'):
@@ -271,12 +272,14 @@ def ffmpeg_download_stream(
 
     if FFMPEG == 'avconv':  # who cares?
         ffmpeg_params += ['-c', 'copy', output]
+    elif kwargs.get('override'):
+        pass
     else:
         ffmpeg_params += ['-c', 'copy', '-bsf:a', 'aac_adtstoasc']
 
     if params is not None:
         if len(params) > 0:
-            for k, v in params:
+            for k, v in params.items():
                 ffmpeg_params.append(k)
                 ffmpeg_params.append(v)
 

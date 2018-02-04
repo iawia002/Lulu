@@ -904,7 +904,7 @@ def download_rtmp_url(
 
 def download_url_ffmpeg(
     url, title, ext, params={}, total_size=0, output_dir='.', refer=None,
-    merge=True, faker=False, stream=True
+    merge=True, faker=False, stream=True, **kwargs
 ):
     assert url
     if dry_run:
@@ -931,7 +931,9 @@ def download_url_ffmpeg(
 
     title = tr(get_filename(title))
 
-    ffmpeg_download_stream(url, title, ext, params, output_dir, stream=stream)
+    ffmpeg_download_stream(
+        url, title, ext, params, output_dir, stream=stream, **kwargs
+    )
 
 
 def playlist_not_supported(name):
