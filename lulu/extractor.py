@@ -276,7 +276,9 @@ class VideoExtractor:
                 ffmpeg_kwargs = {}
                 if 'iqiyi' in self.name:
                     ffmpeg_kwargs['override'] = True
-                    ffmpeg_kwargs['params'] = {'-c': 'copy'}
+                    ffmpeg_kwargs['params'] = {
+                        '-c:a': 'copy', '-bsf:a': 'aac_adtstoasc'
+                    }
                 download_url_ffmpeg(
                     urls[0], self.title, 'mp4',
                     output_dir=kwargs['output_dir'],

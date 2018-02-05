@@ -50,21 +50,6 @@ bid meaning for quality
 '''
 
 
-def getVMS(tvid, vid):
-    t = int(time.time() * 1000)
-    src = '76f90cbd92f94a2e925d83e8ccd22cb7'
-    key = 'd5fb4bd9d50c4be6948c97edd7254b0e'
-    sc = hashlib.new(
-        'md5', bytes(str(t) + key + vid, 'utf-8')
-    ).hexdigest()
-    vmsreq = (
-        'http://cache.m.iqiyi.com/tmts/{}/{}/?t={}&sc={}&src={}'.format(
-            tvid, vid, t, sc, src
-        )
-    )
-    return json.loads(get_content(vmsreq))
-
-
 class Iqiyi(VideoExtractor):
     name = '爱奇艺 iqiyi.com'
 
@@ -81,12 +66,28 @@ class Iqiyi(VideoExtractor):
     ids = ['4k', 'BD', 'TD', 'HD', 'SD', 'LD']
     vd_2_id = {
         10: '4k', 19: '4k', 5: 'BD', 18: 'BD', 21: 'HD_H265', 2: 'HD',
-        4: 'TD', 17: 'TD_H265', 96: 'LD', 1: 'SD', 14: 'TD',
+        4: 'TD', 17: 'TD_H265', 96: 'LD', 1: 'SD',
     }
+    # http://www.iqiyi.com/v_19rr7p0jss.html
+    # 14: 'TD' 中的 m3u8 地址中的文件有问题
     id_2_profile = {
         '4k': '4k', 'BD': '1080p', 'TD': '720p', 'HD': '540p', 'SD': '360p',
         'LD': '210p', 'HD_H265': '540p H265', 'TD_H265': '720p H265',
     }
+
+    def get_raw_data(self, tvid, vid):
+        t = int(time.time() * 1000)
+        src = '76f90cbd92f94a2e925d83e8ccd22cb7'
+        key = 'd5fb4bd9d50c4be6948c97edd7254b0e'
+        sc = hashlib.new(
+            'md5', bytes(str(t) + key + vid, 'utf-8')
+        ).hexdigest()
+        vmsreq = (
+            'http://cache.m.iqiyi.com/jp/tmts/{}/{}/?t={}&sc={}&src={}'.format(
+                tvid, vid, t, sc, src
+            )
+        )
+        return json.loads(get_content(vmsreq)[len('var tvInfoJs='):])
 
     def download_playlist_by_url(self, url, **kwargs):
         self.url = url
@@ -125,21 +126,20 @@ class Iqiyi(VideoExtractor):
             parser = get_parser(real_html)
             self.title = parser.find('meta', property='og:title')['content']
         tvid, videoid = self.vid
-        info = getVMS(tvid, videoid)
-        assert info['code'] == 'A00000', "can't play this video"
-
+        info = self.get_raw_data(tvid, videoid)
+        assert info['code'] == 'A00000', "Can't play this video"
         for stream in info['data']['vidl']:
+            if 'm3utx' not in stream:
+                continue
             try:
                 stream_id = self.vd_2_id[stream['vd']]
-                if stream_id in self.stream_types:
-                    continue
                 stream_profile = self.id_2_profile[stream_id]
                 self.streams[stream_id] = {
                     'video_profile': stream_profile,
                     'container': 'm3u8',
-                    'src': [stream['m3u']],
+                    'src': [stream['m3utx']],
                     'size': 0,
-                    'm3u8_url': stream['m3u'],
+                    'm3u8_url': stream['m3utx'],
                 }
             except Exception as e:
                 log.i('vd: {} is not handled'.format(stream['vd']))
