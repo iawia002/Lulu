@@ -89,7 +89,7 @@ class Bilibili(VideoExtractor):
             api_url = self.bangumi_api_url + params_str + '&sign=' + chksum
 
         xml_str = get_content(api_url, headers={
-            'referer': self.url,
+            'Referer': self.url,
             'User-Agent': FAKE_HEADERS['User-Agent'],
         })
         return xml_str
