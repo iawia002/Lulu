@@ -302,6 +302,12 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    def test_alive(self):
+        extractors.alive.download(
+            'http://alive.in.th/watch_video.php?v=8O2DDY6B23HG',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
