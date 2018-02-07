@@ -308,6 +308,16 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    def test_archive(self):
+        extractors.archive.download(
+            'https://archive.org/details/tjdeebok',
+            info_only=True
+        )
+        extractors.archive.download(
+            'https://archive.org/details/bt2005-10-26.flac16',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
