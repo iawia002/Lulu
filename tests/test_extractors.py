@@ -326,6 +326,13 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    def test_ted(self):
+        extractors.ted.download(
+            'https://www.ted.com/talks/'
+            'su_kahumbu_how_we_can_help_hungry_kids_one_text_at_a_time',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
