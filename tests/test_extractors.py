@@ -318,6 +318,14 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    @skipOnCI
+    def test_cbs(self):
+        extractors.cbs.download(
+            'http://www.cbs.com/shows/bull/video/'
+            'YUS0W1neCNs28u6942vJypYoOPQzgJJ_/bull-keep-your-friends-close/',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
