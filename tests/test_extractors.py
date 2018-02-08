@@ -318,7 +318,6 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
-    @skipOnCI
     def test_cbs(self):
         extractors.cbs.download(
             'http://www.cbs.com/shows/bull/video/'
@@ -330,6 +329,15 @@ class TestExtractors(unittest.TestCase):
         extractors.ted.download(
             'https://www.ted.com/talks/'
             'su_kahumbu_how_we_can_help_hungry_kids_one_text_at_a_time',
+            info_only=True
+        )
+
+    @skipOnCI
+    def test_infoq(self):
+        extractors.infoq.download(
+            'http://www.infoq.com/cn/presentations/from-micro-service-to-'
+            'serverless-architecture?utm_source=infoq&utm_medium=videos_'
+            'homepage&utm_campaign=videos_row1',
             info_only=True
         )
 

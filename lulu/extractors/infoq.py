@@ -1,12 +1,18 @@
 #!/usr/bin/env python
 
-from ..common import *
-from ..extractor import VideoExtractor
-
 import ssl
+from urllib import request
+
+from lulu.common import (
+    match1,
+    url_info,
+    get_content,
+)
+from lulu.extractor import VideoExtractor
+
 
 class Infoq(VideoExtractor):
-    name = "InfoQ"
+    name = 'InfoQ infoq.com'
 
     stream_types = [
         {'id': 'video'},
@@ -23,32 +29,41 @@ class Infoq(VideoExtractor):
         sck = match1(content, r'InfoQConstants\.sck\s*=\s*\'([^\']+)\'')
 
         mp3 = match1(content, r'name="filename"\s*value="([^"]+\.mp3)"')
-        if mp3: mp3 = 'http://res.infoq.com/downloads/mp3downloads/%s' % mp3
+        if mp3:
+            mp3 = 'http://res.infoq.com/downloads/mp3downloads/{}'.format(mp3)
 
         pdf = match1(content, r'name="filename"\s*value="([^"]+\.pdf)"')
-        if pdf: pdf = 'http://res.infoq.com/downloads/pdfdownloads/%s' % pdf
+        if pdf:
+            pdf = 'http://res.infoq.com/downloads/pdfdownloads/{}'.format(pdf)
 
         # cookie handler
         ssl_context = request.HTTPSHandler(
-            context=ssl.SSLContext(ssl.PROTOCOL_TLSv1))
+            context=ssl.SSLContext(ssl.PROTOCOL_TLSv1)
+        )
         cookie_handler = request.HTTPCookieProcessor()
         opener = request.build_opener(ssl_context, cookie_handler)
         opener.addheaders = [
             ('Referer', self.url),
-            ('Cookie',
-             'CloudFront-Policy=%s;CloudFront-Signature=%s;CloudFront-Key-Pair-Id=%s' % (scp, scs, sck))
+            (
+                'Cookie',
+                'CloudFront-Policy={};CloudFront-Signature={};'
+                'CloudFront-Key-Pair-Id={}'.format(scp, scs, sck)
+            )
         ]
         request.install_opener(opener)
-
-        if s: self.streams['video'] = {'url': s }
-        if mp3: self.streams['audio'] = { 'url': mp3 }
-        if pdf: self.streams['slides'] = { 'url': pdf }
+        if s:
+            self.streams['video'] = {'url': s}
+        if mp3:
+            self.streams['audio'] = {'url': mp3}
+        if pdf:
+            self.streams['slides'] = {'url': pdf}
 
     def extract(self, **kwargs):
         for i in self.streams:
             s = self.streams[i]
             _, s['container'], s['size'] = url_info(s['url'])
             s['src'] = [s['url']]
+
 
 site = Infoq()
 download = site.download_by_url
