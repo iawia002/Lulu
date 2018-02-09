@@ -375,6 +375,13 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    def test_bigthink(self):
+        extractors.bigthink.download(
+            'http://bigthink.com/playlists/new-voices-in-american-foreign-'
+            'policy-charles-koch-foundation',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
