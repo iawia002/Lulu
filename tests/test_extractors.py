@@ -318,6 +318,7 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    @skipOnCI
     def test_cbs(self):
         extractors.cbs.download(
             'http://www.cbs.com/shows/bull/video/'
