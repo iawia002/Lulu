@@ -1,22 +1,40 @@
 #!/usr/bin/env python
 
+import json
+
+from lulu.common import (
+    match1,
+    url_info,
+    print_info,
+    get_content,
+    download_urls,
+)
+
+
 __all__ = ['bandcamp_download']
+site_info = 'Bandcamp bandcamp.com'
 
-from ..common import *
 
-def bandcamp_download(url, output_dir='.', merge=True, info_only=False, **kwargs):
-    html = get_html(url)
-    trackinfo = json.loads(r1(r'(\[{"(video_poster_url|video_caption)".*}\]),', html))
+def bandcamp_download(
+    url, output_dir='.', merge=True, info_only=False, **kwargs
+):
+    html = get_content(url)
+    trackinfo = json.loads(
+        match1(html, r'trackinfo:\s+(\[.+\]),')
+    )
     for track in trackinfo:
         track_num = track['track_num']
-        title = '%s. %s' % (track_num, track['title'])
-        file_url = 'http:' + track['file']['mp3-128']
+        title = '{}. {}'.format(track_num, track['title'])
+        file_url = track['file']['mp3-128']
         mime, ext, size = url_info(file_url)
 
         print_info(site_info, title, mime, size)
         if not info_only:
-            download_urls([file_url], title, ext, size, output_dir, merge=merge)
+            download_urls(
+                [file_url], title, ext, size, output_dir, merge=merge,
+                **kwargs
+            )
 
-site_info = "Bandcamp.com"
+
 download = bandcamp_download
 download_playlist = bandcamp_download

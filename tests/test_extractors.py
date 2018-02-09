@@ -368,6 +368,13 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    def test_bandcamp(self):
+        extractors.bandcamp.download(
+            'https://radicaldreamland.bandcamp.com/album/'
+            'celeste-original-soundtrack',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
