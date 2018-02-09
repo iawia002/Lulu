@@ -361,6 +361,13 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    @ignore_network_issue
+    def test_baomihua(self):
+        extractors.baomihua.download(
+            'http://video.baomihua.com/v/37305339',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
