@@ -342,6 +342,25 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    def test_vk(self):
+        extractors.vk.download(
+            'https://vk.com/photo-158176266_456239057',
+            info_only=True
+        )
+        extractors.vk.download(
+            'https://vk.com/photo-200_456239105',
+            info_only=True
+        )
+        extractors.vk.download(
+            'https://vk.com/video?z=video-74192244_456244018'
+            '%2F8ccaec8554ab3864e8%2Fpl_cat_featured',
+            info_only=True
+        )
+        extractors.vk.download(
+            'https://vk.com/video-74192244_456244018',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
