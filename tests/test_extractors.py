@@ -597,6 +597,12 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    def test_musicplayon(self):
+        extractors.musicplayon.download(
+            'https://zh.musicplayon.com/Maroon-5-Wait-Video-320200.html',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
