@@ -579,6 +579,17 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    @ignore_network_issue
+    def test_mgtv(self):
+        extractors.mgtv.download(
+            'https://www.mgtv.com/b/321502/4280446.html',
+            info_only=True
+        )
+        extractors.mgtv.download(
+            'https://www.mgtv.com/l/100016375.html',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
