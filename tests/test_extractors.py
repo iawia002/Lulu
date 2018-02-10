@@ -413,6 +413,12 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    def test_fc2video(self):
+        extractors.fc2video.download(
+            'http://video.fc2.com/en/content/20151021bTVKnbEw',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
