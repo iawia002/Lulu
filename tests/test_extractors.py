@@ -635,6 +635,13 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    @ignore_network_issue
+    def test_pptv(self):
+        extractors.pptv.download(
+            'http://v.pptv.com/show/B20ysRXcF1W4Np4.html',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
