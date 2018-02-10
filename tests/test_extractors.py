@@ -455,6 +455,27 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    @ignore_network_issue
+    def test_icourses(self):
+        extractors.icourses.download(
+            'http://www.icourses.cn/web/sword/portal/videoDetail?courseId='
+            '9fe9d456-1327-1000-9193-4876d02411f6#/?resId=d1165ef9-1334-'
+            '1000-9014-1d109e90c3cf',
+            info_only=True
+        )
+        extractors.icourses.download(
+            'http://www.icourses.cn/web/sword/portal/videoDetail?courseId='
+            '168a8f9c-1345-1000-b224-22f745f72788#/?resId=168b110d-1345-1000-'
+            'b249-22f745f72788',
+            info_only=True
+        )
+        extractors.icourses.download_playlist(
+            'http://www.icourses.cn/web/sword/portal/videoDetail?courseId='
+            '9fe9d456-1327-1000-9193-4876d02411f6#/?resId=d1165ef9-1334-'
+            '1000-9014-1d109e90c3cf',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
