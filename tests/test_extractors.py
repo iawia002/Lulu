@@ -619,6 +619,16 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    def test_pinterest(self):
+        extractors.pinterest.download(
+            'https://www.pinterest.com/pin/762656518121280263/',
+            info_only=True
+        )
+        extractors.pinterest.download(
+            'https://www.pinterest.com/pin/726346246125451851/',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
