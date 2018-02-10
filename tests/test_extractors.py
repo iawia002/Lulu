@@ -559,6 +559,13 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    @ignore_network_issue
+    def test_lizhi(self):
+        extractors.lizhi.download(
+            'http://www.lizhi.fm/549759/2508612053517249030',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
