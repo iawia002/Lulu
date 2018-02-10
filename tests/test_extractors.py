@@ -401,6 +401,12 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    def test_dailymotion(self):
+        extractors.dailymotion.download(
+            'http://www.dailymotion.com/video/x69g1zc',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
