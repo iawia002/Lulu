@@ -55,7 +55,6 @@ SITES = {
     'magisto': 'magisto',
     'metacafe': 'metacafe',
     'mgtv': 'mgtv',
-    'mixcloud': 'mixcloud',
     'mtv81': 'mtv81',
     'musicplayon': 'musicplayon',
     'naver': 'naver',

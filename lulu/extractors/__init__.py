@@ -47,7 +47,6 @@ from .magisto import *
 from .metacafe import *
 from .mgtv import *
 from .miaopai import *
-from .mixcloud import *
 from .mtv81 import *
 from .musicplayon import *
 from .nanagogo import *

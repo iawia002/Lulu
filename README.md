@@ -279,7 +279,6 @@ Use `--url`/`-u` to get a list of downloadable resource URLs extracted from the 
 | Pinterest   | <https://www.pinterest.com/>  | |✓| |
 | MusicPlayOn | <http://en.musicplayon.com/>  |✓| | |
 | MTV81       | <http://www.mtv81.com/>       |✓| | |
-| Mixcloud    | <https://www.mixcloud.com/>   | | |✓|
 | Metacafe    | <http://www.metacafe.com/>    |✓| | |
 | Magisto     | <http://www.magisto.com/>     |✓| | |
 | Khan Academy | <https://www.khanacademy.org/> |✓| | |
