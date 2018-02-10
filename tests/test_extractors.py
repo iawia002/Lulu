@@ -521,6 +521,22 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    @ignore_network_issue
+    def test_kugou(self):
+        extractors.kugou.download(
+            'http://www.kugou.com/song/#hash=0DBC1E271612559994F48E779A71671E&'
+            'album_id=8345464',
+            info_only=True
+        )
+        extractors.kugou.download_playlist(
+            'http://www.kugou.com/yy/special/single/244402.html',
+            info_only=True
+        )
+        extractors.ku6.download(
+            'http://5sing.kugou.com/fc/16355679.html',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
