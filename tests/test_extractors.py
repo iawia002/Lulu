@@ -304,7 +304,7 @@ class TestExtractors(unittest.TestCase):
 
     def test_alive(self):
         extractors.alive.download(
-            'http://alive.in.th/watch_video.php?v=8O2DDY6B23HG',
+            'http://alive.in.th/watch_video.php?v=BKBADG831SOM',
             info_only=True
         )
 
@@ -493,6 +493,20 @@ class TestExtractors(unittest.TestCase):
     def test_iqilu(self):
         extractors.iqilu.download(
             'http://v.iqilu.com/sdws/zasd/2018/0209/4508775.html',
+            info_only=True
+        )
+
+    @ignore_network_issue
+    def test_joy(self):
+        extractors.joy.download(
+            'http://www.joy.cn/videoEntertainment?resourceId=60242908',
+            info_only=True
+        )
+
+    def test_khan(self):
+        extractors.khan.download(
+            'https://www.khanacademy.org/computing/computer-programming/'
+            'programming/intro-to-programming/v/programming-intro',
             info_only=True
         )
 
