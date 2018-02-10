@@ -299,7 +299,6 @@ Use `--url`/`-u` to get a list of downloadable resource URLs extracted from the 
 | CBS         | <http://www.cbs.com/>         |✓| | |
 | Bandcamp    | <http://bandcamp.com/>        | | |✓|
 | AliveThai   | <http://alive.in.th/>         |✓| | |
-| interest.me | <http://ch.interest.me/tvn>   |✓| | |
 | **755<br/>ナナゴーゴー** | <http://7gogo.jp/> |✓|✓| |
 | **niconico<br/>ニコニコ動画** | <http://www.nicovideo.jp/> |✓| | |
 | **163<br/>网易视频<br/>网易云音乐** | <http://v.163.com/><br/><http://music.163.com/> |✓| |✓|

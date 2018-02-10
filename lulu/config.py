@@ -38,7 +38,6 @@ SITES = {
     'in': 'alive',
     'infoq': 'infoq',
     'instagram': 'instagram',
-    'interest': 'interest',
     'iqilu': 'iqilu',
     'iqiyi': 'iqiyi',
     'ixigua': 'ixigua',

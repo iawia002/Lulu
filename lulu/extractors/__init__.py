@@ -34,7 +34,6 @@ from .ifeng import *
 from .imgur import *
 from .infoq import *
 from .instagram import *
-from .interest import *
 from .iqilu import *
 from .iqiyi import *
 from .joy import *
