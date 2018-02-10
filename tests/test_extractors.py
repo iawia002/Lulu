@@ -603,6 +603,16 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    def test_nanagogo(self):
+        extractors.nanagogo.download(
+            'https://7gogo.jp/akimoto-manatsu/5258',
+            info_only=True
+        )
+        extractors.nanagogo.download(
+            'https://7gogo.jp/goto-moe/72696',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
