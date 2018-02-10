@@ -483,6 +483,12 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    def test_iwara(self):
+        extractors.iwara.download(
+            'http://www.iwara.tv/videos/k09z6iqkrwszz0qyk',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()

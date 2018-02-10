@@ -36,6 +36,7 @@ from .infoq import *
 from .instagram import *
 from .iqilu import *
 from .iqiyi import *
+from .iwara import *
 from .joy import *
 from .ku6 import *
 from .kugou import *
