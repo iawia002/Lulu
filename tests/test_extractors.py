@@ -548,6 +548,17 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    @ignore_network_issue
+    def test_le(self):
+        extractors.le.download(
+            'http://www.le.com/ptv/vplay/31375060.html',
+            info_only=True
+        )
+        extractors.le.download(
+            'http://www.le.com/ptv/vplay/31342937.html',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
