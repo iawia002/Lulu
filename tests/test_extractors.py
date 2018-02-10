@@ -23,6 +23,10 @@ class TestExtractors(unittest.TestCase):
             'http://www.magisto.com/album/video/f3x9AAQORAkfDnIFDA',
             info_only=True
         )
+        extractors.magisto.download(
+            'https://www.magisto.com/album/video/PHkvVlFBA118eX4GDnQncnN7fQ',
+            info_only=True
+        )
 
     def test_youtube(self):
         extractors.youtube.download(
