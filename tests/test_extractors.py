@@ -448,6 +448,13 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    def test_heavymusic(self):
+        extractors.heavymusic.download(
+            'http://www.heavy-music.ru/?browse&band=0xist&album='
+            '(2010)%20-%20Unveiling%20the%20Shadow%20World',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
