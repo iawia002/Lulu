@@ -629,6 +629,12 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    def test_pixnet(self):
+        extractors.pixnet.download(
+            'http://eric6513.pixnet.net/album/video/206644535',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
