@@ -436,6 +436,18 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    def test_giphy(self):
+        extractors.giphy.download(
+            'https://giphy.com/gifs/NYFW-nyfw-2016-new-york-fashion-week-'
+            'l0MYFI3rPn45greIo',
+            info_only=True
+        )
+        extractors.giphy.download(
+            'https://giphy.com/nyfw/past-fashion-weeks/shows/'
+            'vivienne-tam-feb-2017',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()

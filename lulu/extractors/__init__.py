@@ -25,6 +25,7 @@ from .fc2video import *
 from .flickr import *
 from .freesound import *
 from .funshion import *
+from .giphy import *
 from .google import *
 from .heavymusic import *
 from .huaban import *
