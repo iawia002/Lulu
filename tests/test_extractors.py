@@ -419,6 +419,12 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    def test_freesound(self):
+        extractors.freesound.download(
+            'https://freesound.org/people/crispydinner/sounds/120405/',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
