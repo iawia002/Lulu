@@ -382,6 +382,19 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    @ignore_network_issue
+    def test_cntv(self):
+        extractors.cntv.download(
+            'http://news.cctv.com/2018/02/09/'
+            'ARTIMfB4dxy7AH9ZN8IHCOA2180209.shtml',
+            info_only=True
+        )
+        extractors.cntv.download(
+            'http://news.cctv.com/2018/02/09/'
+            'ARTIiO6RNQCh1gTSAUOEEvN4180209.shtml',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
