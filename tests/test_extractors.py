@@ -425,6 +425,17 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    @ignore_network_issue
+    def test_funshion(self):
+        extractors.funshion.download(
+            'https://www.fun.tv/vplay/v-19729665/',
+            info_only=True
+        )
+        extractors.funshion.download(
+            'https://www.fun.tv/vplay/g-313897/',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
