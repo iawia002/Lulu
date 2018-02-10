@@ -613,6 +613,12 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    def test_naver(self):
+        extractors.naver.download(
+            'http://tv.naver.com/v/2694018',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
