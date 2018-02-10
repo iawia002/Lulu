@@ -1,41 +1,66 @@
 #!/usr/bin/env python
 
+from lulu.common import (
+    match1,
+    url_info,
+    print_info,
+    get_content,
+    download_urls,
+    playlist_not_supported,
+)
+from lulu.util.strings import unescape_html
+
+
 __all__ = ['ifeng_download', 'ifeng_download_by_id']
+site_info = '凤凰网 ifeng.com'
 
-from ..common import *
 
-def ifeng_download_by_id(id, title = None, output_dir = '.', merge = True, info_only = False):
-    assert r1(r'([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})', id), id
-    url = 'http://vxml.ifengimg.com/video_info_new/%s/%s/%s.xml' % (id[-2], id[-2:], id)
-    xml = get_html(url, 'utf-8')
-    title = r1(r'Name="([^"]+)"', xml)
+def ifeng_download_by_id(_id, title=None, info_only=False, **kwargs):
+    assert match1(
+        _id, r'([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})'
+    ), _id
+    url = 'http://vxml.ifengimg.com/video_info_new/{}/{}/{}.xml'.format(
+        _id[-2], _id[-2:], _id
+    )
+    xml = get_content(url)
+    title = match1(xml, r'Name="([^"]+)"')
     title = unescape_html(title)
-    url = r1(r'VideoPlayUrl="([^"]+)"', xml)
-    from random import randint
-    r = randint(10, 19)
-    url = url.replace('http://wideo.ifeng.com/', 'http://ips.ifeng.com/wideo.ifeng.com/')
-    type, ext, size = url_info(url)
+    url = match1(xml, r'VideoPlayUrl="([^"]+)"')
+    url = url.replace(
+        'http://wideo.ifeng.com/', 'http://ips.ifeng.com/wideo.ifeng.com/'
+    )
+    _, ext, size = url_info(url)
 
     print_info(site_info, title, ext, size)
     if not info_only:
-        download_urls([url], title, ext, size, output_dir, merge = merge)
+        download_urls([url], title, ext, size, **kwargs)
 
-def ifeng_download(url, output_dir = '.', merge = True, info_only = False, **kwargs):
-# old pattern /uuid.shtml
-# now it could be #uuid
-    id = r1(r'([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})', url)
-    if id:
-        return ifeng_download_by_id(id, None, output_dir = output_dir, merge = merge, info_only = info_only)
+
+def ifeng_download(url, info_only=False, **kwargs):
+    # old pattern /uuid.shtml
+    # now it could be #uuid
+    _id = match1(
+        url,
+        r'([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})'
+    )
+    if _id:
+        return ifeng_download_by_id(_id, None, info_only=info_only, **kwargs)
 
     html = get_content(url)
-    uuid_pattern = r'"([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})"'
-    id = r1(r'var vid="([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})"', html)
-    if id is None:
+    uuid_pattern = (
+        r'"([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})"'
+    )
+    _id = match1(
+        html,
+        r'var vid="([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-'
+        '[0-9a-f]{12})"'
+    )
+    if _id is None:
         video_pattern = r'"vid"\s*:\s*' + uuid_pattern
-        id = match1(html, video_pattern)
-    assert id, "can't find video info"
-    return ifeng_download_by_id(id, None, output_dir = output_dir, merge = merge, info_only = info_only)
+        _id = match1(html, video_pattern)
+    assert _id, "Can't find video info"
+    return ifeng_download_by_id(_id, None, info_only=info_only, **kwargs)
 
-site_info = "ifeng.com"
+
 download = ifeng_download
-download_playlist = playlist_not_supported('ifeng')
+download_playlist = playlist_not_supported(site_info)

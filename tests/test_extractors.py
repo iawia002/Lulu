@@ -476,6 +476,13 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    @ignore_network_issue
+    def test_ifeng(self):
+        extractors.ifeng.download(
+            'http://v.ifeng.com/video_11689002.shtml',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
