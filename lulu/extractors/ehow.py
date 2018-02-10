@@ -1,38 +1,38 @@
 #!/usr/bin/env python
 
+import re
+
+from lulu.common import (
+    match1,
+    url_info,
+    print_info,
+    get_content,
+    download_urls,
+    playlist_not_supported,
+)
+from lulu.util.parser import get_parser
+
 __all__ = ['ehow_download']
+site_info = 'eHow ehow.com'
 
-from ..common import *
 
-def ehow_download(url, output_dir = '.', merge = True, info_only = False, **kwargs):
-	
-	assert re.search(r'http://www.ehow.com/video_', url), "URL you entered is not supported"
+def ehow_download(url, info_only=False, **kwargs):
 
-	html = get_html(url)
-	contentid = r1(r'<meta name="contentid" scheme="DMINSTR2" content="([^"]+)" />', html)
-	vid = r1(r'"demand_ehow_videoid":"([^"]+)"', html)
-	assert vid
+    assert re.search(
+        r'https?://www.ehow.com/video_', url
+    ), 'URL you entered is not supported'
 
-	xml = get_html('http://www.ehow.com/services/video/series.xml?demand_ehow_videoid=%s' % vid)
-    
-	from xml.dom.minidom import parseString
-	doc = parseString(xml)
-	tab = doc.getElementsByTagName('related')[0].firstChild
+    html = get_content(url)
+    parser = get_parser(html)
+    title = parser.find('meta', property='og:title')['content']
+    video = parser.find('meta', property='og:video')['content']
+    url = match1(video, r'source=(.+?)&')
+    _type, ext, size = url_info(url)
+    print_info(site_info, title, _type, size)
 
-	for video in tab.childNodes:
-		if re.search(contentid, video.attributes['link'].value):
-			url = video.attributes['flv'].value
-			break
+    if not info_only:
+        download_urls([url], title, ext, size, **kwargs)
 
-	title = video.attributes['title'].value
-	assert title 
 
-	type, ext, size = url_info(url)
-	print_info(site_info, title, type, size)
-	
-	if not info_only:
-		download_urls([url], title, ext, size, output_dir, merge = merge)
-
-site_info = "ehow.com"
 download = ehow_download
-download_playlist = playlist_not_supported('ehow')
+download_playlist = playlist_not_supported(site_info)

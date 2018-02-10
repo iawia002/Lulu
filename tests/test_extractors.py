@@ -407,6 +407,12 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    def test_ehow(self):
+        extractors.ehow.download(
+            'https://www.ehow.com/video_12340520_fresh-berry-ice-cubes.html',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
