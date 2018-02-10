@@ -30,8 +30,8 @@ def iqilu_download(url, info_only=False, **kwargs):
         # grab title
         title = match1(html, r'<meta name="description" content="(.*?)\"\W')
 
-        type_, ext, size = url_info(url)
-        print_info(site_info, title, type_, size)
+        _type, ext, size = url_info(url)
+        print_info(site_info, title, _type, size)
         if not info_only:
             download_urls([url], title, ext, size, **kwargs)
 

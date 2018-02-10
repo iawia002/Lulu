@@ -510,6 +510,17 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    @ignore_network_issue
+    def test_ku6(self):
+        extractors.ku6.download(
+            'https://www.ku6.com/video/detail?id=9l7XvS7f7vAH7CVcfP7LSioPNSk.',
+            info_only=True
+        )
+        extractors.ku6.download(
+            'https://www.ku6.com/video/detail?id=lwJMlWk-OXX2w1r94xyoAOkJGOE.',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
