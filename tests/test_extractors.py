@@ -590,6 +590,13 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    def test_mtv81(self):
+        extractors.mtv81.download(
+            'http://www.mtv81.com/videos/the-buzz/suiyoubi-no-campanella-'
+            'pumps-pink-red-bull-through-her-veins/',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
