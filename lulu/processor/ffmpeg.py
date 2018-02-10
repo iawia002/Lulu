@@ -304,6 +304,7 @@ def ffmpeg_concat_audio_and_video(files, output, ext):
     if has_ffmpeg_installed:
         params = [FFMPEG] + LOGLEVEL
         params.extend(['-f', 'concat'])
+        params.extend(['-safe', '0'])
         for file in files:
             if os.path.isfile(file):
                 params.extend(['-i', file])

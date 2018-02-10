@@ -395,6 +395,12 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    def test_coub(self):
+        extractors.coub.download(
+            'http://coub.com/view/131ozl',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
