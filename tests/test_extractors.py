@@ -570,6 +570,15 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    @ignore_network_issue
+    def test_metacafe(self):
+        extractors.metacafe.download(
+            'http://www.metacafe.com/watch/11629007/overwatch-hero-match-lucio'
+            '-trailer-blizzard-entertainment-directors-aaron-keller-chris-metz'
+            'en-jeff-kaplan/',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()

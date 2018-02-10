@@ -45,7 +45,7 @@ def douyutv_video_download(
     if meta['error'] != 0:
         log.wtf('Error from API server')
     m3u8_url = meta['data']['video_url']
-    print_info('Douyu Video', title, 'm3u8', 0, m3u8_url=m3u8_url)
+    print_info(site_info, title, 'm3u8', 0, m3u8_url=m3u8_url)
     if not info_only:
         urls = general_m3u8_extractor(m3u8_url)
         download_urls(
