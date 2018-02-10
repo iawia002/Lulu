@@ -532,8 +532,19 @@ class TestExtractors(unittest.TestCase):
             'http://www.kugou.com/yy/special/single/244402.html',
             info_only=True
         )
-        extractors.ku6.download(
+        extractors.kugou.download(
             'http://5sing.kugou.com/fc/16355679.html',
+            info_only=True
+        )
+
+    @ignore_network_issue
+    def test_kuwo(self):
+        extractors.kuwo.download(
+            'http://www.kuwo.cn/yinyue/6657692',
+            info_only=True
+        )
+        extractors.kuwo.download_playlist(
+            'http://yinyue.kuwo.cn/yy/cinfo_3349.htm',
             info_only=True
         )
 
