@@ -489,6 +489,13 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    @ignore_network_issue
+    def test_iqilu(self):
+        extractors.iqilu.download(
+            'http://v.iqilu.com/sdws/zasd/2018/0209/4508775.html',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
