@@ -647,6 +647,13 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    @ignore_network_issue
+    def test_qingting(self):
+        extractors.qingting.download(
+            'http://www.qingting.fm/channels/232855/programs/8160697',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
