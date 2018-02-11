@@ -675,6 +675,18 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    def test_twitter(self):
+        # Image
+        extractors.twitter.download(
+            'https://twitter.com/Remembear/status/961045374084448256',
+            info_only=True
+        )
+        # Video
+        extractors.twitter.download(
+            'https://twitter.com/thisisjohnny/status/952993048207806464',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
