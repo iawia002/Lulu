@@ -1,35 +1,41 @@
 import re
 import json
 
-from ..common import get_content
-from ..extractors import VideoExtractor
-from ..util import log
-from ..util.strings import unescape_html
+from lulu.util import log
+from lulu.common import get_content
+from lulu.extractor import VideoExtractor
+from lulu.util.strings import unescape_html
+
 
 __all__ = ['qq_egame_download']
 
 
 class QQEgame(VideoExtractor):
     stream_types = [
-        {'id': 'original', 'video_profile': '0', 'container': 'flv'},
-        {'id': '900', 'video_profile': '900kb/s', 'container': 'flv'},
-        {'id': '550', 'video_profile': '550kb/s', 'container': 'flv'}
+        {'id': '1080p', 'video_profile': 0, 'container': 'flv'},
+        {'id': '720p', 'video_profile': 3000, 'container': 'flv'},
+        {'id': '540p', 'video_profile': 1500, 'container': 'flv'}
     ]
-    name = 'QQEgame'
+    name = '企鹅电竞 egame.qq.com'
 
     def prepare(self, **kwargs):
         page = get_content(self.url)
-        server_data = re.search(r'serverData\s*=\s*({.+?});', page)
+        server_data = re.search(r'window\.__NUXT__=({.+?});', page)
         if server_data is None:
             log.wtf('cannot find server_data')
-        json_data = json.loads(server_data.group(1))
-        live_info = json_data['liveInfo']['data']
-        self.title = '{}_{}'.format(live_info['profileInfo']['nickName'], live_info['videoInfo']['title'])
+        json_data = json.loads(server_data.group(1))['state']
+        live_info = json_data['live-info']['liveInfo']
+        self.title = '{}_{}'.format(
+            json_data['anchor-info']['anchorInfo']['nickName'],
+            live_info['videoInfo']['title']
+        )
         for exsited_stream in live_info['videoInfo']['streamInfos']:
             for s in self.__class__.stream_types:
-                if re.search(r'(\d+)', s['video_profile']).group(1) == exsited_stream['bitrate']:
+                if s['video_profile'] == exsited_stream['bitrate']:
                     current_stream_id = s['id']
-                    stream_info = dict(src=[unescape_html(exsited_stream['playUrl'])])
+                    stream_info = dict(
+                        src=[unescape_html(exsited_stream['playUrl'])]
+                    )
                     stream_info['video_profile'] = exsited_stream['desc']
                     stream_info['container'] = s['container']
                     stream_info['size'] = float('inf')
