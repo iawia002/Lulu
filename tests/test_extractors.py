@@ -661,6 +661,13 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    @ignore_network_issue
+    def test_sohu(self):
+        extractors.sohu.download(
+            'http://my.tv.sohu.com/pl/9392627/98047585.shtml',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()

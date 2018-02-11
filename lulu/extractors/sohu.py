@@ -1,13 +1,22 @@
 #!/usr/bin/env python
 
-__all__ = ['sohu_download']
-
-from ..common import *
-
+import re
 import json
 import time
 from random import random
 from urllib.parse import urlparse
+
+from lulu.common import (
+    match1,
+    print_info,
+    get_content,
+    download_urls,
+    playlist_not_supported,
+)
+
+__all__ = ['sohu_download']
+site_info = 'Sohu.com'
+
 
 '''
 Changelog:
@@ -15,65 +24,77 @@ Changelog:
         new api
 '''
 
-def real_url(host,vid,tvid,new,clipURL,ck):
-    url = 'http://'+host+'/?prot=9&prod=flash&pt=1&file='+clipURL+'&new='+new +'&key='+ ck+'&vid='+str(vid)+'&uid='+str(int(time.time()*1000))+'&t='+str(random())+'&rb=1'
-    return json.loads(get_html(url))['url']
 
-def sohu_download(url, output_dir = '.', merge = True, info_only = False, extractor_proxy=None, **kwargs):
+def real_url(host, vid, tvid, new, clipURL, ck):
+    url = (
+        'http://{}/?prot=9&prod=flash&pt=1&file={}&new={}&key={}&vid={}'
+        '&uid={}&t={}&rb=1'.format(
+            host, clipURL, new, ck, str(vid), str(int(time.time()*1000)),
+            str(random())
+        )
+    )
+    return json.loads(get_content(url))['url']
+
+
+def sohu_download(url, info_only=False, **kwargs):
     if re.match(r'http://share.vrs.sohu.com', url):
-        vid = r1('id=(\d+)', url)
+        vid = match1(url, 'id=(\d+)')
     else:
-        html = get_html(url)
-        vid = r1(r'\Wvid\s*[\:=]\s*[\'"]?(\d+)[\'"]?', html)
+        html = get_content(url)
+        vid = match1(html, r'\Wvid\s*[\:=]\s*[\'"]?(\d+)[\'"]?')
     assert vid
 
     if re.match(r'http[s]://tv.sohu.com/', url):
-        if extractor_proxy:
-            set_proxy(tuple(extractor_proxy.split(":")))
-        info = json.loads(get_decoded_html('http://hot.vrs.sohu.com/vrs_flash.action?vid=%s' % vid))
-        for qtyp in ["oriVid","superVid","highVid" ,"norVid","relativeId"]:
+        info = json.loads(get_content(
+            'http://hot.vrs.sohu.com/vrs_flash.action?vid={}'.format(vid)
+        ))
+        for qtyp in ['oriVid', 'superVid', 'highVid', 'norVid', 'relativeId']:
             if 'data' in info:
                 hqvid = info['data'][qtyp]
             else:
                 hqvid = info[qtyp]
-            if hqvid != 0 and hqvid != vid :
-                info = json.loads(get_decoded_html('http://hot.vrs.sohu.com/vrs_flash.action?vid=%s' % hqvid))
-                if not 'allot' in info:
+            if hqvid != 0 and hqvid != vid:
+                info = json.loads(get_content(
+                    'http://hot.vrs.sohu.com/vrs_flash.action?vid={}'.format(
+                        hqvid
+                    )
+                ))
+                if 'allot' not in info:
                     continue
                 break
-        if extractor_proxy:
-            unset_proxy()
         host = info['allot']
-        prot = info['prot']
         tvid = info['tvid']
         urls = []
         data = info['data']
         title = data['tvName']
         size = sum(data['clipsBytes'])
-        assert len(data['clipsURL']) == len(data['clipsBytes']) == len(data['su'])
-        for new,clip,ck, in zip(data['su'], data['clipsURL'], data['ck']):
+        assert len(data['clipsURL']) == len(data['clipsBytes']) \
+            == len(data['su'])
+        for new, clip, ck in zip(data['su'], data['clipsURL'], data['ck']):
             clipURL = urlparse(clip).path
-            urls.append(real_url(host,hqvid,tvid,new,clipURL,ck))
-        # assert data['clipsURL'][0].endswith('.mp4')
+            urls.append(real_url(host, hqvid, tvid, new, clipURL, ck))
 
     else:
-        info = json.loads(get_decoded_html('http://my.tv.sohu.com/play/videonew.do?vid=%s&referer=http://my.tv.sohu.com' % vid))
+        info = json.loads(get_content(
+            'http://my.tv.sohu.com/play/videonew.do?vid={}&referer='
+            'http://my.tv.sohu.com'.format(vid)
+        ))
         host = info['allot']
-        prot = info['prot']
         tvid = info['tvid']
         urls = []
         data = info['data']
         title = data['tvName']
-        size = sum(map(int,data['clipsBytes']))
-        assert len(data['clipsURL']) == len(data['clipsBytes']) == len(data['su'])
-        for new,clip,ck, in zip(data['su'], data['clipsURL'], data['ck']):
+        size = sum(map(int, data['clipsBytes']))
+        assert len(data['clipsURL']) == len(data['clipsBytes']) \
+            == len(data['su'])
+        for new, clip, ck, in zip(data['su'], data['clipsURL'], data['ck']):
             clipURL = urlparse(clip).path
-            urls.append(real_url(host,vid,tvid,new,clipURL,ck))
+            urls.append(real_url(host, vid, tvid, new, clipURL, ck))
 
     print_info(site_info, title, 'mp4', size)
     if not info_only:
-        download_urls(urls, title, 'mp4', size, output_dir, refer = url, merge = merge)
+        download_urls(urls, title, 'mp4', size, refer=url, **kwargs)
 
-site_info = "Sohu.com"
+
 download = sohu_download
-download_playlist = playlist_not_supported('sohu')
+download_playlist = playlist_not_supported(site_info)
