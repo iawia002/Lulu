@@ -654,6 +654,13 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    @ignore_network_issue
+    def test_sina(self):
+        extractors.sina.download(
+            'http://video.sina.com.cn/view/252618328.html',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
