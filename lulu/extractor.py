@@ -15,6 +15,7 @@ from lulu.common import (
     get_filename,
     download_urls,
     download_url_ffmpeg,
+    general_m3u8_extractor,
     print_more_compatible as print,
 )
 from lulu import config
@@ -275,16 +276,26 @@ class VideoExtractor:
             if ext == 'm3u8':
                 ffmpeg_kwargs = {}
                 if 'iqiyi' in self.name:
-                    ffmpeg_kwargs['override'] = True
-                    ffmpeg_kwargs['params'] = {
-                        '-c:a': 'copy', '-bsf:a': 'aac_adtstoasc'
-                    }
-                download_url_ffmpeg(
-                    urls[0], self.title, 'mp4',
-                    output_dir=kwargs['output_dir'],
-                    merge=kwargs['merge'], stream=False,
-                    **ffmpeg_kwargs
-                )
+                    # ffmpeg_kwargs['override'] = True
+                    # ffmpeg_kwargs['params'] = {
+                    #     '-c:a': 'copy', '-bsf:a': 'aac_adtstoasc'
+                    # }
+                    m3u8_urls = general_m3u8_extractor(urls[0])
+                    # FIXME(iawia002): 如果要计算大小的话需要消耗太多时间
+                    if len(m3u8_urls) <= 100:
+                        size = urls_size(m3u8_urls)
+                    else:
+                        size = float('inf')
+                    download_urls(
+                        m3u8_urls, self.title, 'mp4', size, **kwargs
+                    )
+                else:
+                    download_url_ffmpeg(
+                        urls[0], self.title, 'mp4',
+                        output_dir=kwargs['output_dir'],
+                        merge=kwargs['merge'], stream=False,
+                        **ffmpeg_kwargs
+                    )
             else:
                 headers = copy(config.FAKE_HEADERS)
                 if self.ua is not None:
