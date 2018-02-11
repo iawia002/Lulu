@@ -668,6 +668,13 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    def test_soundcloud(self):
+        extractors.soundcloud.download(
+            'https://soundcloud.com/scumgang6ix9ine/keke-ft-fetty-wap-a-boogie'
+            '-wit-da-hoodie',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
