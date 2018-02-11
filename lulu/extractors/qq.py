@@ -158,7 +158,8 @@ def qq_download(url, output_dir='.', merge=True, info_only=False, **kwargs):
             )
         else:
             qieDownload(
-                url, output_dir=output_dir, merge=merge, info_only=info_only
+                url, output_dir=output_dir, merge=merge, info_only=info_only,
+                **kwargs
             )
         return
 
