@@ -443,6 +443,8 @@ def url_info(url, faker=False, headers={}):
     }
     if type in mapping:
         ext = mapping[type]
+    elif '.' in url:
+        type = ext = url.split('.')[-1]
     else:
         type = None
         if headers['content-disposition']:

@@ -23,6 +23,10 @@ class TestExtractors(unittest.TestCase):
             'http://www.magisto.com/album/video/f3x9AAQORAkfDnIFDA',
             info_only=True
         )
+        extractors.magisto.download(
+            'https://www.magisto.com/album/video/PHkvVlFBA118eX4GDnQncnN7fQ',
+            info_only=True
+        )
 
     def test_youtube(self):
         extractors.youtube.download(
@@ -299,6 +303,342 @@ class TestExtractors(unittest.TestCase):
         )
         extractors.flickr.download(
             'https://www.flickr.com/photos/albertdros/33167569260',
+            info_only=True
+        )
+
+    def test_alive(self):
+        extractors.alive.download(
+            'http://alive.in.th/watch_video.php?v=BKBADG831SOM',
+            info_only=True
+        )
+
+    def test_archive(self):
+        extractors.archive.download(
+            'https://archive.org/details/tjdeebok',
+            info_only=True
+        )
+        extractors.archive.download(
+            'https://archive.org/details/bt2005-10-26.flac16',
+            info_only=True
+        )
+
+    @skipOnCI
+    def test_cbs(self):
+        extractors.cbs.download(
+            'http://www.cbs.com/shows/bull/video/'
+            'YUS0W1neCNs28u6942vJypYoOPQzgJJ_/bull-keep-your-friends-close/',
+            info_only=True
+        )
+
+    def test_ted(self):
+        extractors.ted.download(
+            'https://www.ted.com/talks/'
+            'su_kahumbu_how_we_can_help_hungry_kids_one_text_at_a_time',
+            info_only=True
+        )
+
+    @skipOnCI
+    def test_infoq(self):
+        extractors.infoq.download(
+            'http://www.infoq.com/cn/presentations/from-micro-service-to-'
+            'serverless-architecture?utm_source=infoq&utm_medium=videos_'
+            'homepage&utm_campaign=videos_row1',
+            info_only=True
+        )
+
+    def test_vk(self):
+        extractors.vk.download(
+            'https://vk.com/photo-158176266_456239057',
+            info_only=True
+        )
+        extractors.vk.download(
+            'https://vk.com/photo-200_456239105',
+            info_only=True
+        )
+        extractors.vk.download(
+            'https://vk.com/video?z=video-74192244_456244018'
+            '%2F8ccaec8554ab3864e8%2Fpl_cat_featured',
+            info_only=True
+        )
+        extractors.vk.download(
+            'https://vk.com/video-74192244_456244018',
+            info_only=True
+        )
+
+    @ignore_network_issue
+    def test_baomihua(self):
+        extractors.baomihua.download(
+            'http://video.baomihua.com/v/37305339',
+            info_only=True
+        )
+
+    def test_bandcamp(self):
+        extractors.bandcamp.download(
+            'https://radicaldreamland.bandcamp.com/album/'
+            'celeste-original-soundtrack',
+            info_only=True
+        )
+
+    def test_bigthink(self):
+        extractors.bigthink.download(
+            'http://bigthink.com/playlists/new-voices-in-american-foreign-'
+            'policy-charles-koch-foundation',
+            info_only=True
+        )
+
+    @ignore_network_issue
+    def test_cntv(self):
+        extractors.cntv.download(
+            'http://news.cctv.com/2018/02/09/'
+            'ARTIMfB4dxy7AH9ZN8IHCOA2180209.shtml',
+            info_only=True
+        )
+        extractors.cntv.download(
+            'http://news.cctv.com/2018/02/09/'
+            'ARTIiO6RNQCh1gTSAUOEEvN4180209.shtml',
+            info_only=True
+        )
+
+    def test_coub(self):
+        extractors.coub.download(
+            'http://coub.com/view/131ozl',
+            info_only=True
+        )
+
+    def test_dailymotion(self):
+        extractors.dailymotion.download(
+            'http://www.dailymotion.com/video/x69g1zc',
+            info_only=True
+        )
+
+    def test_ehow(self):
+        extractors.ehow.download(
+            'https://www.ehow.com/video_12340520_fresh-berry-ice-cubes.html',
+            info_only=True
+        )
+
+    def test_fc2video(self):
+        extractors.fc2video.download(
+            'http://video.fc2.com/en/content/20151021bTVKnbEw',
+            info_only=True
+        )
+
+    def test_freesound(self):
+        extractors.freesound.download(
+            'https://freesound.org/people/crispydinner/sounds/120405/',
+            info_only=True
+        )
+
+    @ignore_network_issue
+    def test_funshion(self):
+        extractors.funshion.download(
+            'https://www.fun.tv/vplay/v-19729665/',
+            info_only=True
+        )
+        extractors.funshion.download(
+            'https://www.fun.tv/vplay/g-313897/',
+            info_only=True
+        )
+
+    def test_giphy(self):
+        extractors.giphy.download(
+            'https://giphy.com/gifs/NYFW-nyfw-2016-new-york-fashion-week-'
+            'l0MYFI3rPn45greIo',
+            info_only=True
+        )
+        extractors.giphy.download(
+            'https://giphy.com/nyfw/past-fashion-weeks/shows/'
+            'vivienne-tam-feb-2017',
+            info_only=True
+        )
+
+    def test_heavymusic(self):
+        extractors.heavymusic.download(
+            'http://www.heavy-music.ru/?browse&band=0xist&album='
+            '(2010)%20-%20Unveiling%20the%20Shadow%20World',
+            info_only=True
+        )
+
+    @ignore_network_issue
+    def test_icourses(self):
+        extractors.icourses.download(
+            'http://www.icourses.cn/web/sword/portal/videoDetail?courseId='
+            '9fe9d456-1327-1000-9193-4876d02411f6#/?resId=d1165ef9-1334-'
+            '1000-9014-1d109e90c3cf',
+            info_only=True
+        )
+        extractors.icourses.download(
+            'http://www.icourses.cn/web/sword/portal/videoDetail?courseId='
+            '168a8f9c-1345-1000-b224-22f745f72788#/?resId=168b110d-1345-1000-'
+            'b249-22f745f72788',
+            info_only=True
+        )
+        extractors.icourses.download_playlist(
+            'http://www.icourses.cn/web/sword/portal/videoDetail?courseId='
+            '9fe9d456-1327-1000-9193-4876d02411f6#/?resId=d1165ef9-1334-'
+            '1000-9014-1d109e90c3cf',
+            info_only=True
+        )
+
+    @ignore_network_issue
+    def test_ifeng(self):
+        extractors.ifeng.download(
+            'http://v.ifeng.com/video_11689002.shtml',
+            info_only=True
+        )
+
+    def test_iwara(self):
+        extractors.iwara.download(
+            'http://www.iwara.tv/videos/k09z6iqkrwszz0qyk',
+            info_only=True
+        )
+
+    @ignore_network_issue
+    def test_iqilu(self):
+        extractors.iqilu.download(
+            'http://v.iqilu.com/sdws/zasd/2018/0209/4508775.html',
+            info_only=True
+        )
+
+    @ignore_network_issue
+    def test_joy(self):
+        extractors.joy.download(
+            'http://www.joy.cn/videoEntertainment?resourceId=60242908',
+            info_only=True
+        )
+
+    def test_khan(self):
+        extractors.khan.download(
+            'https://www.khanacademy.org/computing/computer-programming/'
+            'programming/intro-to-programming/v/programming-intro',
+            info_only=True
+        )
+
+    @ignore_network_issue
+    def test_ku6(self):
+        extractors.ku6.download(
+            'https://www.ku6.com/video/detail?id=9l7XvS7f7vAH7CVcfP7LSioPNSk.',
+            info_only=True
+        )
+        extractors.ku6.download(
+            'https://www.ku6.com/video/detail?id=lwJMlWk-OXX2w1r94xyoAOkJGOE.',
+            info_only=True
+        )
+
+    @ignore_network_issue
+    def test_kugou(self):
+        extractors.kugou.download(
+            'http://www.kugou.com/song/#hash=0DBC1E271612559994F48E779A71671E&'
+            'album_id=8345464',
+            info_only=True
+        )
+        extractors.kugou.download_playlist(
+            'http://www.kugou.com/yy/special/single/244402.html',
+            info_only=True
+        )
+        extractors.kugou.download(
+            'http://5sing.kugou.com/fc/16355679.html',
+            info_only=True
+        )
+
+    @ignore_network_issue
+    def test_kuwo(self):
+        extractors.kuwo.download(
+            'http://www.kuwo.cn/yinyue/6657692',
+            info_only=True
+        )
+        extractors.kuwo.download_playlist(
+            'http://yinyue.kuwo.cn/yy/cinfo_3349.htm',
+            info_only=True
+        )
+
+    @ignore_network_issue
+    def test_le(self):
+        extractors.le.download(
+            'http://www.le.com/ptv/vplay/31375060.html',
+            info_only=True
+        )
+        extractors.le.download(
+            'http://www.le.com/ptv/vplay/31342937.html',
+            info_only=True
+        )
+
+    @ignore_network_issue
+    def test_lizhi(self):
+        extractors.lizhi.download(
+            'http://www.lizhi.fm/549759/2508612053517249030',
+            info_only=True
+        )
+
+    @ignore_network_issue
+    def test_metacafe(self):
+        extractors.metacafe.download(
+            'http://www.metacafe.com/watch/11629007/overwatch-hero-match-lucio'
+            '-trailer-blizzard-entertainment-directors-aaron-keller-chris-metz'
+            'en-jeff-kaplan/',
+            info_only=True
+        )
+
+    @ignore_network_issue
+    def test_mgtv(self):
+        extractors.mgtv.download(
+            'https://www.mgtv.com/b/321502/4280446.html',
+            info_only=True
+        )
+        extractors.mgtv.download(
+            'https://www.mgtv.com/l/100016375.html',
+            info_only=True
+        )
+
+    def test_mtv81(self):
+        extractors.mtv81.download(
+            'http://www.mtv81.com/videos/the-buzz/suiyoubi-no-campanella-'
+            'pumps-pink-red-bull-through-her-veins/',
+            info_only=True
+        )
+
+    def test_musicplayon(self):
+        extractors.musicplayon.download(
+            'https://zh.musicplayon.com/Maroon-5-Wait-Video-320200.html',
+            info_only=True
+        )
+
+    def test_nanagogo(self):
+        extractors.nanagogo.download(
+            'https://7gogo.jp/akimoto-manatsu/5258',
+            info_only=True
+        )
+        extractors.nanagogo.download(
+            'https://7gogo.jp/goto-moe/72696',
+            info_only=True
+        )
+
+    def test_naver(self):
+        extractors.naver.download(
+            'http://tv.naver.com/v/2694018',
+            info_only=True
+        )
+
+    def test_pinterest(self):
+        extractors.pinterest.download(
+            'https://www.pinterest.com/pin/762656518121280263/',
+            info_only=True
+        )
+        extractors.pinterest.download(
+            'https://www.pinterest.com/pin/726346246125451851/',
+            info_only=True
+        )
+
+    def test_pixnet(self):
+        extractors.pixnet.download(
+            'http://eric6513.pixnet.net/album/video/206644535',
+            info_only=True
+        )
+
+    @ignore_network_issue
+    def test_pptv(self):
+        extractors.pptv.download(
+            'http://v.pptv.com/show/B20ysRXcF1W4Np4.html',
             info_only=True
         )
 

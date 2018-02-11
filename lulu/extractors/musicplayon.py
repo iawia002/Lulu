@@ -1,12 +1,15 @@
 #!/usr/bin/env python
 
-from ..common import *
-from ..extractor import VideoExtractor
+from lulu.common import (
+    match1,
+    url_info,
+    get_content,
+)
+from lulu.extractor import VideoExtractor
 
-import json
 
 class MusicPlayOn(VideoExtractor):
-    name = "MusicPlayOn"
+    name = 'MusicPlayOn musicplayon.com'
 
     stream_types = [
         {'id': '720p HD'},
@@ -16,22 +19,26 @@ class MusicPlayOn(VideoExtractor):
     def prepare(self, **kwargs):
         content = get_content(self.url)
 
-        self.title = match1(content,
-                            r'setup\[\'title\'\] = "([^"]+)";')
+        self.title = match1(
+            content, r'setup\[\'title\'\] = "([^"]+)";'
+        )
 
         for s in self.stream_types:
             quality = s['id']
-            src = match1(content,
-                         r'src: "([^"]+)", "data-res": "%s"' % quality)
+            src = match1(
+                content,
+                r'src: "([^"]+)", "data-res": "{}"'.format(quality)
+            )
             if src is not None:
-                url = 'http://en.musicplayon.com%s' % src
+                url = 'https://en.musicplayon.com{}'.format(src)
                 self.streams[quality] = {'url': url}
 
     def extract(self, **kwargs):
         for i in self.streams:
             s = self.streams[i]
-            _, s['container'], s['size'] = url_info(s['url'])
+            _, s['container'], s['size'] = url_info(s['url'], faker=True)
             s['src'] = [s['url']]
+
 
 site = MusicPlayOn()
 download = site.download_by_url

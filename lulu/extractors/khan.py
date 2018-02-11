@@ -1,15 +1,24 @@
 #!/usr/bin/env python
 
+
+from lulu.common import (
+    get_content,
+    playlist_not_supported,
+)
+from lulu.util.parser import get_parser
+from lulu.extractors.youtube import YouTube
+
+
 __all__ = ['khan_download']
+site_info = 'Khan Academy khanacademy.org'
 
-from ..common import *
-from .youtube import YouTube
 
-def khan_download(url, output_dir='.', merge=True, info_only=False, **kwargs):
+def khan_download(url, **kwargs):
     html = get_content(url)
-    youtube_url = re.search('<meta property="og:video" content="([^"]+)', html).group(1)
-    YouTube().download_by_url(youtube_url, output_dir=output_dir, merge=merge, info_only=info_only)
+    parser = get_parser(html)
+    youtube_url = parser.find('meta', property='og:video')['content']
+    YouTube().download_by_url(youtube_url, **kwargs)
 
-site_info = "khanacademy.org"
+
 download = khan_download
-download_playlist = playlist_not_supported('khan')
+download_playlist = playlist_not_supported(site_info)

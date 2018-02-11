@@ -1,34 +1,55 @@
 #!/usr/bin/env python
 
+from lulu.common import (
+    match1,
+    url_info,
+    print_info,
+    get_content,
+    download_urls,
+    playlist_not_supported,
+)
+
+
 __all__ = ['baomihua_download', 'baomihua_download_by_id']
+site_info = '爆米花 baomihua.com'
 
-from ..common import *
 
-import urllib
-
-def baomihua_download_by_id(id, title=None, output_dir='.', merge=True, info_only=False, **kwargs):
-    html = get_html('http://play.baomihua.com/getvideourl.aspx?flvid=%s&devicetype=phone_app' % id)
-    host = r1(r'host=([^&]*)', html)
+def baomihua_download_by_id(
+    _id, title=None, output_dir='.', merge=True, info_only=False, **kwargs
+):
+    html = get_content(
+        'http://play.baomihua.com/getvideourl.aspx?flvid={}&devicetype='
+        'phone_app'.format(_id)
+    )
+    host = match1(html, r'host=([^&]*)')
     assert host
-    type = r1(r'videofiletype=([^&]*)', html)
-    assert type
-    vid = r1(r'&stream_name=([^&]*)', html)
+    _type = match1(html, r'videofiletype=([^&]*)')
+    assert _type
+    vid = match1(html, r'&stream_name=([^&]*)')
     assert vid
-    dir_str = r1(r'&dir=([^&]*)', html).strip()
-    url = "http://%s/%s/%s.%s" % (host, dir_str, vid, type)
+    dir_str = match1(html, r'&dir=([^&]*)').strip()
+    url = 'http://{}/{}/{}.{}'.format(host, dir_str, vid, _type)
     _, ext, size = url_info(url)
-    print_info(site_info, title, type, size)
+    print_info(site_info, title, _type, size)
     if not info_only:
-        download_urls([url], title, ext, size, output_dir, merge = merge)
+        download_urls(
+            [url], title, ext, size, output_dir, merge=merge, **kwargs
+        )
 
-def baomihua_download(url, output_dir='.', merge=True, info_only=False, **kwargs):
-    html = get_html(url)
-    title = r1(r'<title>(.*)</title>', html)
+
+def baomihua_download(
+    url, output_dir='.', merge=True, info_only=False, **kwargs
+):
+    html = get_content(url)
+    title = match1(html, r'<title>(.*)</title>')
     assert title
-    id = r1(r'flvid\s*=\s*(\d+)', html)
-    assert id
-    baomihua_download_by_id(id, title, output_dir=output_dir, merge=merge, info_only=info_only)
+    _id = match1(html, r'flvid\s*=\s*(\d+)')
+    assert _id
+    baomihua_download_by_id(
+        _id, title, output_dir=output_dir, merge=merge, info_only=info_only,
+        **kwargs
+    )
 
-site_info = "baomihua.com"
+
 download = baomihua_download
-download_playlist = playlist_not_supported('baomihua')
+download_playlist = playlist_not_supported(site_info)

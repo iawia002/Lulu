@@ -1,30 +1,40 @@
 #!/usr/bin/env python
 
-__all__ = ['iqilu_download']
-
-from ..common import *
+import re
 import json
 
-def iqilu_download(url, output_dir = '.', merge = False, info_only = False, **kwargs):
-    ''''''
+from lulu.common import (
+    match1,
+    url_info,
+    print_info,
+    get_content,
+    download_urls,
+    playlist_not_supported,
+)
+
+
+__all__ = ['iqilu_download']
+site_info = '齐鲁网 iqilu.com'
+
+
+def iqilu_download(url, info_only=False, **kwargs):
     if re.match(r'http://v.iqilu.com/\w+', url):
         patt = r'url\s*:\s*\[([^\]]+)\]'
-        
-        #URL in webpage
+
+        # URL in webpage
         html = get_content(url)
-        player_data = '[' + match1(html, patt) + ']'
+        player_data = '[{}]'.format(match1(html, patt))
         urls = json.loads(player_data)
         url = urls[0]['stream_url']
-        
-        #grab title
+
+        # grab title
         title = match1(html, r'<meta name="description" content="(.*?)\"\W')
 
-        type_, ext, size = url_info(url)
-        print_info(site_info, title, type_, size)
+        _type, ext, size = url_info(url)
+        print_info(site_info, title, _type, size)
         if not info_only:
-            download_urls([url], title, ext, total_size=None, output_dir=output_dir, merge=merge)
+            download_urls([url], title, ext, size, **kwargs)
 
 
-site_info = "iQilu"
 download = iqilu_download
-download_playlist = playlist_not_supported('iqilu')
+download_playlist = playlist_not_supported(site_info)

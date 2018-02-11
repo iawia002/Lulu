@@ -1,16 +1,21 @@
 #!/usr/bin/env python
 
+import re
 import json
-import urllib.parse
 import base64
 import binascii
-import re
+import urllib.parse
 
-from ..extractors import VideoExtractor
-from ..util import log
-from ..common import get_content, playlist_not_supported
+from lulu.util import log
+from lulu.common import (
+    get_content,
+    playlist_not_supported,
+)
+from lulu.extractors import VideoExtractor
+
 
 __all__ = ['funshion_download']
+site_info = '风行网 fun.tv'
 
 
 class KBaseMapping:
@@ -33,7 +38,7 @@ class KBaseMapping:
 
 
 class Funshion(VideoExtractor):
-    name = "funshion"
+    name = site_info
     stream_types = [
         {'id': 'sdvd'},
         {'id': 'sdvd_h265'},
@@ -68,7 +73,11 @@ class Funshion(VideoExtractor):
         for p in js_path:
             if 'mtool' in p or 'mcore' in p:
                 js_text = get_content(p)
-                hit = re.search(r'\(\'(.+?)\',(\d+),(\d+),\'(.+?)\'\.split\(\'\|\'\),\d+,\{\}\)', js_text)
+                hit = re.search(
+                    r'\(\'(.+?)\',(\d+),(\d+),\'(.+?)\'\.split\(\'\|\'\),\d+,'
+                    '\{\}\)',
+                    js_text
+                )
 
                 code = hit.group(1)
                 base = hit.group(2)
@@ -79,7 +88,8 @@ class Funshion(VideoExtractor):
                 sym_to_name = {}
                 for no in range(int(size), 0, -1):
                     no_in_base = mapping.mapping(no)
-                    val = names[no] if no < len(names) and names[no] else no_in_base
+                    val = names[no] if no < len(names) and names[no] \
+                        else no_in_base
                     sym_to_name[no_in_base] = val
 
                 moz_ec_name = search_dict(sym_to_name, 'mozEcName')
@@ -143,7 +153,9 @@ class Funshion(VideoExtractor):
         if not re.match(r'[0-9A-Za-z]{41}', sha1_str):
             return False
         sha1 = sha1_str[:-1]
-        if (15 & sum([int(char, 16) for char in sha1])) == int(sha1_str[-1], 16):
+        if (15 & sum([int(char, 16) for char in sha1])) == int(
+            sha1_str[-1], 16
+        ):
             return True
         return False
 
@@ -158,26 +170,38 @@ class Funshion(VideoExtractor):
         res = None
         clear = cls.funshion_decrypt_str(info['infohash'], coeff)
         if cls.checksum(clear):
-            res = dict(hashid=clear[:40], token=cls.funshion_decrypt_str(info['token'], coeff))
+            res = dict(
+                hashid=clear[:40],
+                token=cls.funshion_decrypt_str(info['token'], coeff)
+            )
         else:
             clear = cls.funshion_decrypt_str(info['infohash_prev'], coeff)
             if cls.checksum(clear):
-                res = dict(hashid=clear[:40], token=cls.funshion_decrypt_str(info['token_prev'], coeff))
+                res = dict(
+                    hashid=clear[:40],
+                    token=cls.funshion_decrypt_str(info['token_prev'], coeff)
+                )
         return res
 
     def prepare(self, **kwargs):
         if self.__class__.coeff is None:
-            magic_list = self.__class__.fetch_magic(self.__class__.a_mobile_url)
+            magic_list = self.__class__.fetch_magic(
+                self.__class__.a_mobile_url
+            )
             self.__class__.coeff = self.__class__.get_coeff(magic_list)
 
         if 'title' not in kwargs:
-            url = 'http://pv.funshion.com/v5/video/profile/?id={}&cl=mweb&uc=111'.format(self.vid)
+            url = (
+                'http://pv.funshion.com/v5/video/profile/?id={}&cl=mweb&'
+                'uc=111'.format(self.vid)
+            )
             meta = json.loads(get_content(url))
             self.title = meta['name']
         else:
             self.title = kwargs['title']
 
-        ep_url = self.__class__.video_ep if 'single_video' in kwargs else self.__class__.media_ep
+        ep_url = self.__class__.video_ep if 'single_video' in kwargs \
+            else self.__class__.media_ep
 
         url = ep_url.format(self.vid)
         meta = json.loads(get_content(url))
@@ -192,23 +216,36 @@ class Funshion(VideoExtractor):
                     if codec == 'h264':
                         s_id = definition
                     if s_id == st['id']:
-                        clear_info = self.__class__.dec_playinfo(s, self.__class__.coeff)
-                        cdn_list = self.__class__.get_cdninfo(clear_info['hashid'])
+                        clear_info = self.__class__.dec_playinfo(
+                            s, self.__class__.coeff
+                        )
+                        cdn_list = self.__class__.get_cdninfo(
+                            clear_info['hashid']
+                        )
                         base_url = cdn_list[0]
                         vf = urllib.parse.quote(s['vf'])
                         video_size = int(s['filesize'])
-                        token = urllib.parse.quote(base64.b64encode(clear_info['token'].encode('utf8')))
-                        video_url = '{}?token={}&vf={}'.format(base_url, token, vf)
-                        self.streams[s_id] = dict(size=video_size, src=[video_url], container='mp4')
+                        token = urllib.parse.quote(base64.b64encode(
+                            clear_info['token'].encode('utf8')
+                        ))
+                        video_url = '{}?token={}&vf={}'.format(
+                            base_url, token, vf
+                        )
+                        self.streams[s_id] = dict(
+                            size=video_size, src=[video_url], container='mp4'
+                        )
 
 
 def funshion_download(url, **kwargs):
-    if re.match(r'http://www.fun.tv/vplay/v-(\w+)', url):
-        vid = re.search(r'http://www.fun.tv/vplay/v-(\w+)', url).group(1)
+    if re.match(r'https?://www.fun.tv/vplay/v-(\w+)', url):
+        vid = re.search(r'https?://www.fun.tv/vplay/v-(\w+)', url).group(1)
         Funshion().download_by_vid(vid, single_video=True, **kwargs)
-    elif re.match(r'http://www.fun.tv/vplay/.*g-(\w+)', url):
-        epid = re.search(r'http://www.fun.tv/vplay/.*g-(\w+)', url).group(1)
-        url = 'http://pm.funshion.com/v5/media/episode?id={}&cl=mweb&uc=111'.format(epid)
+    elif re.match(r'https?://www.fun.tv/vplay/.*g-(\w+)', url):
+        epid = re.search(r'https?://www.fun.tv/vplay/.*g-(\w+)', url).group(1)
+        url = (
+            'http://pm.funshion.com/v5/media/episode?id={}&cl=mweb&'
+            'uc=111'.format(epid)
+        )
         meta = json.loads(get_content(url))
         drama_name = meta['name']
 
@@ -219,6 +256,6 @@ def funshion_download(url, **kwargs):
     else:
         log.wtf('Unknown url pattern')
 
-site_info = "funshion"
+
 download = funshion_download
-download_playlist = playlist_not_supported('funshion')
+download_playlist = playlist_not_supported(site_info)

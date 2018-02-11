@@ -1,19 +1,30 @@
 #!/usr/bin/env python
 
+from lulu.common import (
+    url_info,
+    print_info,
+    get_content,
+    download_urls,
+    playlist_not_supported,
+)
+from lulu.util.parser import get_parser
+
+
 __all__ = ['archive_download']
+site_info = 'Internet Archive archive.org'
 
-from ..common import *
 
-def archive_download(url, output_dir='.', merge=True, info_only=False, **kwargs):
-    html = get_html(url)
-    title = r1(r'<meta property="og:title" content="([^"]*)"', html)
-    source = r1(r'<meta property="og:video" content="([^"]*)"', html)
+def archive_download(url, merge=True, info_only=False, **kwargs):
+    html = get_content(url)
+    parser = get_parser(html)
+    title = parser.find('meta', property='og:title')['content']
+    source = parser.find('meta', property='og:video')['content']
     mime, ext, size = url_info(source)
 
     print_info(site_info, title, mime, size)
     if not info_only:
-        download_urls([source], title, ext, size, output_dir, merge=merge)
+        download_urls([source], title, ext, size, merge=merge, **kwargs)
 
-site_info = "Archive.org"
+
 download = archive_download
-download_playlist = playlist_not_supported('archive')
+download_playlist = playlist_not_supported(site_info)

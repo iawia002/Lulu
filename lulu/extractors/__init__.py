@@ -5,6 +5,7 @@ from .alive import *
 from .archive import *
 from .baidu import *
 from .bandcamp import *
+from .baomihua import *
 from .bigthink import *
 from .bilibili import *
 from .bokecc import *
@@ -24,6 +25,7 @@ from .fc2video import *
 from .flickr import *
 from .freesound import *
 from .funshion import *
+from .giphy import *
 from .google import *
 from .heavymusic import *
 from .huaban import *
@@ -32,9 +34,9 @@ from .ifeng import *
 from .imgur import *
 from .infoq import *
 from .instagram import *
-from .interest import *
 from .iqilu import *
 from .iqiyi import *
+from .iwara import *
 from .joy import *
 from .ku6 import *
 from .kugou import *
@@ -45,7 +47,6 @@ from .magisto import *
 from .metacafe import *
 from .mgtv import *
 from .miaopai import *
-from .mixcloud import *
 from .mtv81 import *
 from .musicplayon import *
 from .nanagogo import *
