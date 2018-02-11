@@ -687,6 +687,15 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    @ignore_network_issue
+    def test_ucas(self):
+        extractors.ucas.download(
+            'http://v.ucas.ac.cn/course/getplaytitle.do?menuCode=2&code=14562'
+            '&classcode=1&classid=R5djhgQ26hx1OqPuXf&sectionNumber=23&section'
+            'Display=1',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
