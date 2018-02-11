@@ -696,6 +696,12 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    def test_veoh(self):
+        extractors.veoh.download(
+            'http://www.veoh.com/watch/v134017752K5dhTN9F',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
