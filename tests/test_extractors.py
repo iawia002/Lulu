@@ -139,6 +139,11 @@ class TestExtractors(unittest.TestCase):
             'https://v.qq.com/x/cover/9hpjiv5fhiyn86u/t0522x58xma.html',
             info_only=True
         )
+        # qie_video
+        extractors.qq.download(
+            'http://live.qq.com/video/v/376279',
+            info_only=True
+        )
 
     # @ignore_network_issue
     # def test_acfun(self):
