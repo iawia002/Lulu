@@ -142,8 +142,9 @@ class Iqiyi(VideoExtractor):
                     'm3u8_url': stream['m3utx'],
                 }
             except Exception as e:
-                log.i('vd: {} is not handled'.format(stream['vd']))
-                log.i('info is {}'.format(stream))
+                pass
+                # log.i('vd: {} is not handled'.format(stream['vd']))
+                # log.i('info is {}'.format(stream))
 
 
 site = Iqiyi()
