@@ -708,6 +708,13 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    @ignore_network_issue
+    def test_w56(self):
+        extractors.w56.download(
+            'http://www.56.com/u98/v_MTQ4OTk3NzI3.html',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()

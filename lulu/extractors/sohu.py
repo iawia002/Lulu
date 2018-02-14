@@ -15,7 +15,7 @@ from lulu.common import (
 )
 
 __all__ = ['sohu_download']
-site_info = 'Sohu.com'
+site_info = '搜狐视频 tv.sohu.com'
 
 
 '''
