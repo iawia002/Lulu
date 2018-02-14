@@ -525,10 +525,6 @@ class TestExtractors(unittest.TestCase):
             'https://www.ku6.com/video/detail?id=9l7XvS7f7vAH7CVcfP7LSioPNSk.',
             info_only=True
         )
-        extractors.ku6.download(
-            'https://www.ku6.com/video/detail?id=lwJMlWk-OXX2w1r94xyoAOkJGOE.',
-            info_only=True
-        )
 
     @ignore_network_issue
     def test_kugou(self):
@@ -618,6 +614,7 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    @ignore_network_issue
     def test_naver(self):
         extractors.naver.download(
             'http://tv.naver.com/v/2694018',
