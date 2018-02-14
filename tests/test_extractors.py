@@ -139,6 +139,11 @@ class TestExtractors(unittest.TestCase):
             'https://v.qq.com/x/cover/9hpjiv5fhiyn86u/t0522x58xma.html',
             info_only=True
         )
+        # qie_video
+        extractors.qq.download(
+            'http://live.qq.com/video/v/376279',
+            info_only=True
+        )
 
     # @ignore_network_issue
     # def test_acfun(self):
@@ -639,6 +644,85 @@ class TestExtractors(unittest.TestCase):
     def test_pptv(self):
         extractors.pptv.download(
             'http://v.pptv.com/show/B20ysRXcF1W4Np4.html',
+            info_only=True
+        )
+
+    @ignore_network_issue
+    def test_qingting(self):
+        extractors.qingting.download(
+            'http://www.qingting.fm/channels/232855/programs/8160697',
+            info_only=True
+        )
+
+    @ignore_network_issue
+    def test_sina(self):
+        extractors.sina.download(
+            'http://video.sina.com.cn/view/252618328.html',
+            info_only=True
+        )
+
+    @ignore_network_issue
+    def test_sohu(self):
+        extractors.sohu.download(
+            'http://my.tv.sohu.com/pl/9392627/98047585.shtml',
+            info_only=True
+        )
+
+    def test_soundcloud(self):
+        extractors.soundcloud.download(
+            'https://soundcloud.com/scumgang6ix9ine/keke-ft-fetty-wap-a-boogie'
+            '-wit-da-hoodie',
+            info_only=True
+        )
+
+    def test_twitter(self):
+        # Image
+        extractors.twitter.download(
+            'https://twitter.com/Remembear/status/961045374084448256',
+            info_only=True
+        )
+        # Video
+        extractors.twitter.download(
+            'https://twitter.com/thisisjohnny/status/952993048207806464',
+            info_only=True
+        )
+
+    @ignore_network_issue
+    def test_ucas(self):
+        extractors.ucas.download(
+            'http://v.ucas.ac.cn/course/getplaytitle.do?menuCode=2&code=14562'
+            '&classcode=1&classid=R5djhgQ26hx1OqPuXf&sectionNumber=23&section'
+            'Display=1',
+            info_only=True
+        )
+
+    def test_veoh(self):
+        extractors.veoh.download(
+            'http://www.veoh.com/watch/v134017752K5dhTN9F',
+            info_only=True
+        )
+
+    def test_vimeo(self):
+        extractors.vimeo.download(
+            'https://vimeo.com/58388167',
+            info_only=True
+        )
+
+    @ignore_network_issue
+    def test_w56(self):
+        extractors.w56.download(
+            'http://www.56.com/u98/v_MTQ4OTk3NzI3.html',
+            info_only=True
+        )
+
+    @ignore_network_issue
+    def test_ximalaya(self):
+        extractors.ximalaya.download(
+            'http://www.ximalaya.com/24137038/sound/71717551/',
+            info_only=True
+        )
+        extractors.ximalaya.download_playlist(
+            'http://www.ximalaya.com/41564736/album/11792141/',
             info_only=True
         )
 

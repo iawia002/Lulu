@@ -10,7 +10,6 @@ from lulu import config
 from lulu.util import fs
 from lulu.extractor import SimpleExtractor
 from lulu.common import (
-    r1,
     match1,
     url_info,
     print_info,
@@ -19,7 +18,6 @@ from lulu.common import (
     get_location,
     get_filename,
     download_urls,
-    get_decoded_html,
     playlist_not_supported,
     print_more_compatible as print
 )
@@ -100,24 +98,24 @@ class Netease(SimpleExtractor):
             self.need_download = False
             self.netease_cloud_music_download(url, **kwargs)
         else:
-            html = get_decoded_html(url)
+            html = get_content(url)
 
-            title = r1('movieDescription=\'([^\']+)\'', html) or \
-                r1('<title>(.+)</title>', html)
+            title = match1(html, 'movieDescription=\'([^\']+)\'') or \
+                match1(html, '<title>(.+)</title>')
 
             if title[0] == ' ':
                 title = title[1:]
 
-            src = r1(r'<source src="([^"]+)"', html) or \
-                r1(r'<source type="[^"]+" src="([^"]+)"', html)
+            src = match1(html, r'<source src="([^"]+)"') or \
+                match1(html, r'<source type="[^"]+" src="([^"]+)"')
 
             if src:
                 url = src
                 _, ext, size = url_info(src)
             else:
                 url = (
-                    r1(r'["\'](.+)-list.m3u8["\']', html) or
-                    r1(r'["\'](.+).m3u8["\']', html)
+                    match1(html, r'["\'](.+)-list.m3u8["\']') or
+                    match1(html, r'["\'](.+).m3u8["\']')
                 ) + '.mp4'
                 _, _, size = url_info(url)
                 ext = 'mp4'

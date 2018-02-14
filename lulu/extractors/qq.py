@@ -4,6 +4,7 @@ import re
 import json
 
 from lulu.util import log
+from lulu.extractors import qq_egame
 from lulu.extractors.qie import download as qieDownload
 from lulu.extractors.qie_video import download_by_url as qie_video_download
 from lulu.common import (
@@ -115,11 +116,11 @@ def kg_qq_download_by_shareid(
 
     title = match1(lyric, r'\[ti:([^\]]*)\]')
 
-    type, ext, size = url_info(real_url)
+    _type, ext, size = url_info(real_url)
     if not title:
         title = shareid
 
-    print_info('腾讯全民K歌', title, type, size)
+    print_info('腾讯全民K歌', title, _type, size)
     if not info_only:
         download_urls([real_url], title, ext, size, output_dir, merge=False)
         if caption:
@@ -134,7 +135,6 @@ def kg_qq_download_by_shareid(
 
 def qq_download(url, output_dir='.', merge=True, info_only=False, **kwargs):
     if re.match(r'https?://egame.qq.com/live\?anchorid=(\d+)', url):
-        from . import qq_egame
         qq_egame.qq_egame_download(
             url, output_dir=output_dir, merge=merge, info_only=info_only,
             **kwargs
@@ -158,7 +158,8 @@ def qq_download(url, output_dir='.', merge=True, info_only=False, **kwargs):
             )
         else:
             qieDownload(
-                url, output_dir=output_dir, merge=merge, info_only=info_only
+                url, output_dir=output_dir, merge=merge, info_only=info_only,
+                **kwargs
             )
         return
 

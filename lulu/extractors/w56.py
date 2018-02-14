@@ -1,15 +1,25 @@
 #!/usr/bin/env python
 
-__all__ = ['w56_download', 'w56_download_by_id']
-
-from ..common import *
-
-from .sohu import sohu_download
-
 import json
 
-def w56_download_by_id(id, title = None, output_dir = '.', merge = True, info_only = False):
-    content = json.loads(get_html('http://vxml.56.com/json/%s/?src=site' % id))
+from lulu.common import (
+    match1,
+    print_info,
+    get_content,
+    download_urls,
+    playlist_not_supported,
+)
+from lulu.extractors.sohu import sohu_download
+
+
+__all__ = ['w56_download', 'w56_download_by_id']
+site_info = '56网 56.com'
+
+
+def w56_download_by_id(_id, title=None, info_only=False, **kwargs):
+    content = json.loads(get_content(
+        'http://vxml.56.com/json/{}/?src=site'.format(_id)
+    ))
     info = content['info']
     title = title or info['Subject']
     assert title
@@ -24,19 +34,19 @@ def w56_download_by_id(id, title = None, output_dir = '.', merge = True, info_on
 
     print_info(site_info, title, ext, size)
     if not info_only:
-        download_urls([url], title, ext, size, output_dir = output_dir, merge = merge)
+        download_urls([url], title, ext, size, **kwargs)
 
-def w56_download(url, output_dir = '.', merge = True, info_only = False, **kwargs):
+
+def w56_download(url, info_only=False, **kwargs):
     content = get_content(url)
-    sohu_url = r1(r"url:\s*'([^']*)'", content)
+    sohu_url = match1(content, r'url:\s*"(.+)"')
     if sohu_url:
-        sohu_download(sohu_url, output_dir, merge=merge, info_only=info_only, **kwargs)
+        sohu_download(sohu_url, info_only=info_only, **kwargs)
         return
+    _id = match1(url, r'http://www.56.com/u\d+/v_(\w+).html') or \
+        match1(url, r'http://www.56.com/.*vid-(\w+).html')
+    w56_download_by_id(_id, info_only=info_only, **kwargs)
 
-    id = r1(r'http://www.56.com/u\d+/v_(\w+).html', url) or \
-         r1(r'http://www.56.com/.*vid-(\w+).html', url)
-    w56_download_by_id(id, output_dir = output_dir, merge = merge, info_only = info_only)
 
-site_info = "56.com"
 download = w56_download
-download_playlist = playlist_not_supported('56')
+download_playlist = playlist_not_supported(site_info)
