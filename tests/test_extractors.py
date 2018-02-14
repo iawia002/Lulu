@@ -702,6 +702,12 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    def test_vimeo(self):
+        extractors.vimeo.download(
+            'https://vimeo.com/58388167',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
