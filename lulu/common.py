@@ -98,21 +98,6 @@ def tr(s):
         # return str(s.encode('utf-8'))[2:-1]
 
 
-# DEPRECATED in favor of match1()
-def r1(pattern, text):
-    m = re.search(pattern, text)
-    if m:
-        return m.group(1)
-
-
-# DEPRECATED in favor of match1()
-def r1_of(patterns, text):
-    for p in patterns:
-        x = r1(p, text)
-        if x:
-            return x
-
-
 def match1(text, *patterns):
     """Scans through a string for substrings matched some patterns
     (first-subgroups only).
@@ -194,15 +179,6 @@ def unicodize(text):
     )
 
 
-# DEPRECATED in favor of util.legitimize()
-def escape_file_path(path):
-    path = path.replace('/', '-')
-    path = path.replace('\\', '-')
-    path = path.replace('*', '-')
-    path = path.replace('?', '-')
-    return path
-
-
 def ungzip(data):
     """Decompresses data for Content-Encoding: gzip.
     """
@@ -220,48 +196,6 @@ def undeflate(data):
     import zlib
     decompressobj = zlib.decompressobj(-zlib.MAX_WBITS)
     return decompressobj.decompress(data)+decompressobj.flush()
-
-
-# DEPRECATED in favor of get_content()
-def get_response(url, faker=False):
-    logging.debug('get_response: %s' % url)
-
-    # install cookies
-    if cookies:
-        opener = request.build_opener(request.HTTPCookieProcessor(cookies))
-        request.install_opener(opener)
-
-    if faker:
-        response = request.urlopen(
-            request.Request(url, headers=config.FAKE_HEADERS), None
-        )
-    else:
-        response = request.urlopen(url)
-
-    data = response.read()
-    if response.info().get('Content-Encoding') == 'gzip':
-        data = ungzip(data)
-    elif response.info().get('Content-Encoding') == 'deflate':
-        data = undeflate(data)
-    response.data = data
-    return response
-
-
-# DEPRECATED in favor of get_content()
-def get_html(url, encoding=None, faker=False):
-    content = get_response(url, faker).data
-    return str(content, 'utf-8', 'ignore')
-
-
-# DEPRECATED in favor of get_content()
-def get_decoded_html(url, faker=False):
-    response = get_response(url, faker)
-    data = response.data
-    charset = r1(r'charset=([\w-]+)', response.headers['content-type'])
-    if charset:
-        return data.decode(charset, 'ignore')
-    else:
-        return data
 
 
 def get_location(url):
@@ -450,7 +384,9 @@ def url_info(url, faker=False, headers={}):
         if headers['content-disposition']:
             try:
                 filename = parse.unquote(
-                    r1(r'filename="?([^"]+)"?', headers['content-disposition'])
+                    match1(
+                        headers['content-disposition'], r'filename="?([^"]+)"?'
+                    )
                 )
                 if len(filename.split('.')) > 1:
                     ext = filename.split('.')[-1]
@@ -1076,20 +1012,6 @@ def unset_proxy():
     request.install_opener(opener)
 
 
-# DEPRECATED in favor of set_proxy() and unset_proxy()
-def set_http_proxy(proxy):
-    if proxy is None:  # Use system default setting
-        proxy_support = request.ProxyHandler()
-    elif proxy == '':  # Don't use any proxy
-        proxy_support = request.ProxyHandler({})
-    else:  # Use proxy
-        proxy_support = request.ProxyHandler(
-            {'http': '%s' % proxy, 'https': '%s' % proxy}
-        )
-    opener = request.build_opener(proxy_support)
-    request.install_opener(opener)
-
-
 def print_more_compatible(*args, **kwargs):
     import builtins as __builtin__
     """Overload default print function as py (<3.3) does not support 'flush'
@@ -1337,9 +1259,9 @@ def script_main(download, download_playlist, **kwargs):
         caption = False
 
     if args.no_proxy:
-        set_http_proxy('')
+        unset_proxy()
     else:
-        set_http_proxy(args.http_proxy)
+        set_proxy(parse_host(args.http_proxy))
     if args.socks_proxy:
         set_socks_proxy(args.socks_proxy)
 
@@ -1416,14 +1338,14 @@ def script_main(download, download_playlist, **kwargs):
 
 
 def google_search(url):
-    keywords = r1(r'https?://(.*)', url)
+    keywords = match1(url, r'https?://(.*)')
     url = 'https://www.google.com/search?tbm=vid&q=%s' % parse.quote(keywords)
     page = get_content(url)
     videos = re.findall(
         r'<a href="(https?://[^"]+)" onmousedown="[^"]+">([^<]+)<', page
     )
     vdurs = re.findall(r'<span class="vdur _dwc">([^<]+)<', page)
-    durs = [r1(r'(\d+:\d+)', unescape_html(dur)) for dur in vdurs]
+    durs = [match1(unescape_html(dur), r'(\d+:\d+)') for dur in vdurs]
     print('Google Videos search:')
     for v in zip(videos, durs):
         print('- video:  {} [{}]'.format(
@@ -1438,20 +1360,20 @@ def google_search(url):
 
 def url_to_module(url):
     try:
-        video_host = r1(r'https?://([^/]+)/', url)
-        video_url = r1(r'https?://[^/]+(.*)', url)
+        video_host = match1(url, r'https?://([^/]+)/')
+        video_url = match1(url, r'https?://[^/]+(.*)')
         assert video_host and video_url
     except AssertionError:
         url = google_search(url)
-        video_host = r1(r'https?://([^/]+)/', url)
-        video_url = r1(r'https?://[^/]+(.*)', url)
+        video_host = match1(url, r'https?://([^/]+)/')
+        video_url = match1(url, r'https?://[^/]+(.*)')
 
     if video_host.endswith('.com.cn') or video_host.endswith('.ac.cn'):
         video_host = video_host[:-3]
-    domain = r1(r'(\.[^.]+\.[^.]+)$', video_host) or video_host
+    domain = match1(video_host, r'(\.[^.]+\.[^.]+)$') or video_host
     assert domain, 'unsupported url: ' + url
 
-    k = r1(r'([^.]+)', domain)
+    k = match1(domain, r'([^.]+)')
     if k in config.SITES:
         return (
             import_module('.'.join(['lulu', 'extractors', config.SITES[k]])),
@@ -1459,7 +1381,7 @@ def url_to_module(url):
         )
     else:
         import http.client
-        video_host = r1(r'https?://([^/]+)/', url)  # .cn could be removed
+        video_host = match1(url, r'https?://([^/]+)/')  # .cn could be removed
         if url.startswith('https://'):
             conn = http.client.HTTPSConnection(video_host)
         else:

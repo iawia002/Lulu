@@ -18,7 +18,7 @@ from lulu.extractors.qq import qq_download_by_vid
 from lulu.extractors.sina import sina_download_by_vid
 from lulu.extractors.youku import youku_download_by_vid
 from lulu.common import (
-    r1,
+    match1,
     cookies,
     get_content,
     url_locations,
@@ -194,7 +194,7 @@ class Bilibili(VideoExtractor):
             return
 
         has_plist = re.search(r'<option', self.page)
-        if has_plist and r1('index_(\d+).html', self.url) is None:
+        if has_plist and match1(self.url, 'index_(\d+).html') is None:
             log.w(
                 'This page contains a playlist. (use --playlist to download '
                 'all videos.)'
