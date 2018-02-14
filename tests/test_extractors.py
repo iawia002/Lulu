@@ -715,6 +715,17 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    @ignore_network_issue
+    def test_ximalaya(self):
+        extractors.ximalaya.download(
+            'http://www.ximalaya.com/24137038/sound/71717551/',
+            info_only=True
+        )
+        extractors.ximalaya.download_playlist(
+            'http://www.ximalaya.com/41564736/album/11792141/',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
