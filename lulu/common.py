@@ -988,11 +988,11 @@ def parse_host(host):
     """Parses host name and port number from a string.
     """
     if re.match(r'^(\d+)$', host) is not None:
-        return ("0.0.0.0", int(host))
+        return ('0.0.0.0', int(host))
     if re.match(r'^(\w+)://', host) is None:
-        host = "//" + host
+        host = '//' + host
     o = parse.urlparse(host)
-    hostname = o.hostname or "0.0.0.0"
+    hostname = o.hostname or '0.0.0.0'
     port = o.port or 0
     return (hostname, port)
 
@@ -1261,7 +1261,8 @@ def script_main(download, download_playlist, **kwargs):
     if args.no_proxy:
         unset_proxy()
     else:
-        set_proxy(parse_host(args.http_proxy))
+        if args.http_proxy:
+            set_proxy(parse_host(args.http_proxy))
     if args.socks_proxy:
         set_socks_proxy(args.socks_proxy)
 
