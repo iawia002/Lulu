@@ -9,6 +9,7 @@ import socket
 import locale
 import logging
 import argparse
+from html import unescape
 from http import cookiejar
 from importlib import import_module
 from urllib import (
@@ -21,10 +22,7 @@ from lulu import config
 from lulu.util import log, term
 from lulu.version import __version__
 from lulu import json_output as json_output_
-from lulu.util.strings import (
-    get_filename,
-    unescape_html
-)
+from lulu.util.strings import get_filename
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf8')
 
@@ -959,7 +957,7 @@ def print_info(site_info, title, type, size, **kwargs):
         type_info = 'Unknown type (%s)' % type
 
     maybe_print('Site:      ', site_info)
-    maybe_print('Title:     ', unescape_html(tr(title)))
+    maybe_print('Title:     ', unescape(tr(title)))
     print('Type:      ', type_info)
     if type != 'm3u8':
         print(
@@ -1346,11 +1344,11 @@ def google_search(url):
         r'<a href="(https?://[^"]+)" onmousedown="[^"]+">([^<]+)<', page
     )
     vdurs = re.findall(r'<span class="vdur _dwc">([^<]+)<', page)
-    durs = [match1(unescape_html(dur), r'(\d+:\d+)') for dur in vdurs]
+    durs = [match1(unescape(dur), r'(\d+:\d+)') for dur in vdurs]
     print('Google Videos search:')
     for v in zip(videos, durs):
         print('- video:  {} [{}]'.format(
-            unescape_html(v[0][1]),
+            unescape(v[0][1]),
             v[1] if v[1] else '?'
         ))
         print('# lulu %s' % log.sprint(v[0][0], log.UNDERLINE))

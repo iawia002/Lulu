@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import re
+from html import unescape
 from urllib import (
     parse,
     request,
@@ -17,7 +18,6 @@ from lulu.common import (
     playlist_not_supported,
 )
 from lulu.config import YOUTUBE_CODECS
-from lulu.util.strings import unescape_html
 
 
 __all__ = ['google_download']
@@ -122,7 +122,7 @@ def google_download(url, info_only=False, **kwargs):
             hrefs = re.findall(r'href="(.+?)"', confirm_page)
             for u in hrefs:
                 if u.startswith('/uc?export=download'):
-                    rel = unescape_html(u)
+                    rel = unescape(u)
             confirm_url = 'https://docs.google.com' + rel
             real_url = get_location(confirm_url)
             _, ext, size = url_info(real_url)

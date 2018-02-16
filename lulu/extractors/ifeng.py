@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from html import unescape
+
 from lulu.common import (
     match1,
     url_info,
@@ -8,7 +10,6 @@ from lulu.common import (
     download_urls,
     playlist_not_supported,
 )
-from lulu.util.strings import unescape_html
 
 
 __all__ = ['ifeng_download', 'ifeng_download_by_id']
@@ -24,7 +25,7 @@ def ifeng_download_by_id(_id, title=None, info_only=False, **kwargs):
     )
     xml = get_content(url)
     title = match1(xml, r'Name="([^"]+)"')
-    title = unescape_html(title)
+    title = unescape(title)
     url = match1(xml, r'VideoPlayUrl="([^"]+)"')
     url = url.replace(
         'http://wideo.ifeng.com/', 'http://ips.ifeng.com/wideo.ifeng.com/'

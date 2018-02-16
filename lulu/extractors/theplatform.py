@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import re
+from html import unescape
 
 from lulu.common import (
     match1,
@@ -9,7 +10,6 @@ from lulu.common import (
     download_rtmp_url,
     playlist_not_supported,
 )
-from lulu.util.strings import unescape_html
 
 
 site_info = 'thePlatform.com'
@@ -23,7 +23,7 @@ def theplatform_download_by_pid(
         '&mbr=true'.format(pid)
     )
     smil = get_content(smil_url)
-    smil_base = unescape_html(match1(smil, r'<meta base="([^"]+)"'))
+    smil_base = unescape(match1(smil, r'<meta base="([^"]+)"'))
     smil_videos = {
         y: x for x, y in dict(
             re.findall(r'<video src="([^"]+)".+height="([^"]+)"', smil)
