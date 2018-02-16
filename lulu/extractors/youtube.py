@@ -3,6 +3,7 @@
 import re
 import json
 from urllib import parse
+from html import unescape
 from xml.dom.minidom import parseString
 
 from lulu.common import (
@@ -17,7 +18,6 @@ from lulu.common import (
 from lulu.util import log
 from lulu.config import YOUTUBE_CODECS
 from lulu.extractor import VideoExtractor
-from lulu.util.strings import unescape_html
 
 
 class YouTube(VideoExtractor):
@@ -320,7 +320,7 @@ class YouTube(VideoExtractor):
                     finish = '{:0>2}:{:0>2}:{:06.3f}'.format(
                         int(h), int(m), s
                     ).replace('.', ',')
-                    content = unescape_html(text.firstChild.nodeValue)
+                    content = unescape(text.firstChild.nodeValue)
 
                     srt += '{}\n'.format(str(seq))
                     srt += '{} --> {}\n'.format(start, finish)

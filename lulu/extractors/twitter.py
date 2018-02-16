@@ -3,6 +3,7 @@
 import re
 import json
 from urllib import parse
+from html import unescape
 
 from lulu.common import (
     match1,
@@ -13,7 +14,6 @@ from lulu.common import (
     download_urls,
     playlist_not_supported,
 )
-from lulu.util.strings import unescape_html
 from lulu.extractors.vine import vine_download
 
 
@@ -81,7 +81,7 @@ def twitter_download(url, info_only=False, **kwargs):
 
         data_config = match1(html, r'data-config="([^"]*)"') or \
             match1(html, r'data-player-config="([^"]*)"')
-        i = json.loads(unescape_html(data_config))
+        i = json.loads(unescape(data_config))
         if 'video_url' in i:
             source = i['video_url']
             item_id = i['tweet_id']

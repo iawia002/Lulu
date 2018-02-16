@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from html import unescape
 from xml.dom.minidom import parseString
 
 from lulu.common import (
@@ -9,7 +10,6 @@ from lulu.common import (
     download_rtmp_url,
     playlist_not_supported,
 )
-from lulu.util.strings import unescape_html
 
 
 __all__ = ['mtv81_download']
@@ -18,7 +18,7 @@ site_info = 'MTV 81 mtv81.com'
 
 def mtv81_download(url, output_dir='.', merge=True, info_only=False, **kwargs):
     html = get_content(url)
-    title = unescape_html(
+    title = unescape(
         '|'.join(match1(html, r'<title>(.*?)</title>').split('|')[:-2])
     )
 

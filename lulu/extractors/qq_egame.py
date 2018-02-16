@@ -1,10 +1,10 @@
 import re
 import json
+from html import unescape
 
 from lulu.util import log
 from lulu.common import get_content
 from lulu.extractor import VideoExtractor
-from lulu.util.strings import unescape_html
 
 
 __all__ = ['qq_egame_download']
@@ -34,7 +34,7 @@ class QQEgame(VideoExtractor):
                 if s['video_profile'] == exsited_stream['bitrate']:
                     current_stream_id = s['id']
                     stream_info = dict(
-                        src=[unescape_html(exsited_stream['playUrl'])]
+                        src=[unescape(exsited_stream['playUrl'])]
                     )
                     stream_info['video_profile'] = exsited_stream['desc']
                     stream_info['container'] = s['container']

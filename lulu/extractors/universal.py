@@ -2,6 +2,7 @@
 
 import re
 from urllib import parse
+from html import unescape
 
 from lulu.common import (
     match1,
@@ -14,7 +15,6 @@ from lulu.common import (
     playlist_not_supported,
 )
 from lulu.config import FAKE_HEADERS
-from lulu.util.strings import unescape_html
 from lulu.extractors.embed import embed_download
 
 
@@ -53,7 +53,7 @@ def universal_download(
 
         page_title = match1(page, r'<title>([^<]*)')
         if page_title:
-            page_title = unescape_html(page_title)
+            page_title = unescape(page_title)
 
         hls_urls = re.findall(
             r'(https?://[^;"\'\\]+' + '\.m3u8?' + r'[^;"\'\\]*)', page
