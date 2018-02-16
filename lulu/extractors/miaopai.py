@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import json
+from urllib import parse
 
 from lulu import config
 from lulu.common import (
@@ -12,6 +13,8 @@ from lulu.common import (
     download_urls,
     playlist_not_supported,
 )
+from lulu.extractors.yixia import yixia_miaopai_download_by_scid
+
 
 __all__ = ['miaopai_download']
 site_info = 'miaopai'
@@ -37,15 +40,21 @@ def miaopai_download_by_fid(
         )
 
 
+def get_fid(url):
+    return match1(url, r'\?fid=(\d{4}:\w{32})')
+
+
 def miaopai_download(
     url, output_dir='.', merge=False, info_only=False, **kwargs
 ):
-    fid = match1(url, r'\?fid=(\d{4}:\w{32})')
+    fid = get_fid(url)
     if fid:
         miaopai_download_by_fid(fid, output_dir, merge, info_only)
     elif '/p/230444' in url:
         fid = match1(url, r'/p/230444(\w+)')
-        miaopai_download_by_fid('1034:'+fid, output_dir, merge, info_only)
+        miaopai_download_by_fid(
+            '1034:{}'.format(fid), output_dir, merge, info_only
+        )
     else:
         status_id = url.split('?')[0].split('/')[-1]
         video_info = json.loads(
@@ -55,8 +64,27 @@ def miaopai_download(
             )
         )
         video_url = video_info['data']['page_info']['media_info'][
-            'stream_url'
+            'stream_url_hd'
         ]
+        if not video_url:
+            video_url = parse.unquote(
+                video_info['data']['page_info']['page_url']
+            )
+            if 'miaopai' in video_url:
+                # https://weibo.cn/sinaurl/blocked817bc30b?u=http%3A%2F%2Fmiaopai.com%2Fshow%2FnPWJvdR4z2Bg1Sz3PJpNYffjpDgEiuv4msALgw__.htm  # noqa
+                scid = match1(
+                    video_url.split('=')[-1],
+                    r'.*?miaopai.com/show/(.+)\.htm'
+                )
+                return yixia_miaopai_download_by_scid(
+                    scid, output_dir, merge, info_only
+                )
+            elif 'fid=' in video_url:
+                # http://video.weibo.com/show?fid=1034:b91d1ecf44b0e2f18c436d819744b333  # noqa
+                fid = get_fid(video_url)
+                return miaopai_download_by_fid(
+                    fid, output_dir, merge, info_only
+                )
         title = video_info['data']['page_info']['content2']
         video_format = 'mp4'
         size = url_size(video_url)
