@@ -706,7 +706,7 @@ class TestExtractors(unittest.TestCase):
 
     def test_veoh(self):
         extractors.veoh.download(
-            'http://www.veoh.com/watch/v134017752K5dhTN9F',
+            'http://www.veoh.com/watch/v654486353dnASqzc',
             info_only=True
         )
 
