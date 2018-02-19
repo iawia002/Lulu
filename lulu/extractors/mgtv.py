@@ -8,10 +8,7 @@ from urllib.parse import urlsplit
 
 from lulu.common import (
     match1,
-    player,
     get_content,
-    download_urls,
-    launch_player,
     playlist_not_supported,
 )
 from lulu.util import log

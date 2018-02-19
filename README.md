@@ -260,6 +260,11 @@ Use `--url`/`-u` to get a list of downloadable resource URLs extracted from the 
 
 * For the time being, this feature has **NOT** been stabilized and the JSON schema may have breaking changes in the future.
 
+### Multi-Thread Download
+
+Use `-T/--thread number` option to enable multithreading to download(only works for multiple-parts video), `number` means how many threads you want to use.
+
+
 ## Supported Sites
 
 | Site | URL | Videos? | Images? | Audios? |

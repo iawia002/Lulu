@@ -17,6 +17,7 @@ from urllib import (
     parse,
     error
 )
+from multiprocessing.dummy import Pool
 
 from lulu import config
 from lulu.util import log, term
@@ -534,7 +535,7 @@ def url_save(
                 if bar:
                     bar.update_received(len(buffer))
 
-    assert received == os.path.getsize(temp_filepath), '%s == %s == %s' % (
+    assert received == os.path.getsize(temp_filepath), '{} == {} == {}'.format(
         received, os.path.getsize(temp_filepath), temp_filepath
     )
 
@@ -679,12 +680,12 @@ def get_output_filename(urls, title, ext, output_dir, merge):
                 merged_ext = 'mkv'
             else:
                 merged_ext = 'ts'
-    return '%s.%s' % (title, merged_ext)
+    return '{}.{}'.format(title, merged_ext)
 
 
 def download_urls(
     urls, title, ext, total_size, output_dir='.', refer=None, merge=True,
-    faker=False, headers={}, **kwargs
+    faker=False, headers={}, thread=0, **kwargs
 ):
     assert urls
     if json_output:
@@ -694,7 +695,7 @@ def download_urls(
         )
         return
     if dry_run:
-        print('Real URLs:\n%s' % '\n'.join(urls))
+        print('Real URLs:\n{}'.format('\n'.join(urls)))
         return
 
     if player:
@@ -716,7 +717,7 @@ def download_urls(
     if total_size:
         if not force and os.path.exists(output_filepath) \
                 and os.path.getsize(output_filepath) >= total_size * 0.9:
-            print('Skipping %s: file already exists' % output_filepath)
+            print('Skipping {}: file already exists'.format(output_filepath))
             print()
             return
         bar = SimpleProgressBar(total_size, len(urls))
@@ -725,7 +726,7 @@ def download_urls(
 
     if len(urls) == 1:
         url = urls[0]
-        print('Downloading %s ...' % tr(output_filename))
+        print('Downloading {} ...'.format(tr(output_filename)))
         bar.update()
         url_save(
             url, output_filepath, bar, refer=refer, faker=faker,
@@ -733,18 +734,30 @@ def download_urls(
         )
         bar.done()
     else:
+        print('Downloading {}.{} ...'.format(tr(title), ext))
         parts = []
-        print('Downloading %s.%s ...' % (tr(title), ext))
         bar.update()
-        for i, url in enumerate(urls):
-            filename = '%s[%02d].%s' % (title, i, ext)
+        piece = 0
+
+        def _download(url):
+            # Closure
+            nonlocal piece
+            index = urls.index(url)
+            filename = '{}[{:0>2d}].{}'.format(title, index, ext)
             filepath = os.path.join(output_dir, filename)
             parts.append(filepath)
-            bar.update_piece(i + 1)
+            piece += 1
+            bar.update_piece(piece)
             url_save(
                 url, filepath, bar, refer=refer, is_part=True, faker=faker,
                 headers=headers, **kwargs
             )
+        if thread:
+            with Pool(processes=thread) as pool:
+                pool.map(_download, urls)
+        else:
+            for url in urls:
+                _download(url)
         bar.done()
 
         if not merge:
@@ -756,7 +769,7 @@ def download_urls(
             if has_ffmpeg_installed():
                 from .processor.ffmpeg import ffmpeg_concat_av
                 ret = ffmpeg_concat_av(parts, output_filepath, ext)
-                print('Merged into %s' % output_filename)
+                print('Merged into {}'.format(output_filename))
                 if ret == 0:
                     for part in parts:
                         os.remove(part)
@@ -770,7 +783,7 @@ def download_urls(
                 else:
                     from .processor.join_flv import concat_flv
                     concat_flv(parts, output_filepath)
-                print('Merged into %s' % output_filename)
+                print('Merged into {}'.format(output_filename))
             except Exception:
                 raise
             else:
@@ -786,7 +799,7 @@ def download_urls(
                 else:
                     from .processor.join_mp4 import concat_mp4
                     concat_mp4(parts, output_filepath)
-                print('Merged into %s' % output_filename)
+                print('Merged into {}'.format(output_filename))
             except Exception:
                 raise
             else:
@@ -802,7 +815,7 @@ def download_urls(
                 else:
                     from .processor.join_ts import concat_ts
                     concat_ts(parts, output_filepath)
-                print('Merged into %s' % output_filename)
+                print('Merged into {}'.format(output_filename))
             except Exception:
                 raise
             else:
@@ -810,7 +823,7 @@ def download_urls(
                     os.remove(part)
 
         else:
-            print("Can't merge %s files" % ext)
+            print("Can't merge {} files".format(ext))
 
     print()
 
@@ -1166,6 +1179,13 @@ def script_main(download, download_playlist, **kwargs):
         '-l', '--playlist', action='store_true',
         help='Prefer to download a playlist'
     )
+    download_grp.add_argument(
+        '-T', '--thread', type=int, default=0,
+        help=(
+            'Use multithreading to download (only works for multiple-parts '
+            'video)'
+        )
+    )
 
     proxy_grp = parser.add_argument_group('Proxy options')
     proxy_grp = proxy_grp.add_mutually_exclusive_group()
@@ -1272,7 +1292,7 @@ def script_main(download, download_playlist, **kwargs):
             URLs, args.playlist,
             output_dir=args.output_dir, merge=not args.no_merge,
             info_only=info_only, json_output=json_output, caption=caption,
-            password=args.password,
+            password=args.password, thread=args.thread,
             **extra
         )
     except KeyboardInterrupt:
