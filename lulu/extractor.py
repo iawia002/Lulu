@@ -36,6 +36,8 @@ class Extractor:
 
 
 class VideoExtractor:
+    '''Suitable for websites that the video files have many formats
+    '''
     def __init__(self, *args):
         self.url = None
         self.title = None
@@ -342,6 +344,9 @@ class VideoExtractor:
 
 
 class SimpleExtractor:
+    '''Suitable for small video websites that the video files have only one
+    format
+    '''
     def __init__(self):
         self.need_download = True
         self.site_info = None
