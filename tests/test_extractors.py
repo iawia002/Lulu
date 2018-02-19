@@ -734,6 +734,13 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    @ignore_network_issue
+    def test_longzhu(self):
+        extractors.longzhu.download(
+            'http://v.longzhu.com/xiayike233/v/762954',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
