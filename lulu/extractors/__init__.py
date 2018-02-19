@@ -43,6 +43,7 @@ from .kugou import *
 from .kuwo import *
 from .le import *
 from .lizhi import *
+from .longzhu import *
 from .magisto import *
 from .metacafe import *
 from .mgtv import *
