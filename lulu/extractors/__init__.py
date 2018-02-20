@@ -47,7 +47,6 @@ from .longzhu import *
 from .magisto import *
 from .metacafe import *
 from .mgtv import *
-from .miaopai import *
 from .mtv81 import *
 from .musicplayon import *
 from .nanagogo import *
@@ -79,6 +78,7 @@ from .vine import *
 from .vk import *
 from .w56 import *
 from .wanmen import *
+from .weibo import *
 from .ximalaya import *
 from .xiami import *
 from .yinyuetai import *

@@ -19,7 +19,7 @@ site_info = 'Yixia'
 
 
 def yixia_miaopai_download_by_scid(
-    scid, output_dir='.', merge=True, info_only=False
+    scid, output_dir='.', merge=True, info_only=False, **kwargs
 ):
     api_endpoint = (
         'http://api.miaopai.com/m/v2_channel.json?fillType=259&scid='

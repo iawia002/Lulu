@@ -94,19 +94,19 @@ class TestExtractors(unittest.TestCase):
 
     @ignore_network_issue
     def test_weibo(self):
-        extractors.miaopai.download(
+        extractors.weibo.download(
             'https://m.weibo.cn/status/FEFq863WF', info_only=True
         )
-        extractors.miaopai.download(
+        extractors.weibo.download(
             'https://m.weibo.cn/status/4199826726109820', info_only=True
         )
-        extractors.miaopai.download(
+        extractors.weibo.download(
             'https://m.weibo.cn/5762457113/G3cSD7Fby', info_only=True
         )
-        extractors.miaopai.download(
+        extractors.weibo.download(
             'https://m.weibo.cn/status/G3lIbETfF', info_only=True
         )
-        extractors.miaopai.download(
+        extractors.weibo.download(
             'https://weibo.com/tv/v/G3lIbETfF?fid='
             '1034:b91d1ecf44b0e2f18c436d819744b333',
             info_only=True

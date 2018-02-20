@@ -6,7 +6,6 @@ from urllib import parse
 from lulu import config
 from lulu.common import (
     match1,
-    url_info,
     url_size,
     print_info,
     get_content,
@@ -16,14 +15,12 @@ from lulu.common import (
 from lulu.extractors.yixia import yixia_miaopai_download_by_scid
 
 
-__all__ = ['miaopai_download']
-site_info = 'miaopai'
+__all__ = ['weibo_download']
+site_info = '微博 weibo.com'
 
 
-def miaopai_download_by_fid(
-    fid, output_dir='.', merge=False, info_only=False, **kwargs
-):
-    page_url = 'http://video.weibo.com/show?fid=' + fid + '&type=mp4'
+def weibo_download_by_fid(fid, info_only=False, **kwargs):
+    page_url = 'http://video.weibo.com/show?fid={}&type=mp4'.format(fid)
 
     mobile_page = get_content(page_url, headers=config.FAKE_HEADERS_MOBILE)
     url = match1(mobile_page, r'<video id=.*?src=[\'"](.*?)[\'"]\W')
@@ -31,30 +28,23 @@ def miaopai_download_by_fid(
     if not title:
         title = fid
     title = title.replace('\n', '_')
-    ext, size = 'mp4', url_info(url)[2]
+    ext, size = 'mp4', url_size(url)
     print_info(site_info, title, ext, size)
     if not info_only:
-        download_urls(
-            [url], title, ext, total_size=None, output_dir=output_dir,
-            merge=merge
-        )
+        download_urls([url], title, ext, size, **kwargs)
 
 
 def get_fid(url):
     return match1(url, r'\?fid=(\d{4}:\w{32})')
 
 
-def miaopai_download(
-    url, output_dir='.', merge=False, info_only=False, **kwargs
-):
+def weibo_download(url, info_only=False, **kwargs):
     fid = get_fid(url)
     if fid:
-        miaopai_download_by_fid(fid, output_dir, merge, info_only)
+        weibo_download_by_fid(fid, info_only, **kwargs)
     elif '/p/230444' in url:
         fid = match1(url, r'/p/230444(\w+)')
-        miaopai_download_by_fid(
-            '1034:{}'.format(fid), output_dir, merge, info_only
-        )
+        weibo_download_by_fid('1034:{}'.format(fid), info_only, **kwargs)
     else:
         status_id = url.split('?')[0].split('/')[-1]
         video_info = json.loads(
@@ -77,14 +67,12 @@ def miaopai_download(
                     r'.*?miaopai.com/show/(.+)\.htm'
                 )
                 return yixia_miaopai_download_by_scid(
-                    scid, output_dir, merge, info_only
+                    scid, info_only=info_only, **kwargs
                 )
             elif 'fid=' in video_url:
                 # http://video.weibo.com/show?fid=1034:b91d1ecf44b0e2f18c436d819744b333  # noqa
                 fid = get_fid(video_url)
-                return miaopai_download_by_fid(
-                    fid, output_dir, merge, info_only
-                )
+                return weibo_download_by_fid(fid, info_only, **kwargs)
         title = video_info['data']['page_info']['content2']
         video_format = 'mp4'
         size = url_size(video_url)
@@ -98,5 +86,5 @@ def miaopai_download(
             )
 
 
-download = miaopai_download
+download = weibo_download
 download_playlist = playlist_not_supported(site_info)
