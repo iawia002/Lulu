@@ -96,10 +96,6 @@ class TestExtractors(unittest.TestCase):
             'https://www.douyin.com/share/video/6492273288897629454',
             info_only=True
         )
-        extractors.douyin.download(
-            'https://www.douyin.com/share/video/6511578018618543368',
-            info_only=True
-        )
 
     @ignore_network_issue
     def test_weibo(self):
@@ -458,16 +454,16 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
-    @ignore_network_issue
-    def test_funshion(self):
-        extractors.funshion.download(
-            'https://www.fun.tv/vplay/v-19729665/',
-            info_only=True
-        )
-        extractors.funshion.download(
-            'https://www.fun.tv/vplay/g-313897/',
-            info_only=True
-        )
+    # @ignore_network_issue
+    # def test_funshion(self):
+    #     extractors.funshion.download(
+    #         'https://www.fun.tv/vplay/v-19729665/',
+    #         info_only=True
+    #     )
+    #     extractors.funshion.download(
+    #         'https://www.fun.tv/vplay/g-313897/',
+    #         info_only=True
+    #     )
 
     def test_giphy(self):
         extractors.giphy.download(

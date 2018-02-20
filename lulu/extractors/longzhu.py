@@ -86,6 +86,7 @@ def longzhu_download(url, info_only=False, **kwargs):
         parser = get_parser(page)
         title = parser.title.text
         media_id = match1(url, r'(\d+)$')
+        # http://r.plures.net/ov/video/mobile/channel/video-1525da26174.js
         json_url = (
             'http://api.v.plu.cn/CloudMedia/GetInfoForPlayer?'
             'mediaId={}'.format(media_id)
