@@ -156,10 +156,14 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
-    # @ignore_network_issue
-    # def test_acfun(self):
-    #     acfun.download('http://www.acfun.cn/v/ac4209715', info_only=True)
-    #     acfun.download('http://www.acfun.cn/v/ac4210425', info_only=True)
+    @ignore_network_issue
+    def test_acfun(self):
+        extractors.acfun.download(
+            'http://www.acfun.cn/v/ac4209715', info_only=True
+        )
+        extractors.acfun.download(
+            'http://www.acfun.cn/v/ac4210425', info_only=True
+        )
 
     @ignore_network_issue
     def test_kuaishou(self):
