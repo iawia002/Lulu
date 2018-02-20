@@ -85,7 +85,7 @@ SITES = {
     'vidto': 'vidto',
     'vimeo': 'vimeo',
     'wanmen': 'wanmen',
-    'weibo': 'miaopai',
+    'weibo': 'weibo',
     'veoh': 'veoh',
     'vine': 'vine',
     'vk': 'vk',
