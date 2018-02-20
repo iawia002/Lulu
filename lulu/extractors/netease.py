@@ -19,7 +19,6 @@ from lulu.common import (
     get_filename,
     download_urls,
     playlist_not_supported,
-    print_more_compatible as print
 )
 
 

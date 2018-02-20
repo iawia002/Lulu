@@ -3,18 +3,9 @@
 import logging
 import os.path
 import subprocess
+from subprocess import DEVNULL
 
 from lulu.util.strings import parameterize
-from lulu.common import print_more_compatible as print
-
-try:
-    from subprocess import DEVNULL
-except ImportError:
-    # Python 3.2 or below
-    import os
-    import atexit
-    DEVNULL = os.open(os.devnull, os.O_RDWR)
-    atexit.register(lambda fd: os.close(fd), DEVNULL)
 
 
 def get_usable_ffmpeg(cmd):

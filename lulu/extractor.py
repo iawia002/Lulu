@@ -16,7 +16,6 @@ from lulu.common import (
     download_urls,
     download_url_ffmpeg,
     general_m3u8_extractor,
-    print_more_compatible as print,
 )
 from lulu import config
 from lulu.util import log
