@@ -749,6 +749,10 @@ class TestExtractors(unittest.TestCase):
             'http://v.longzhu.com/xiayike233/v/762954',
             info_only=True
         )
+        extractors.longzhu.download(
+            'http://replay.longzhu.com/v/5669968',
+            info_only=True
+        )
 
 
 if __name__ == '__main__':
