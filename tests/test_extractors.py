@@ -57,6 +57,15 @@ class TestExtractors(unittest.TestCase):
             '0lZvjbpWeWkKxi2OyrgHIOc8S7cihgbwadeF5g__.htm',
             info_only=True
         )
+        extractors.yixia.download(
+            'http://m.miaopai.com/show/channel/RjJnaplo7c~T~1BhGrzVWUVKg3dK4'
+            'A8wCy~ucg__?from=groupmessage&isappinstalled=0',
+            info_only=True
+        )
+        extractors.yixia.download(
+            'http://v.xiaokaxiu.com/v/9xLT7TdMLhGvn0kpRsKydQ__.html',
+            info_only=True
+        )
 
     def test_bilibili(self):
         any_download_playlist(

@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import re
 import json
 from urllib.parse import urlparse
 
@@ -15,12 +14,10 @@ from lulu.common import (
 
 
 __all__ = ['yixia_download']
-site_info = 'Yixia'
+site_info = '秒拍 miaopai.com'
 
 
-def yixia_miaopai_download_by_scid(
-    scid, output_dir='.', merge=True, info_only=False, **kwargs
-):
+def yixia_miaopai_download_by_scid(scid, info_only=False, **kwargs):
     api_endpoint = (
         'http://api.miaopai.com/m/v2_channel.json?fillType=259&scid='
         '{scid}&vend=miaopai'.format(scid=scid)
@@ -32,12 +29,11 @@ def yixia_miaopai_download_by_scid(
     _type, ext, size = url_info(video_url)
     print_info(site_info, title, _type, size)
     if not info_only:
-        download_urls([video_url], title, ext, size, output_dir, merge=merge)
+        download_urls([video_url], title, ext, size, **kwargs)
 
 
-def yixia_xiaokaxiu_download_by_scid(
-    scid, output_dir='.', merge=True, info_only=False
-):
+def yixia_xiaokaxiu_download_by_scid(scid, info_only=False, **kwargs):
+    site_info = '小咖秀 xiaokaxiu.com'
     api_endpoint = (
         'http://api.xiaokaxiu.com/video/web/get_play_video?'
         'scid={scid}'.format(scid=scid)
@@ -49,42 +45,29 @@ def yixia_xiaokaxiu_download_by_scid(
     _type, ext, size = url_info(video_url)
     print_info(site_info, title, _type, size)
     if not info_only:
-        download_urls([video_url], title, ext, size, output_dir, merge=merge)
+        download_urls([video_url], title, ext, size, **kwargs)
 
 
-def yixia_download(
-    url, output_dir='.', merge=True, info_only=False, **kwargs
-):
+def yixia_download(url, info_only=False, **kwargs):
     hostname = urlparse(url).hostname
     if 'miaopai.com' in hostname:  # Miaopai
         yixia_download_by_scid = yixia_miaopai_download_by_scid
 
-        if re.match(r'https?://www.miaopai.com/show/channel/.+', url):  # PC
-            scid = match1(
-                url, r'https?://www.miaopai.com/show/channel/(.+)\.htm'
-            )
-        elif re.match(r'https?://www.miaopai.com/show/.+', url):  # PC
-            scid = match1(url, r'https?://www.miaopai.com/show/(.+)\.htm')
-        elif re.match(r'https?://m.miaopai.com/show/channel/.+', url):
-            # Mobile
-            scid = match1(
-                url, r'https?://m.miaopai.com/show/channel/(.+)\.htm'
-            )
-            if scid is None:
-                scid = match1(url, r'https?://m.miaopai.com/show/channel/(.+)')
+        scid = match1(url, r'miaopai\.com/show/channel/(.+)\.htm') or \
+            match1(url, r'miaopai\.com/show/(.+)\.htm') or \
+            match1(url, r'm\.miaopai\.com/show/channel/(.+)\.htm') or \
+            match1(url, r'm\.miaopai\.com/show/channel/([^\?]+)')
 
     elif 'xiaokaxiu.com' in hostname:  # Xiaokaxiu
         yixia_download_by_scid = yixia_xiaokaxiu_download_by_scid
 
-        if re.match(r'http://v.xiaokaxiu.com/v/.+\.html', url):  # PC
-            scid = match1(url, r'http://v.xiaokaxiu.com/v/(.+)\.html')
-        elif re.match(r'http://m.xiaokaxiu.com/m/.+\.html', url):  # Mobile
-            scid = match1(url, r'http://m.xiaokaxiu.com/m/(.+)\.html')
+        scid = match1(url, r'v.xiaokaxiu.com/v/(.+)\.html') or \
+            match1(url, r'm.xiaokaxiu.com/m/(.+)\.html')
 
     else:
         pass
 
-    yixia_download_by_scid(scid, output_dir, merge, info_only)
+    yixia_download_by_scid(scid, info_only, **kwargs)
 
 
 download = yixia_download
