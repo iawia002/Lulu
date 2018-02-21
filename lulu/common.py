@@ -735,7 +735,7 @@ def download_urls(
         bar.done()
     else:
         print('Downloading {}.{} ...'.format(tr(title), ext))
-        parts = []
+        parts = [''] * len(urls)
         bar.update()
         piece = 0
 
@@ -745,7 +745,7 @@ def download_urls(
             index = urls.index(url)
             filename = '{}[{:0>2d}].{}'.format(title, index, ext)
             filepath = os.path.join(output_dir, filename)
-            parts.append(filepath)
+            parts[index] = filepath  # 防止多线程环境下文件顺序会乱
             piece += 1
             bar.update_piece(piece)
             url_save(
