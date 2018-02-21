@@ -4,6 +4,7 @@ import os
 from copy import copy
 
 from lulu.common import (
+    match1,
     dry_run,
     url_size,
     urls_size,
@@ -282,11 +283,10 @@ class VideoExtractor:
                     #     '-c:a': 'copy', '-bsf:a': 'aac_adtstoasc'
                     # }
                     m3u8_urls = general_m3u8_extractor(urls[0])
-                    # FIXME(iawia002): 如果要计算大小的话需要消耗太多时间
-                    if len(m3u8_urls) <= 100:
-                        size = urls_size(m3u8_urls)
-                    else:
-                        size = float('inf')
+                    size = sum([
+                        int(match1(url, r'contentlength=(\d+)'))
+                        for url in m3u8_urls
+                    ])
                     download_urls(
                         m3u8_urls, self.title, 'mp4', size, **kwargs
                     )
