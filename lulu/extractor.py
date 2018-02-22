@@ -309,6 +309,7 @@ class VideoExtractor:
                     ext,
                     total_size,
                     headers=headers,
+                    refer=self.referer,
                     av=stream_id in self.dash_streams,
                     **kwargs
                 )
