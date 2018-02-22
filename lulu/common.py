@@ -147,10 +147,21 @@ def matchall(text, patterns):
     return ret
 
 
-def launch_player(player, urls):
+def launch_player(player, urls, refer=''):
     import subprocess
     import shlex
-    subprocess.call(shlex.split(player) + list(urls))
+    player = shlex.split(player)
+    params = []
+    ua = config.FAKE_HEADERS['User-Agent']
+    if player[0] == 'mpv':
+        params.append('--no-ytdl')
+        params.extend(['--user-agent', ua])
+        if refer:
+            params.extend([
+                '--http-header-fields',
+                'referer: {}'.format(refer)
+            ])
+    subprocess.call(player + params + list(urls))
 
 
 def parse_query_param(url, param):
@@ -699,7 +710,7 @@ def download_urls(
         return
 
     if player:
-        launch_player(player, urls)
+        launch_player(player, urls, refer=refer)
         return
 
     if not total_size:
@@ -863,7 +874,7 @@ def download_url_ffmpeg(
         return
 
     if player:
-        launch_player(player, [url])
+        launch_player(player, [url], refer=refer)
         return
 
     from .processor.ffmpeg import has_ffmpeg_installed, ffmpeg_download_stream
