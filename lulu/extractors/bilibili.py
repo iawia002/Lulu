@@ -1,38 +1,35 @@
 #!/usr/bin/env python
 
-import re
 import time
 import json
 import socket
 import hashlib
 import urllib.parse
 import urllib.request
-import http.cookiejar
 from xml.dom.minidom import parseString
 
+from lulu.common import (
+    match1,
+    get_content,
+    url_locations,
+)
 from lulu.util import log
-from lulu.util.parser import get_parser
 from lulu.config import FAKE_HEADERS
+from lulu.util.parser import get_parser
 from lulu.extractor import VideoExtractor
 from lulu.extractors.qq import qq_download_by_vid
 from lulu.extractors.sina import sina_download_by_vid
 from lulu.extractors.youku import youku_download_by_vid
-from lulu.common import (
-    match1,
-    cookies,
-    get_content,
-    url_locations,
-)
 
 
 __all__ = ['bilibili_download']
 
 
 class Bilibili(VideoExtractor):
-    name = 'Bilibili'
-    live_api = 'http://live.bilibili.com/api/playurl?cid={}&otype=json'
-    api_url = 'http://interface.bilibili.com/playurl?'
-    bangumi_api_url = 'http://bangumi.bilibili.com/player/web_api/playurl?'
+    name = '哔哩哔哩 bilibili.com'
+    live_api = 'https://live.bilibili.com/api/playurl?cid={}&otype=json'
+    api_url = 'https://interface.bilibili.com/playurl?'
+    bangumi_api_url = 'https://bangumi.bilibili.com/player/web_api/playurl?'
     live_room_init_api_url = (
         'https://api.live.bilibili.com/room/v1/Room/room_init?id={}'
     )
@@ -128,64 +125,69 @@ class Bilibili(VideoExtractor):
         if socket.getdefaulttimeout() == 600:  # no timeout specified
             socket.setdefaulttimeout(2)  # fail fast, very speedy!
 
-        # handle "watchlater" URLs
+        # handle 'watchlater' URLs
         if '/watchlater/' in self.url:
-            aid = re.search(r'av(\d+)', self.url).group(1)
-            self.url = 'http://www.bilibili.com/video/av{}/'.format(aid)
-
+            aid = match1(self.url, r'av(\d+)')
+            self.url = 'https://www.bilibili.com/video/av{}/'.format(aid)
         self.ua = FAKE_HEADERS['User-Agent']
-        self.url = url_locations([self.url])[0]
+        if 'bangumi' not in self.url:
+            # bangumi redirect will miss fragment argument here
+            # http://bangumi.bilibili.com/anime/21542/play#173286 ->
+            # https://www.bilibili.com/bangumi/play/ss21542
+            # It should be https://www.bilibili.com/bangumi/play/ss21542#173286
+            self.url = url_locations([self.url])[0]
+
         frag = urllib.parse.urlparse(self.url).fragment
         # http://www.bilibili.com/video/av3141144/index_2.html#page=3
         if frag:
-            hit = re.search(r'page=(\d+)', frag)
-            if hit is not None:
-                page = hit.group(1)
-                aid = re.search(r'av(\d+)', self.url).group(1)
+            page = match1(frag, r'page=(\d+)')
+            if page:
+                aid = match1(self.url, r'av(\d+)')
                 self.url = (
-                    'http://www.bilibili.com/video/av{}/index_{}.html'.format(
+                    'https://www.bilibili.com/video/av{}/index_{}.html'.format(
                         aid, page
                     )
                 )
+
+        # handle bangumi url like this
+        # http://bangumi.bilibili.com/anime/21542/play#173286
+        # https://www.bilibili.com/bangumi/play/ss21542#173286
+        # https://www.bilibili.com/bangumi/play/ep173286
+        bangumi_ep_id = match1(self.url, r'/anime/\d+/play#(\d+)') or \
+            match1(self.url, r'/bangumi/play/ss\d+#(\d+)')
+        if bangumi_ep_id:
+            self.url = 'https://www.bilibili.com/bangumi/play/ep{}'.format(
+                bangumi_ep_id
+            )
+
         self.referer = self.url
         self.page = get_content(self.url)
         self.parser = get_parser(self.page)
-        self.title = self.parser.h1.text.strip()
+        if self.parser.h1:
+            self.title = self.parser.h1.text.strip()
+        else:
+            # Some movie page got no h1 tag
+            self.title = self.parser.find(
+                'meta', property='og:title'
+            )['content']
         if 'subtitle' in kwargs:
             subtitle = kwargs['subtitle']
             self.title = '{} {}'.format(self.title, subtitle)
 
-        if 'bangumi.bilibili.com/movie' in self.url:
-            self.movie_entry(**kwargs)
-        elif 'bangumi.bilibili.com' in self.url:
-            self.bangumi_entry(**kwargs)
-        elif 'live.bilibili.com' in self.url:
+        if 'live.bilibili.com' in self.url:
             self.live_entry(**kwargs)
         elif 'vc.bilibili.com' in self.url:
             self.vc_entry(**kwargs)
         else:
+            # bangumi, movie use this entry too
             self.entry(**kwargs)
-
-    def movie_entry(self, **kwargs):
-        patt = r"var\s*aid\s*=\s*'(\d+)'"
-        aid = re.search(patt, self.page).group(1)
-        page_list = json.loads(get_content(
-            'http://www.bilibili.com/widget/getPageList?aid={}'.format(aid)
-        ))
-        # better ideas for bangumi_movie titles?
-        self.title = page_list[0]['pagename']
-        self.download_by_vid(
-            page_list[0]['cid'], True, bangumi_movie=True, **kwargs
-        )
 
     def entry(self, **kwargs):
         # tencent player
-        tc_flashvars = re.search(
-            r'"bili-cid=\d+&bili-aid=\d+&vid=([^"]+)"', self.page
+        tc_flashvars = match1(
+            self.page, r'"bili-cid=\d+&bili-aid=\d+&vid=([^"]+)"'
         )
         if tc_flashvars:
-            tc_flashvars = tc_flashvars.group(1)
-        if tc_flashvars is not None:
             self.out = True
             qq_download_by_vid(
                 tc_flashvars, self.title, output_dir=kwargs['output_dir'],
@@ -193,24 +195,22 @@ class Bilibili(VideoExtractor):
             )
             return
 
-        has_plist = re.search(r'<option', self.page)
+        has_plist = r'<option' in self.page
         if has_plist and match1(self.url, 'index_(\d+).html') is None:
             log.w(
                 'This page contains a playlist. (use --playlist to download '
                 'all videos.)'
             )
 
-        try:
-            cid = re.search(r'cid=(\d+)', self.page).group(1)
-        except Exception:
-            cid = re.search(r'"cid":(\d+)', self.page).group(1)
-        if cid is not None:
+        cid = match1(self.page, r'cid=(\d+)') \
+            or match1(self.page, r'"cid":(\d+)')
+        if cid:
             self.download_by_vid(
-                cid, re.search('bangumi', self.url) is not None, **kwargs
+                cid, 'bangumi' in self.url, **kwargs
             )
         else:
             # flashvars?
-            flashvars = re.search(r'flashvars="([^"]+)"', self.page).group(1)
+            flashvars = match1(self.page, r'flashvars="([^"]+)"')
             if flashvars is None:
                 raise Exception('Unsupported page {}'.format(self.url))
             param = flashvars.split('&')[0]
@@ -238,9 +238,9 @@ class Bilibili(VideoExtractor):
         # URL). The room ID is usually the same as the short ID, but not
         # always; case in point: https://live.bilibili.com/48, with 48
         # as the short ID and 63727 as the actual ID.
-        room_short_id = re.search(
-            r'live.bilibili.com/([^?]+)', self.url
-        ).group(1)
+        room_short_id = match1(
+            self.url, r'live.bilibili.com/([^?]+)'
+        )
         room_init_api_response = json.loads(get_content(
             self.live_room_init_api_url.format(room_short_id)
         ))
@@ -261,14 +261,13 @@ class Bilibili(VideoExtractor):
         self.streams['live']['size'] = 0
 
     def vc_entry(self, **kwargs):
-        vc_id = re.search(r'video/(\d+)', self.url)
+        vc_id = match1(self.url, r'video/(\d+)') \
+            or match1(self.url, r'vcdetail\?vc=(\d+)')
         if not vc_id:
-            vc_id = re.search(r'vcdetail\?vc=(\d+)', self.url)
-            if not vc_id:
-                log.wtf('Unknown url pattern')
+            log.wtf('Unknown url pattern')
         endpoint = (
-            'http://api.vc.bilibili.com/clip/v1/video/detail?video_id={}'
-            '&need_playurl=1'.format(vc_id.group(1))
+            'https://api.vc.bilibili.com/clip/v1/video/detail?video_id={}'
+            '&need_playurl=1'.format(vc_id)
         )
         vc_meta = json.loads(get_content(endpoint, headers=FAKE_HEADERS))
         if vc_meta['code'] != 0:
@@ -281,78 +280,10 @@ class Bilibili(VideoExtractor):
         self.streams['vc']['container'] = 'mp4'
         self.streams['vc']['size'] = int(item['video_size'])
 
-    def bangumi_entry(self, **kwargs):
-        bangumi_id = re.search(r'(\d+)', self.url).group(1)
-        bangumi_data = get_bangumi_info(bangumi_id)
-        bangumi_payment = bangumi_data.get('payment')
-        if bangumi_payment and bangumi_payment['price'] != '0':
-            log.w("It's a paid item")
-        # ep_ids = collect_bangumi_epids(bangumi_data)
 
-        frag = urllib.parse.urlparse(self.url).fragment
-        if frag:
-            episode_id = frag
-        else:
-            episode_id = re.search(r'first_ep_id\s*=\s*"(\d+)"', self.page)
-        cont = get_content(
-            'http://bangumi.bilibili.com/web_api/episode/{}.json'.format(
-                episode_id
-            )
-        )
-        ep_info = json.loads(cont)['result']['currentEpisode']
-
-        index_title = ep_info['indexTitle']  # 集数
-        long_title = ep_info['longTitle'].strip()  # 本集标题
-        cid = ep_info['danmaku']
-        if long_title:
-            long_title = ' {}'.format(long_title)
-        # 如果有标题的话，在标题前面加一个空格
-        # name 1 title
-        # name 1
-        self.title = '{} {}{}'.format(self.title, index_title, long_title)
-        self.download_by_vid(cid, bangumi=True, **kwargs)
-
-
-def check_oversea():
-    url = 'https://interface.bilibili.com/player?id=cid:17778881'
-    xml_lines = get_content(url).split('\n')
-    for line in xml_lines:
-        key = line.split('>')[0][1:]
-        if key == 'country':
-            value = line.split('>')[1].split('<')[0]
-            if value != '中国':
-                return True
-            else:
-                return False
-    return False
-
-
-def check_sid():
-    if not cookies:
-        return False
-    for cookie in cookies:
-        if cookie.domain == '.bilibili.com' and cookie.name == 'sid':
-            return True
-    return False
-
-
-def fetch_sid(cid, aid):
-    url = 'http://interface.bilibili.com/player?id=cid:{}&aid={}'.format(
-        cid, aid
-    )
-    cookies = http.cookiejar.CookieJar()
-    req = urllib.request.Request(url)
-    res = urllib.request.urlopen(url)
-    cookies.extract_cookies(res, req)
-    for c in cookies:
-        if c.domain == '.bilibili.com' and c.name == 'sid':
-            return c.value
-    raise
-
-
-def collect_bangumi_epids(json_data):
+def collect_bangumi_urls(json_data):
     eps = json_data['episodes'][::-1]
-    return [ep['episode_id'] for ep in eps]
+    return [ep['webplay_url'] for ep in eps]
 
 
 def get_bangumi_info(bangumi_id):
@@ -369,30 +300,7 @@ def get_bangumi_info(bangumi_id):
 
 
 def get_danmuku_xml(cid):
-    return get_content('http://comment.bilibili.com/{}.xml'.format(cid))
-
-
-def parse_cid_playurl(xml):
-    from xml.dom.minidom import parseString
-    try:
-        urls_list = []
-        total_size = 0
-        doc = parseString(xml.encode('utf-8'))
-        durls = doc.getElementsByTagName('durl')
-        cdn_cnt = len(durls[0].getElementsByTagName('url'))
-        for i in range(cdn_cnt):
-            urls_list.append([])
-        for durl in durls:
-            size = durl.getElementsByTagName('size')[0]
-            total_size += int(size.firstChild.nodeValue)
-            cnt = len(durl.getElementsByTagName('url'))
-            for i in range(cnt):
-                u = durl.getElementsByTagName('url')[i].firstChild.nodeValue
-                urls_list[i].append(u)
-        return urls_list, total_size
-    except Exception as e:
-        log.w(e)
-        return [], 0
+    return get_content('https://comment.bilibili.com/{}.xml'.format(cid))
 
 
 site = Bilibili()
@@ -400,33 +308,48 @@ site = Bilibili()
 
 def bilibili_download_playlist_by_url(url, **kwargs):
     url = url_locations([url])[0]
-    # a bangumi here? possible?
     if 'live.bilibili' in url:
         site.download_by_url(url)
     elif 'bangumi.bilibili' in url:
-        bangumi_id = re.search(r'(\d+)', url).group(1)
+        bangumi_id = match1(url, r'(\d+)')
         bangumi_data = get_bangumi_info(bangumi_id)
-        ep_ids = collect_bangumi_epids(bangumi_data)
-
-        base_url = url.split('#')[0]
-        for ep_id in ep_ids:
-            ep_url = '#'.join([base_url, ep_id])
+        ep_urls = collect_bangumi_urls(bangumi_data)
+        for ep_url in ep_urls:
             Bilibili().download_by_url(ep_url, **kwargs)
     else:
-        aid = re.search(r'av(\d+)', url).group(1)
-        page_list = json.loads(get_content(
-            'https://www.bilibili.com/widget/getPageList?aid={}'.format(aid)
-        ))
-        page_cnt = len(page_list)
-        for no in range(1, page_cnt+1):
-            page_url = (
-                'https://www.bilibili.com/video/av{}/index_{}.html'.format(
-                    aid, no
+        aid = match1(url, r'av(\d+)')
+        if aid:
+            # normal playlist
+            # https://www.bilibili.com/video/av16907446/
+            page_list = json.loads(get_content(
+                'https://www.bilibili.com/widget/getPageList?aid={}'.format(
+                    aid
                 )
-            )
-            subtitle = page_list[no-1]['pagename']
-            # 循环里面不能用同一个实例，self.streams 不会改变的，它里面始终存的是第一个地址的最高清晰度的 url，parse_bili_xml L109  # noqa
-            Bilibili().download_by_url(page_url, subtitle=subtitle, **kwargs)
+            ))
+            page_cnt = len(page_list)
+            for no in range(1, page_cnt+1):
+                page_url = (
+                    'https://www.bilibili.com/video/av{}/index_{}.html'.format(
+                        aid, no
+                    )
+                )
+                subtitle = page_list[no-1]['pagename']
+                # 循环里面不能用同一个实例，self.streams 不会改变的，它里面始终存的是第一个地址的最高清晰度的 url，parse_bili_xml L109  # noqa
+                Bilibili().download_by_url(
+                    page_url, subtitle=subtitle, **kwargs
+                )
+        else:
+            # tv playlist
+            # https://www.bilibili.com/bangumi/play/ep196751/
+            page = get_content(url)
+            ep_data = json.loads(match1(
+                page, r'window.__INITIAL_STATE__=(.+?);'
+            ))
+            for ep in ep_data['epList']:
+                ep_url = 'https://www.bilibili.com/bangumi/play/ep{}'.format(
+                    ep['ep_id']
+                )
+                Bilibili().download_by_url(ep_url, **kwargs)
 
 
 download = bilibili_download = site.download_by_url

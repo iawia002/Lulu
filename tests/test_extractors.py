@@ -89,6 +89,35 @@ class TestExtractors(unittest.TestCase):
         extractors.bilibili.download(
             'https://www.bilibili.com/bangumi/play/ep191521', info_only=True
         )
+        extractors.bilibili.download_playlist(
+            'https://bangumi.bilibili.com/anime/5584', info_only=True
+        )
+        # All kinds of bangumi urls
+        extractors.bilibili.download(
+            'http://bangumi.bilibili.com/anime/21542/play#173286',
+            info_only=True
+        )
+        extractors.bilibili.download(
+            'https://www.bilibili.com/bangumi/play/ss21542', info_only=True
+        )
+        extractors.bilibili.download(
+            'https://www.bilibili.com/bangumi/play/ss21542#173287',
+            info_only=True
+        )
+        extractors.bilibili.download(
+            'https://www.bilibili.com/bangumi/play/ep173288', info_only=True
+        )
+        # movie
+        extractors.bilibili.download(
+            'https://www.bilibili.com/bangumi/play/ss12044', info_only=True
+        )
+        # tv
+        extractors.bilibili.download(
+            'https://www.bilibili.com/bangumi/play/ep196751/', info_only=True
+        )
+        extractors.bilibili.download_playlist(
+            'https://www.bilibili.com/bangumi/play/ep196751/', info_only=True
+        )
 
     @ignore_network_issue
     def test_douyin(self):
