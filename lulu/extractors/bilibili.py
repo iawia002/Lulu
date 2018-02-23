@@ -334,7 +334,9 @@ def bilibili_download_playlist_by_url(url, **kwargs):
                     )
                 )
                 subtitle = page_list[no-1]['pagename']
-                # 循环里面不能用同一个实例，self.streams 不会改变的，它里面始终存的是第一个地址的最高清晰度的 url，parse_bili_xml L109  # noqa
+                # 循环里面不能用同一个实例，self.streams 不会改变的
+                # 它里面始终存的是第一个地址的最高清晰度的 url
+                # parse_bili_xml L107
                 Bilibili().download_by_url(
                     page_url, subtitle=subtitle, **kwargs
                 )
