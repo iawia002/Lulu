@@ -182,14 +182,6 @@ Downloading tumblr_mxhg13jx4n1sftq6do1_1280.png ...
 
 * This feature is an experimental one and far from perfect. It works best on scraping large-sized images from popular websites like Tumblr and Blogger, but there is really no universal pattern that can apply to any site on the Internet.
 
-### Search on Google Videos and download
-
-You can pass literally anything to `lulu`. If it isn't a valid URL, `lulu` will do a Google search and download the most relevant video for you. (It might not be exactly the thing you wish to see, but still very likely.)
-
-```
-$ lulu "Richard Stallman eats"
-```
-
 ### Pause and resume a download
 
 You may use <kbd>Ctrl</kbd>+<kbd>C</kbd> to interrupt a download.
@@ -198,18 +190,9 @@ A temporary `.download` file is kept in the output directory. Next time you run 
 
 To enforce re-downloading, use the `--force`/`-f` option. (**Warning:** doing so will overwrite any existing file or temporary file with the same name!)
 
-### Set the path and name of downloaded file
+### Multi-Thread Download
 
-Use the `--output-dir`/`-o` option to set the path, and `--output-filename`/`-O` to set the name of the downloaded file:
-
-```
-$ lulu -o ~/Videos -O zoo.webm 'https://www.youtube.com/watch?v=jNQXAC9IVRw'
-```
-
-**Tips:**
-
-* These options are helpful if you encounter problems with the default video titles, which may contain special characters that do not play well with your current shell / operating system / filesystem.
-* These options are also helpful if you write a script to batch download files and put them into designated folders with designated names.
+Use `-T/--thread number` option to enable multithreading to download(only works for multiple-parts video), `number` means how many threads you want to use.
 
 ### Proxy settings
 
@@ -225,6 +208,14 @@ However, the system proxy setting (i.e. the environment variable `http_proxy`) i
 
 * If you need to use proxies a lot (in case your network is blocking certain sites), you might want to use `lulu` with [proxychains](https://github.com/rofl0r/proxychains-ng) and set `alias lulu="proxychains -q lulu"` (in Bash).
 * For some websites (e.g. Youku), if you need access to some videos that are only available in mainland China, there is an option of using a specific proxy to extract video information from the site: `--extractor-proxy`/`-y`.
+
+### Load cookies
+
+Not all videos are publicly available to anyone. If you need to log in your account to access something (e.g., a private video), it would be unavoidable to feed the browser cookies to `lulu` via the `--cookies`/`-c` option.
+
+**Note:**
+
+* As of now, we are supporting two formats of browser cookies: Mozilla `cookies.sqlite` and Netscape `cookies.txt`.
 
 ### Watch a video
 
@@ -244,13 +235,18 @@ $ lulu -p chromium 'https://www.youtube.com/watch?v=jNQXAC9IVRw'
 
 * It is possible to use the `-p` option to start another download manager, e.g., `lulu -p uget-gtk 'https://www.youtube.com/watch?v=jNQXAC9IVRw'`, though they may not play together very well.
 
-### Load cookies
+### Set the path and name of downloaded file
 
-Not all videos are publicly available to anyone. If you need to log in your account to access something (e.g., a private video), it would be unavoidable to feed the browser cookies to `lulu` via the `--cookies`/`-c` option.
+Use the `--output-dir`/`-o` option to set the path, and `--output-filename`/`-O` to set the name of the downloaded file:
 
-**Note:**
+```
+$ lulu -o ~/Videos -O zoo.webm 'https://www.youtube.com/watch?v=jNQXAC9IVRw'
+```
 
-* As of now, we are supporting two formats of browser cookies: Mozilla `cookies.sqlite` and Netscape `cookies.txt`.
+**Tips:**
+
+* These options are helpful if you encounter problems with the default video titles, which may contain special characters that do not play well with your current shell / operating system / filesystem.
+* These options are also helpful if you write a script to batch download files and put them into designated folders with designated names.
 
 ### Reuse extracted data
 
@@ -260,9 +256,13 @@ Use `--url`/`-u` to get a list of downloadable resource URLs extracted from the 
 
 * For the time being, this feature has **NOT** been stabilized and the JSON schema may have breaking changes in the future.
 
-### Multi-Thread Download
+### Search on Google Videos and download
 
-Use `-T/--thread number` option to enable multithreading to download(only works for multiple-parts video), `number` means how many threads you want to use.
+You can pass literally anything to `lulu`. If it isn't a valid URL, `lulu` will do a Google search and download the most relevant video for you. (It might not be exactly the thing you wish to see, but still very likely.)
+
+```
+$ lulu "Richard Stallman eats"
+```
 
 
 ## Supported Sites
