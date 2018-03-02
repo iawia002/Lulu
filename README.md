@@ -359,7 +359,7 @@ Run the tests:
 
 ### Note
 
-@iawia002 has [pep8](https://www.python.org/dev/peps/pep-0008) obsessive-compulsive disorder, all code must follow [pep8](http://pep8.org) guidelines.
+[@iawia002](https://github.com/iawia002) has [pep8](https://www.python.org/dev/peps/pep-0008) obsessive-compulsive disorder, all code must follow [pep8](http://pep8.org) guidelines.
 
 You can use [flake8](https://github.com/PyCQA/flake8) to check the code before submitting.
 
