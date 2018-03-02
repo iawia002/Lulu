@@ -29,31 +29,6 @@ upgrade:
 
     $ pip3 install -U lulu
 
-## Deployment
-
-Install [pipenv](https://github.com/pypa/pipenv):
-
-    $ pip3 install pipenv
-
-and [fabric](https://github.com/fabric/fabric) (**Note: fabric doesn't support python3 now, install using pip2**):
-
-    $ pip install fabric
-
-Initialize virtualenv
-
-    $ pipenv --python 3
-
-Install all dependencies:
-
-    $ pipenv install --dev
-
-Use the shell:
-
-    $ pipenv shell
-
-Run the tests:
-
-    $ fab test
 
 ## Get Started
 
@@ -352,6 +327,41 @@ $ lulu "Richard Stallman eats"
 | 龙珠直播 | <http://longzhu.com>      |✓| | |
 
 For all other sites not on the list, the universal extractor will take care of finding and downloading interesting resources from the page.
+
+
+## Development
+
+### Preparation
+
+Install [pipenv](https://github.com/pypa/pipenv):
+
+    $ pip3 install pipenv
+
+and [fabric](https://github.com/fabric/fabric) (**Note: fabric doesn't support python3 now, install using pip2**):
+
+    $ pip install fabric
+
+Initialize virtualenv
+
+    $ pipenv --python 3
+
+Install all dependencies:
+
+    $ pipenv install --dev
+
+Use the shell:
+
+    $ pipenv shell
+
+Run the tests:
+
+    $ fab test
+
+### Note
+
+@iawia002 has [pep8](https://www.python.org/dev/peps/pep-0008) obsessive-compulsive disorder, all code must follow [pep8](http://pep8.org) guidelines.
+
+You can use [flake8](https://github.com/PyCQA/flake8) to check the code before submitting.
 
 
 ## Authors
