@@ -357,7 +357,11 @@ Run the tests:
 
     $ fab test
 
-### Note
+### Contributing
+
+Lulu is an open source project and welcome contributions 😉
+
+#### Note
 
 [@iawia002](https://github.com/iawia002) has [pep8](https://www.python.org/dev/peps/pep-0008) obsessive-compulsive disorder, all code must follow [pep8](http://pep8.org) guidelines.
 
