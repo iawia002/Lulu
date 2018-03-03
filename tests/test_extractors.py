@@ -770,6 +770,13 @@ class TestExtractors(unittest.TestCase):
         )
 
     @ignore_network_issue
+    def test_pixivision(self):
+        extractors.pixivision.download(
+            'https://www.pixivision.net/zh/a/3244',
+            info_only=True
+        )
+
+    @ignore_network_issue
     def test_longzhu(self):
         extractors.longzhu.download(
             'http://v.longzhu.com/xiayike233/v/762954',

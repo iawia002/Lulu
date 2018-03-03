@@ -64,6 +64,7 @@ SITES = {
     'nicovideo': 'nicovideo',
     'panda': 'panda',
     'pinterest': 'pinterest',
+    'pixivision': 'pixivision',
     'pixnet': 'pixnet',
     'pptv': 'pptv',
     'qingting': 'qingting',
