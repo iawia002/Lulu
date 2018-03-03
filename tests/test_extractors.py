@@ -193,9 +193,6 @@ class TestExtractors(unittest.TestCase):
     @ignore_network_issue
     def test_acfun(self):
         extractors.acfun.download(
-            'http://www.acfun.cn/v/ac4209715', info_only=True
-        )
-        extractors.acfun.download(
             'http://www.acfun.cn/v/ac4210425', info_only=True
         )
 

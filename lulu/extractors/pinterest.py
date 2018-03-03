@@ -24,7 +24,6 @@ class Pinterest(VideoExtractor):
     def prepare(self, **kwargs):
         # scrape the html
         content = get_content(self.url)
-        pin_id = match1(self.url, r'https?://www.pinterest.com/pin/(\d+)')
         # extract title
         self.title = match1(
             content,
@@ -38,11 +37,10 @@ class Pinterest(VideoExtractor):
             r'</script>'
         )
         data = json.loads(data)
-        orig_img = data['resources']['data']['PinResource'][
-            'field_set_key="unauth_react_pin",get_page_metadata=true,'
-            'id="{}",main_module_name="UnauthPinReactPage",'
-            'pure_react=true,python_resource_prefetch=true'.format(pin_id)
-        ]['data']['images']['orig']['url']
+        keys = list(data['resources']['data']['PinResource'].keys())
+        orig_img = data['resources']['data']['PinResource'][keys[0]]['data'][
+            'images'
+        ]['orig']['url']
         twit_img = match1(
             content,
             r'<meta property="twitter:image:src" name="twitter:image:src" '
