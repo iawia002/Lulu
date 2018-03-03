@@ -8,6 +8,7 @@ SITES = {
     'baidu': 'baidu',
     'bandcamp': 'bandcamp',
     'baomihua': 'baomihua',
+    'bcy': 'bcy',
     'bigthink': 'bigthink',
     'bilibili': 'bilibili',
     'cctv': 'cntv',

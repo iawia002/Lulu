@@ -325,6 +325,7 @@ $ lulu "Richard Stallman eats"
 | 快手 | <https://www.kuaishou.com/>      |✓|✓| |
 | 抖音 | <https://www.douyin.com/>      |✓| | |
 | 龙珠直播 | <http://longzhu.com>      |✓| | |
+| 半次元 | <https://bcy.net>      | |✓| |
 
 For all other sites not on the list, the universal extractor will take care of finding and downloading interesting resources from the page.
 

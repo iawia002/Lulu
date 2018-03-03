@@ -780,6 +780,17 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    @ignore_network_issue
+    def test_bcy(self):
+        extractors.bcy.download(
+            'https://bcy.net/coser/detail/67736/2009414',
+            info_only=True
+        )
+        extractors.bcy.download(
+            'https://bcy.net/illust/detail/15294/2077317',
+            info_only=True
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
