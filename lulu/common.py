@@ -218,10 +218,12 @@ def get_location(url):
 
 
 def urlopen_with_retry(*args, **kwargs):
+    import ssl
+    context = ssl._create_unverified_context()
     retry_time = 3
     for i in range(retry_time):
         try:
-            return request.urlopen(*args, **kwargs)
+            return request.urlopen(*args, context=context, **kwargs)
         except socket.timeout as e:
             logging.debug('request attempt %s timeout' % str(i + 1))
             if i + 1 == retry_time:
