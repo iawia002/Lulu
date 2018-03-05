@@ -36,7 +36,7 @@ def veoh_download_by_id(item_id, info_only=False, **kwargs):
         )
     )
     # grab download URL
-    a = get_content(webpage_url, decoded=True)
+    a = get_content(webpage_url)
     url = match1(a, r'<source src="(.*?)\"\W')
 
     # grab title

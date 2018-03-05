@@ -38,7 +38,7 @@ def facebook_download(
     ]))
     urls = hd_urls if hd_urls else sd_urls
 
-    _type, ext, size = url_info(urls[0], True)
+    _type, ext, size = url_info(urls[0])
     size = urls_size(urls)
 
     print_info(site_info, title, _type, size)

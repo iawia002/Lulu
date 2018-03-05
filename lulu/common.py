@@ -9,17 +9,19 @@ import socket
 import locale
 import logging
 import argparse
+from urllib import parse
 from html import unescape
 from http import cookiejar
 from importlib import import_module
-from urllib import (
-    request,
-    parse,
-    error
-)
 from multiprocessing.dummy import Pool
 
-from lulu import config
+import urllib3
+import requests
+
+from lulu.config import (
+    SITES,
+    FAKE_HEADERS,
+)
 from lulu.util import log, term
 from lulu.version import __version__
 from lulu import json_output as json_output_
@@ -41,6 +43,11 @@ if sys.stdout.isatty():
     default_encoding = sys.stdout.encoding.lower()
 else:
     default_encoding = locale.getpreferredencoding().lower()
+
+
+# disable SSL verify=False warning
+urllib3.disable_warnings()
+session = requests.Session()
 
 
 def rc4(key, data):
@@ -68,7 +75,7 @@ def rc4(key, data):
     return bytes(out_list)
 
 
-def general_m3u8_extractor(url, headers=config.FAKE_HEADERS):
+def general_m3u8_extractor(url, headers=FAKE_HEADERS):
     m3u8_list = get_content(url, headers=headers).split('\n')
     urls = []
     for line in m3u8_list:
@@ -152,7 +159,7 @@ def launch_player(player, urls, refer=''):
     import shlex
     player = shlex.split(player)
     params = []
-    ua = config.FAKE_HEADERS['User-Agent']
+    ua = FAKE_HEADERS['User-Agent']
     if player[0] == 'mpv':
         params.append('--no-ytdl')
         params.extend(['--user-agent', ua])
@@ -199,43 +206,33 @@ def ungzip(data):
     return f.read()
 
 
-def undeflate(data):
-    """Decompresses data for Content-Encoding: deflate.
-    (the zlib compression is used.)
-    """
-    import zlib
-    decompressobj = zlib.decompressobj(-zlib.MAX_WBITS)
-    return decompressobj.decompress(data)+decompressobj.flush()
-
-
 def get_location(url):
-    logging.debug('get_location: %s' % url)
-
-    response = request.urlopen(url)
-    # urllib will follow redirections and it's too much code to tell urllib
-    # not to do that
-    return response.geturl()
+    logging.debug('get_location: {}'.format(url))
+    response = session.get(url)
+    return response.url
 
 
-def urlopen_with_retry(*args, **kwargs):
-    import ssl
-    context = ssl._create_unverified_context()
+def urlopen_with_retry(*args, method='get', **kwargs):
     retry_time = 3
     for i in range(retry_time):
         try:
-            return request.urlopen(*args, context=context, **kwargs)
-        except socket.timeout as e:
-            logging.debug('request attempt %s timeout' % str(i + 1))
+            return getattr(session, method)(
+                *args, stream=True, verify=False, **kwargs
+            )
+        except requests.Timeout as e:
+            logging.debug('request attempt {} timeout'.format(str(i + 1)))
             if i + 1 == retry_time:
                 raise e
         # try to tackle youku CDN fails
-        except error.HTTPError as http_error:
-            logging.debug('HTTP Error with code{}'.format(http_error.code))
+        except requests.HTTPError as http_error:
+            logging.debug('HTTP Error with code{}'.format(
+                http_error.response.status_code
+            ))
             if i + 1 == retry_time:
                 raise http_error
 
 
-def get_content(url, headers=config.FAKE_HEADERS, decoded=True):
+def get_content(url, headers=FAKE_HEADERS):
     """Gets the content of a URL via sending a HTTP GET request.
 
     Args:
@@ -248,37 +245,17 @@ def get_content(url, headers=config.FAKE_HEADERS, decoded=True):
         The content as a string.
     """
 
-    logging.debug('get_content: %s' % url)
+    logging.debug('get_content: {}'.format(url))
 
-    req = request.Request(url, headers=headers)
     if cookies:
-        cookies.add_cookie_header(req)
-        req.headers.update(req.unredirected_hdrs)
+        session.cookies = cookies
 
-    response = urlopen_with_retry(req)
-    data = response.read()
-
-    # Handle HTTP compression for gzip and deflate (zlib)
-    content_encoding = response.getheader('Content-Encoding')
-    if content_encoding == 'gzip':
-        data = ungzip(data)
-    elif content_encoding == 'deflate':
-        data = undeflate(data)
-
-    # Decode the response body
-    if decoded:
-        charset = match1(
-            response.getheader('Content-Type'), r'charset=([\w-]+)'
-        )
-        if charset is not None:
-            data = data.decode(charset)
-        else:
-            data = data.decode('utf-8', 'ignore')
-
+    response = urlopen_with_retry(url, headers=headers)
+    data = response.text
     return data
 
 
-def post_content(url, headers={}, post_data={}, decoded=True):
+def post_content(url, headers=FAKE_HEADERS, post_data={}):
     """Post the content of a URL via sending a HTTP POST request.
 
     Args:
@@ -291,83 +268,43 @@ def post_content(url, headers={}, post_data={}, decoded=True):
         The content as a string.
     """
 
-    logging.debug('post_content: %s \n post_data: %s' % (url, post_data))
+    logging.debug('post_content: {} \n post_data: {}'.format(url, post_data))
 
-    req = request.Request(url, headers=headers)
     if cookies:
-        cookies.add_cookie_header(req)
-        req.headers.update(req.unredirected_hdrs)
-    post_data_enc = bytes(parse.urlencode(post_data), 'utf-8')
-    response = urlopen_with_retry(req, data=post_data_enc)
-    data = response.read()
+        session.cookies = cookies
 
-    # Handle HTTP compression for gzip and deflate (zlib)
-    content_encoding = response.getheader('Content-Encoding')
-    if content_encoding == 'gzip':
-        data = ungzip(data)
-    elif content_encoding == 'deflate':
-        data = undeflate(data)
-
-    # Decode the response body
-    if decoded:
-        charset = match1(
-            response.getheader('Content-Type'), r'charset=([\w-]+)'
-        )
-        if charset is not None:
-            data = data.decode(charset)
-        else:
-            data = data.decode('utf-8')
-
+    response = urlopen_with_retry(
+        url, method='post', headers=headers, data=post_data
+    )
+    data = response.text
     return data
 
 
-def url_size(url, faker=False, headers={}):
-    if faker:
-        response = urlopen_with_retry(
-            request.Request(url, headers=config.FAKE_HEADERS)
-        )
-    elif headers:
-        response = urlopen_with_retry(request.Request(url, headers=headers))
-    else:
-        response = urlopen_with_retry(url)
-
+def url_size(url, headers=FAKE_HEADERS):
+    response = urlopen_with_retry(url, headers=headers)
     size = response.headers['content-length']
     return int(size) if size is not None else float('inf')
 
 
-def urls_size(urls, faker=False, headers={}):
-    return sum([url_size(url, faker=faker, headers=headers) for url in urls])
+def urls_size(urls, headers=FAKE_HEADERS):
+    return sum([url_size(url, headers=headers) for url in urls])
 
 
-def get_head(url, headers={}, get_method='HEAD'):
-    logging.debug('get_head: %s' % url)
-
-    if headers:
-        req = request.Request(url, headers=headers)
-    else:
-        req = request.Request(url)
-    req.get_method = lambda: get_method
-    res = urlopen_with_retry(req)
-    return dict(res.headers)
+def get_head(url, headers=FAKE_HEADERS):
+    logging.debug('get_head: {}'.format(url))
+    res = urlopen_with_retry(url, headers=headers)
+    return res.headers
 
 
-def url_info(url, faker=False, headers={}):
-    logging.debug('url_info: %s' % url)
+def url_info(url, headers=FAKE_HEADERS, refer=None):
+    logging.debug('url_info: {}'.format(url))
+    if refer:
+        headers.update({'Referer': refer})
+    headers = get_head(url, headers)
 
-    if faker:
-        response = urlopen_with_retry(
-            request.Request(url, headers=config.FAKE_HEADERS)
-        )
-    elif headers:
-        response = urlopen_with_retry(request.Request(url, headers=headers))
-    else:
-        response = urlopen_with_retry(request.Request(url))
-
-    headers = response.headers
-
-    type = headers['content-type']
-    if type == 'image/jpg; charset=UTF-8' or type == 'image/jpg':
-        type = 'audio/mpeg'  # fix for netease
+    _type = headers['content-type']
+    if _type == 'image/jpg; charset=UTF-8' or _type == 'image/jpg':
+        _type = 'audio/mpeg'  # fix for netease
     mapping = {
         'video/3gpp': '3gp',
         'video/f4v': 'flv',
@@ -387,12 +324,12 @@ def url_info(url, faker=False, headers={}):
         'image/gif': 'gif',
         'application/pdf': 'pdf',
     }
-    if type in mapping:
-        ext = mapping[type]
+    if _type in mapping:
+        ext = mapping[_type]
     elif '.' in url:
-        type = ext = url.split('.')[-1]
+        _type = ext = url.split('.')[-1]
     else:
-        type = None
+        _type = None
         if headers['content-disposition']:
             try:
                 filename = parse.unquote(
@@ -409,44 +346,35 @@ def url_info(url, faker=False, headers={}):
         else:
             ext = None
 
-    if headers['transfer-encoding'] != 'chunked':
+    if headers.get('transfer-encoding') != 'chunked':
         size = headers['content-length'] and int(headers['content-length'])
     else:
         size = None
 
-    return type, ext, size
+    return _type, ext, size
 
 
-def url_locations(urls, faker=False, headers={}):
+def url_locations(urls, headers=FAKE_HEADERS):
     locations = []
     for url in urls:
         logging.debug('url_locations: %s' % url)
 
-        if faker:
-            response = urlopen_with_retry(
-                request.Request(url, headers=config.FAKE_HEADERS)
-            )
-        elif headers:
-            response = urlopen_with_retry(
-                request.Request(url, headers=headers)
-            )
-        else:
-            response = urlopen_with_retry(request.Request(url))
+        response = urlopen_with_retry(url, headers=headers)
 
         locations.append(response.url)
     return locations
 
 
 def url_save(
-    url, filepath, bar, refer=None, is_part=False, faker=False,
-    headers=None, timeout=None, **kwargs
+    url, filepath, bar, refer=None, is_part=False, headers=None, timeout=None,
+    **kwargs
 ):
-    tmp_headers = headers.copy() if headers is not None else {}
+    tmp_headers = headers.copy() if headers else FAKE_HEADERS.copy()
     # When a referer specified with param refer,
     # the key must be 'Referer' for the hack here
-    if refer is not None:
+    if refer:
         tmp_headers['Referer'] = refer
-    file_size = url_size(url, faker=faker, headers=tmp_headers)
+    file_size = url_size(url, headers=tmp_headers)
 
     if os.path.exists(filepath):
         if not force and file_size == os.path.getsize(filepath):
@@ -484,28 +412,16 @@ def url_save(
         open_mode = 'wb'
 
     if received < file_size:
-        if faker:
-            tmp_headers = config.FAKE_HEADERS
-        '''
-        if parameter headers passed in, we have it copied as tmp_header
-        elif headers:
-            headers = headers
-        else:
-            headers = {}
-        '''
         if received:
             tmp_headers['Range'] = 'bytes=' + str(received) + '-'
         if refer:
             tmp_headers['Referer'] = refer
-
+        kwargs = {
+            'headers': tmp_headers,
+        }
         if timeout:
-            response = urlopen_with_retry(
-                request.Request(url, headers=tmp_headers), timeout=timeout
-            )
-        else:
-            response = urlopen_with_retry(
-                request.Request(url, headers=tmp_headers)
-            )
+            kwargs['timeout'] = timeout
+        response = urlopen_with_retry(url, **kwargs)
         try:
             range_start = int(
                 response.headers[
@@ -518,7 +434,7 @@ def url_save(
             range_length = end_length - range_start
         except Exception:
             content_length = response.headers['content-length']
-            range_length = int(content_length) if content_length is not None \
+            range_length = int(content_length) if content_length \
                 else float('inf')
 
         if file_size != received + range_length:
@@ -528,25 +444,12 @@ def url_save(
             open_mode = 'wb'
 
         with open(temp_filepath, open_mode) as output:
-            while True:
-                buffer = None
-                try:
-                    buffer = response.read(1024 * 256)
-                except socket.timeout:
-                    pass
-                if not buffer:
-                    if received == file_size:  # Download finished
-                        break
-                    # Unexpected termination. Retry request
-                    tmp_headers['Range'] = 'bytes=' + str(received) + '-'
-                    response = urlopen_with_retry(
-                        request.Request(url, headers=tmp_headers)
-                    )
-                    continue
-                output.write(buffer)
-                received += len(buffer)
-                if bar:
-                    bar.update_received(len(buffer))
+            for chunk in response.iter_content(chunk_size=2048):
+                if chunk:
+                    output.write(chunk)
+                    received += len(chunk)
+                    if bar:
+                        bar.update_received(len(chunk))
 
     assert received == os.path.getsize(temp_filepath), '{} == {} == {}'.format(
         received, os.path.getsize(temp_filepath), temp_filepath
@@ -698,7 +601,7 @@ def get_output_filename(urls, title, ext, output_dir, merge):
 
 def download_urls(
     urls, title, ext, total_size, output_dir='.', refer=None, merge=True,
-    faker=False, headers={}, thread=0, **kwargs
+    headers={}, thread=0, **kwargs
 ):
     assert urls
     if json_output:
@@ -717,15 +620,15 @@ def download_urls(
 
     if not total_size:
         try:
-            total_size = urls_size(urls, faker=faker, headers=headers)
+            total_size = urls_size(urls, headers=headers)
         except Exception:
             import traceback
             traceback.print_exc(file=sys.stdout)
             pass
 
     title = tr(get_filename(title))
-    output_filename = get_output_filename(urls, title, ext, output_dir, merge)
-    output_filepath = os.path.join(output_dir, output_filename)
+    output_file = get_output_filename(urls, title, ext, output_dir, merge)
+    output_filepath = os.path.join(output_dir, output_file)
 
     if total_size:
         if not force and os.path.exists(output_filepath) \
@@ -739,11 +642,10 @@ def download_urls(
 
     if len(urls) == 1:
         url = urls[0]
-        print('Downloading {} ...'.format(tr(output_filename)))
+        print('Downloading {} ...'.format(tr(output_file)))
         bar.update()
         url_save(
-            url, output_filepath, bar, refer=refer, faker=faker,
-            headers=headers, **kwargs
+            url, output_filepath, bar, refer=refer, headers=headers, **kwargs
         )
         bar.done()
     else:
@@ -762,8 +664,8 @@ def download_urls(
             piece += 1
             bar.update_piece(piece)
             url_save(
-                url, filepath, bar, refer=refer, is_part=True, faker=faker,
-                headers=headers, **kwargs
+                url, filepath, bar, refer=refer, is_part=True, headers=headers,
+                **kwargs
             )
         if thread:
             with Pool(processes=thread) as pool:
@@ -782,7 +684,7 @@ def download_urls(
             if has_ffmpeg_installed():
                 from .processor.ffmpeg import ffmpeg_concat_av
                 ret = ffmpeg_concat_av(parts, output_filepath, ext)
-                print('Merged into {}'.format(output_filename))
+                print('Merged into {}'.format(output_file))
                 if ret == 0:
                     for part in parts:
                         os.remove(part)
@@ -796,7 +698,7 @@ def download_urls(
                 else:
                     from .processor.join_flv import concat_flv
                     concat_flv(parts, output_filepath)
-                print('Merged into {}'.format(output_filename))
+                print('Merged into {}'.format(output_file))
             except Exception:
                 raise
             else:
@@ -812,7 +714,7 @@ def download_urls(
                 else:
                     from .processor.join_mp4 import concat_mp4
                     concat_mp4(parts, output_filepath)
-                print('Merged into {}'.format(output_filename))
+                print('Merged into {}'.format(output_file))
             except Exception:
                 raise
             else:
@@ -828,7 +730,7 @@ def download_urls(
                 else:
                     from .processor.join_ts import concat_ts
                     concat_ts(parts, output_filepath)
-                print('Merged into {}'.format(output_filename))
+                print('Merged into {}'.format(output_file))
             except Exception:
                 raise
             else:
@@ -843,7 +745,7 @@ def download_urls(
 
 def download_rtmp_url(
     url, title, ext, params={}, total_size=0, output_dir='.', refer=None,
-    merge=True, faker=False
+    merge=True
 ):
     assert url
     if dry_run:
@@ -861,12 +763,12 @@ def download_rtmp_url(
         has_rtmpdump_installed, download_rtmpdump_stream
     )
     assert has_rtmpdump_installed(), 'RTMPDump not installed.'
-    download_rtmpdump_stream(url,  title, ext, params, output_dir)
+    download_rtmpdump_stream(url, title, ext, params, output_dir)
 
 
 def download_url_ffmpeg(
     url, title, ext, params={}, total_size=0, output_dir='.', refer=None,
-    merge=True, faker=False, stream=True, **kwargs
+    merge=True, stream=True, **kwargs
 ):
     assert url
     if dry_run:
@@ -1022,18 +924,14 @@ def parse_host(host):
 
 
 def set_proxy(proxy):
-    proxy_handler = request.ProxyHandler({
+    session.proxies.update({
         'http': '%s:%s' % proxy,
         'https': '%s:%s' % proxy,
     })
-    opener = request.build_opener(proxy_handler)
-    request.install_opener(opener)
 
 
 def unset_proxy():
-    proxy_handler = request.ProxyHandler({})
-    opener = request.build_opener(proxy_handler)
-    request.install_opener(opener)
+    session.proxies = {}
 
 
 def download_main(download, download_playlist, urls, playlist, **kwargs):
@@ -1384,9 +1282,9 @@ def url_to_module(url):
     assert domain, 'unsupported url: ' + url
 
     k = match1(domain, r'([^.]+)')
-    if k in config.SITES:
+    if k in SITES:
         return (
-            import_module('.'.join(['lulu', 'extractors', config.SITES[k]])),
+            import_module('.'.join(['lulu', 'extractors', SITES[k]])),
             url
         )
     else:
@@ -1396,7 +1294,7 @@ def url_to_module(url):
             conn = http.client.HTTPSConnection(video_host)
         else:
             conn = http.client.HTTPConnection(video_host)
-        conn.request('HEAD', video_url, headers=config.FAKE_HEADERS)
+        conn.request('HEAD', video_url, headers=FAKE_HEADERS)
         res = conn.getresponse()
         location = res.getheader('location')
         if location and location != url and not location.startswith('/'):

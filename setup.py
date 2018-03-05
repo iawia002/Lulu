@@ -21,6 +21,7 @@ AUTHOR = 'iawia002'
 REQUIRED = [
     'cryptography==2.1.4',
     'beautifulsoup4==4.6.0',
+    'requests==2.18.4',
 ]
 
 here = os.path.abspath(os.path.dirname(__file__))

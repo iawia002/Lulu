@@ -52,7 +52,7 @@ def videomega_download(url, info_only=False, **kwargs):
     s = match1(js, r"'([^']+)'\.split").split('|')
     src = t.format(*s)
 
-    _type, ext, size = url_info(src, faker=True)
+    _type, ext, size = url_info(src)
 
     print_info(site_info, title, _type, size)
     if not info_only:

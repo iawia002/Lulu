@@ -116,7 +116,9 @@ def acfun_download_by_vid(
         # total_size in the json could be incorrect(F.I. 0)
         size = 0
         for url in preferred[0]:
-            _, _, seg_size = url_info(url)
+            _, _, seg_size = url_info(
+                url, refer='https://www.acfun.cn/av{}'.format(vid)
+            )
             size += seg_size
         # fallback to flvhd is not quite possible
         print_info(site_info, title, 'mp4', size)

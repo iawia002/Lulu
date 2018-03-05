@@ -677,6 +677,7 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    @skipOnCI
     def test_pixnet(self):
         extractors.pixnet.download(
             'http://eric6513.pixnet.net/album/video/206644535',
@@ -758,7 +759,7 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
-    @ignore_network_issue
+    @skipOnCI
     def test_ximalaya(self):
         extractors.ximalaya.download(
             'http://www.ximalaya.com/24137038/sound/71717551/',

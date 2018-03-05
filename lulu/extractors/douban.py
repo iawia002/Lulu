@@ -32,7 +32,7 @@ def douban_download(
         real_url = 'https://movie.douban.com/trailer/video_url?tid={}'.format(
             tid
         )
-        _type, ext, size = url_info(real_url)
+        _type, ext, size = url_info(real_url, refer=url)
 
         print_info(site_info, title, _type, size)
         if not info_only:

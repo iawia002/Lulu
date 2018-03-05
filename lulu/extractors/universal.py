@@ -125,7 +125,7 @@ def universal_download(
 
         for candy in candies:
             try:
-                mime, ext, size = url_info(candy['url'], faker=True)
+                mime, ext, size = url_info(candy['url'])
                 if not size:
                     size = float('Int')
             except Exception:
@@ -135,7 +135,7 @@ def universal_download(
                 if not info_only:
                     download_urls(
                         [candy['url']], candy['title'], ext, size,
-                        output_dir=output_dir, merge=merge, faker=True
+                        output_dir=output_dir, merge=merge
                     )
         return
 
@@ -144,12 +144,11 @@ def universal_download(
         filename = parse.unquote(url.split('/')[-1])
         title = '.'.join(filename.split('.')[:-1])
         ext = filename.split('.')[-1]
-        _, _, size = url_info(url, faker=True)
+        _, _, size = url_info(url)
         print_info(site_info, title, ext, size)
         if not info_only:
             download_urls(
-                [url], title, ext, size, output_dir=output_dir, merge=merge,
-                faker=True
+                [url], title, ext, size, output_dir=output_dir, merge=merge
             )
         return
 

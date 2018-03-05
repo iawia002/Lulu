@@ -36,7 +36,7 @@ class MusicPlayOn(VideoExtractor):
     def extract(self, **kwargs):
         for i in self.streams:
             s = self.streams[i]
-            _, s['container'], s['size'] = url_info(s['url'], faker=True)
+            _, s['container'], s['size'] = url_info(s['url'])
             s['src'] = [s['url']]
 
 
