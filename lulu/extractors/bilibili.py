@@ -40,23 +40,33 @@ class Bilibili(VideoExtractor):
     SEC1 = '1c15888dc316e05a15fdd0a02ed6584f'
     SEC2 = '9b288147e5474dd2aa67085f716c560d'
     stream_types = [
-        {'id': 'hdflv'},
-        {'id': 'flv720'},
+        {'id': 'flv_p60'},
+        {'id': 'flv720_p60'},
         {'id': 'flv'},
+        {'id': 'flv720'},
+        {'id': 'flv480'},
+        {'id': 'flv360'},
         {'id': 'hdmp4'},
         {'id': 'mp4'},
         {'id': 'live'},
         {'id': 'vc'},
     ]
-    fmt2qlt = dict(hdflv=4, flv=3, hdmp4=2, mp4=1)
 
     @staticmethod
     def bilibili_stream_type(urls):
         url = urls[0]
-        if 'hd.flv' in url or '-112.flv' in url:
-            return 'hdflv', 'flv'
+        if '-116.flv' in url:
+            return 'flv_p60', 'flv'
+        if '-74.flv' in url:
+            return 'flv720_p60', 'flv'
+        if '-80.flv' in url:
+            return 'flv', 'flv'
         if '-64.flv' in url:
             return 'flv720', 'flv'
+        if '-32.flv' in url:
+            return 'flv480', 'flv'
+        if '-15.flv' in url:
+            return 'flv360', 'flv'
         if '.flv' in url:
             return 'flv', 'flv'
         if 'hd.mp4' in url or '-48.mp4' in url:
@@ -68,8 +78,8 @@ class Bilibili(VideoExtractor):
     def api_req(self, cid, quality, bangumi, bangumi_movie=False, **kwargs):
         ts = str(int(time.time()))
         if not bangumi:
-            params_str = 'cid={}&player=1&quality={}&ts={}'.format(
-                cid, quality, ts
+            params_str = 'cid={}&player=1&qn={}&quality={}&ts={}'.format(
+                cid, quality, quality, ts
             )
             chksum = hashlib.md5(
                 bytes(params_str+self.SEC1, 'utf8')
@@ -77,8 +87,10 @@ class Bilibili(VideoExtractor):
             api_url = self.api_url + params_str + '&sign=' + chksum
         else:
             mod = 'movie' if bangumi_movie else 'bangumi'
-            params_str = 'cid={}&module={}&player=1&quality={}&ts={}'.format(
-                cid, mod, quality, ts
+            params_str = (
+                'cid={}&module={}&player=1&qn={}&quality={}&ts={}'.format(
+                    cid, mod, quality, quality, ts
+                )
             )
             chksum = hashlib.md5(
                 bytes(params_str+self.SEC2, 'utf8')
@@ -115,7 +127,7 @@ class Bilibili(VideoExtractor):
         # guard here. if stream_id invalid, fallback as not stream_id
 
         info_only = kwargs.get('info_only')
-        for qlt in range(4, -1, -1):
+        for qlt in [116, 74, 80, 64, 32, 15]:
             api_xml = self.api_req(cid, qlt, bangumi, **kwargs)
             self.parse_bili_xml(api_xml)
         if not info_only or stream_id:
