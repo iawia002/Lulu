@@ -28,7 +28,7 @@ __all__ = ['bilibili_download']
 class Bilibili(VideoExtractor):
     name = '哔哩哔哩 bilibili.com'
     live_api = 'https://live.bilibili.com/api/playurl?cid={}&otype=json'
-    api_url = 'https://interface.bilibili.com/playurl?'
+    api_url = 'https://interface.bilibili.com/v2/playurl?'
     bangumi_api_url = 'https://bangumi.bilibili.com/player/web_api/playurl?'
     live_room_init_api_url = (
         'https://api.live.bilibili.com/room/v1/Room/room_init?id={}'
