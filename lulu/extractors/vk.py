@@ -25,9 +25,9 @@ def get_video_info(url):
         video=re.search(r'video(-\d+_\d+)', url).group(1)
     )
     page = post_content(ep, post_data=to_post)
-    video_pt = r'<source src="(.+?)" type="video\/mp4"'
-    url = re.search(video_pt, page).group(1)
-    title = re.search(r'<div class="mv_title".+?>(.+?)</div>', page).group(1)
+    url = match1(page, r'"url720":"(.+?)",')
+    url = url.replace('\\', '')
+    title = match1(page, r'<div class="mv_title".+?>(.+?)</div>')
     mime, ext, size = url_info(url)
     print_info(site_info, title, mime, size)
 

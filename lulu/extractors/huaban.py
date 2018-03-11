@@ -76,7 +76,7 @@ def huaban_download_board(url, output_dir, **kwargs):
         for pin in board.pins:
             download_urls(
                 [pin.url], pin.id, pin.ext, url_size(pin.url),
-                output_dir=output_dir, faker=True, **kwargs
+                output_dir=output_dir, **kwargs
             )
 
 

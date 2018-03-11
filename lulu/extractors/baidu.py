@@ -57,18 +57,18 @@ def baidu_download_song(sid, output_dir='.', merge=True, info_only=False):
         title = match1(html, r'data_name="([^"]+)"')
         file_name = title
 
-    _type, ext, size = url_info(url, faker=True)
+    _type, ext, size = url_info(url)
     print_info(site_info, title, _type, size)
     if not info_only:
         download_urls(
-            [url], file_name, ext, size, output_dir, merge=merge, faker=True
+            [url], file_name, ext, size, output_dir, merge=merge
         )
 
     try:
-        _type, ext, size = url_info(lrc, faker=True)
+        _type, ext, size = url_info(lrc)
         print_info(site_info, title, _type, size)
         if not info_only:
-            download_urls([lrc], file_name, ext, size, output_dir, faker=True)
+            download_urls([lrc], file_name, ext, size, output_dir)
     except Exception:
         pass
 
@@ -92,19 +92,18 @@ def baidu_download_album(aid, output_dir='.', merge=True, info_only=False):
         song_lrc = song_data['lrcLink']
         file_name = '{:0>2d}.{}'.format(track_nr, song_title)
 
-        _type, ext, size = url_info(song_url, faker=True)
+        _type, ext, size = url_info(song_url)
         print_info(site_info, song_title, _type, size)
         if not info_only:
             download_urls(
-                [song_url], file_name, ext, size, output_dir, merge=merge,
-                faker=True
+                [song_url], file_name, ext, size, output_dir, merge=merge
             )
         if song_lrc:
-            _type, ext, size = url_info(song_lrc, faker=True)
+            _type, ext, size = url_info(song_lrc)
             print_info(site_info, song_title, _type, size)
             if not info_only:
                 download_urls(
-                    [song_lrc], file_name, ext, size, output_dir, faker=True
+                    [song_lrc], file_name, ext, size, output_dir
                 )
 
         track_nr += 1
@@ -121,8 +120,7 @@ def baidu_download(
             print('Hold on...')
             time.sleep(5)
             download_urls(
-                [real_url], title, ext, size, output_dir, url, merge=merge,
-                faker=True
+                [real_url], title, ext, size, output_dir, url, merge=merge
             )
     elif re.match(r'http://music.baidu.com/album/\d+', url):
         _id = match1(url, r'http://music.baidu.com/album/(\d+)')
@@ -235,7 +233,7 @@ def baidu_pan_download(url):
         response_content, r'server_filename":"([^"]+)"'
     )
     assert real_url
-    _type, ext, size = url_info(real_url, faker=True)
+    _type, ext, size = url_info(real_url)
     title_wrapped = json.loads(
         '{{"wrapper":"{}"}}'.format(title)
     )  # \u4ecb\u7ecd -> 介绍

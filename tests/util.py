@@ -3,9 +3,22 @@
 import os
 import unittest
 import functools
+from socket import (
+    gaierror,
+)
 from string import Formatter
-from urllib.error import URLError
-from http.client import IncompleteRead
+from urllib3.exceptions import (
+    MaxRetryError,
+    NewConnectionError,
+)
+from http.client import (
+    IncompleteRead,
+    RemoteDisconnected,
+)
+
+from requests.exceptions import (
+    ConnectionError,
+)
 
 
 # 在 CI 上百分百失败用下面的 skipIf，有可能失败的用 ignore_network_issue
@@ -38,12 +51,28 @@ def ignore_network_issue(func):
         error_message = '{func_name}: {module_name} error: {err}'
         try:
             func(*args, **kwargs)
-        except URLError as err:
+        except gaierror as err:
             print(error.format(
-                error_message, module_name='urllib', err=err
+                error_message, module_name='socket', err=err
+            ))
+        except NewConnectionError as err:
+            print(error.format(
+                error_message, module_name='urllib3', err=err
+            ))
+        except MaxRetryError as err:
+            print(error.format(
+                error_message, module_name='urllib3', err=err
+            ))
+        except ConnectionError as err:
+            print(error.format(
+                error_message, module_name='requests', err=err
             ))
         except IncompleteRead as err:
             # test_qq: httplib error: IncompleteRead(126198 bytes read, 62466 more expected)  # noqa
+            print(error.format(
+                error_message, module_name='httplib', err=err
+            ))
+        except RemoteDisconnected as err:
             print(error.format(
                 error_message, module_name='httplib', err=err
             ))

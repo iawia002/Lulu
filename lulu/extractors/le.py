@@ -59,7 +59,7 @@ def video_info(vid, **kwargs):
         'splatid=101&format=1&tkey={}&domain=www.le.com&region=cn&source='
         '1000&accesyx=1'.format(vid, calcTimeKey(int(time.time())))
     )
-    r = get_content(url, decoded=False)
+    r = get_content(url)
     info = json.loads(str(r, 'utf-8'))
     info = info['msgs']
     stream_id = None
