@@ -6,7 +6,6 @@ import socket
 import hashlib
 import urllib.parse
 import urllib.request
-from xml.dom.minidom import parseString
 
 from lulu.common import (
     match1,
@@ -29,7 +28,7 @@ class Bilibili(VideoExtractor):
     name = '哔哩哔哩 bilibili.com'
     live_api = 'https://live.bilibili.com/api/playurl?cid={}&otype=json'
     api_url = 'https://interface.bilibili.com/v2/playurl?'
-    bangumi_api_url = 'https://bangumi.bilibili.com/player/web_api/playurl?'
+    bangumi_api_url = 'https://bangumi.bilibili.com/player/web_api/v2/playurl?'
     live_room_init_api_url = (
         'https://api.live.bilibili.com/room/v1/Room/room_init?id={}'
     )
@@ -37,8 +36,8 @@ class Bilibili(VideoExtractor):
         'https://api.live.bilibili.com/room/v1/Room/get_info?room_id={}'
     )
 
-    SEC1 = '1c15888dc316e05a15fdd0a02ed6584f'
-    SEC2 = '9b288147e5474dd2aa67085f716c560d'
+    APPKEY = "84956560bc028eb7"
+    SECKEY = "94aba54af9065f71de72f5508f1cd42e"
     stream_types = [
         {'id': 'flv_p60'},
         {'id': 'flv720_p60'},
@@ -75,46 +74,46 @@ class Bilibili(VideoExtractor):
             return 'mp4', 'mp4'
         raise Exception('Unknown stream type')
 
-    def api_req(self, cid, quality, bangumi, bangumi_movie=False, **kwargs):
-        ts = str(int(time.time()))
-        if not bangumi:
-            params_str = 'cid={}&player=1&qn={}&quality={}&ts={}'.format(
-                cid, quality, quality, ts
-            )
-            chksum = hashlib.md5(
-                bytes(params_str+self.SEC1, 'utf8')
-            ).hexdigest()
-            api_url = self.api_url + params_str + '&sign=' + chksum
-        else:
-            mod = 'movie' if bangumi_movie else 'bangumi'
+    def api_req(self, cid, quality, bangumi, **kwargs):
+        if bangumi:
+            api = self.bangumi_api_url
             params_str = (
-                'cid={}&module={}&player=1&qn={}&quality={}&ts={}'.format(
-                    cid, mod, quality, quality, ts
+                'appkey={}&cid={}&module=bangumi&otype=json&qn={}&quality={}'
+                '&season_type=4&type='.format(
+                    self.APPKEY, cid, quality, quality
                 )
             )
-            chksum = hashlib.md5(
-                bytes(params_str+self.SEC2, 'utf8')
-            ).hexdigest()
-            api_url = self.bangumi_api_url + params_str + '&sign=' + chksum
+        else:
+            api = self.api_url
+            params_str = (
+                'appkey={}&cid={}&otype=json&qn={}&quality={}&type='.format(
+                    self.APPKEY, cid, quality, quality
+                )
+            )
+        chksum = hashlib.md5(
+            bytes(params_str+self.SECKEY, 'utf8')
+        ).hexdigest()
+        api_url = api + params_str + '&sign=' + chksum
 
-        xml_str = get_content(api_url, headers={
+        # Add Referer to fix HTTP error code 403
+        # and User-Agent to fix HTTP error code 466
+        data = json.loads(get_content(api_url, headers={
             'Referer': self.url,
             'User-Agent': FAKE_HEADERS['User-Agent'],
-        })
-        return xml_str
+        }))
+        return data
 
-    def parse_bili_xml(self, xml_str):
+    def parse_bilibili_data(self, data):
+        # {'code': -404, 'message': '结果为空或者已被删除'}
+        if data.get('result') != 'suee':
+            return
         urls_list = []
         total_size = 0
-        doc = parseString(xml_str.encode('utf8'))
-        durls = doc.getElementsByTagName('durl')
-        for durl in durls:
-            size = durl.getElementsByTagName('size')[0]
-            total_size += int(size.firstChild.nodeValue)
-            url = durl.getElementsByTagName('url')[0]
-            urls_list.append(url.firstChild.nodeValue)
-        if not urls_list:
-            return
+        for durl in data['durl']:
+            size = durl['size']
+            total_size += int(size)
+            url = durl['url']
+            urls_list.append(url)
         stream_type, container = self.bilibili_stream_type(urls_list)
         if stream_type not in self.streams:
             self.streams[stream_type] = {}
@@ -127,9 +126,8 @@ class Bilibili(VideoExtractor):
         # guard here. if stream_id invalid, fallback as not stream_id
 
         info_only = kwargs.get('info_only')
-        for qlt in [116, 74, 80, 64, 32, 15]:
-            api_xml = self.api_req(cid, qlt, bangumi, **kwargs)
-            self.parse_bili_xml(api_xml)
+        for qlt in [116, 74, 112, 80, 64, 32, 15]:
+            self.parse_bilibili_data(self.api_req(cid, qlt, bangumi, **kwargs))
         if not info_only or stream_id:
             self.danmuku = get_danmuku_xml(cid)
 
