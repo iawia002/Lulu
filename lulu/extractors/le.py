@@ -16,6 +16,7 @@ from lulu.common import (
     get_content,
     download_urls,
     url_locations,
+    urlopen_with_retry,
     playlist_not_supported,
 )
 
@@ -33,24 +34,30 @@ def calcTimeKey(t):
     return ror(t, magic % 17) ^ magic
 
 
-def decode(data):
-    version = data[0:5]
-    if version.lower() == b'vc_01':
-        # get real m3u8
-        loc2 = data[5:]
-        length = len(loc2)
-        loc4 = [0]*(2*length)
-        for i in range(length):
-            loc4[2*i] = loc2[i] >> 4
-            loc4[2*i+1] = loc2[i] & 15
-        loc6 = loc4[len(loc4)-11:]+loc4[:len(loc4)-11]
-        loc7 = [0]*length
-        for i in range(length):
-            loc7[i] = (loc6[2 * i] << 4) + loc6[2*i+1]
-        return ''.join([chr(i) for i in loc7])
+def compat_ord(c):
+    if type(c) is int:
+        return c
     else:
-        # directly return
-        return data
+        return ord(c)
+
+
+def decrypt_m3u8(encrypted_data):
+    if encrypted_data[:5].decode('utf-8').lower() != 'vc_01':
+        return encrypted_data
+    encrypted_data = encrypted_data[5:]
+
+    _loc4_ = bytearray(2 * len(encrypted_data))
+    for idx, val in enumerate(encrypted_data):
+        b = compat_ord(val)
+        _loc4_[2 * idx] = b // 16
+        _loc4_[2 * idx + 1] = b % 16
+    idx = len(_loc4_) - 11
+    _loc4_ = _loc4_[idx:] + _loc4_[:idx]
+    _loc7_ = bytearray(len(encrypted_data))
+    for i in range(len(encrypted_data)):
+        _loc7_[i] = _loc4_[2 * i] * 16 + _loc4_[2 * i + 1]
+
+    return bytes(_loc7_)
 
 
 def video_info(vid, **kwargs):
@@ -60,7 +67,7 @@ def video_info(vid, **kwargs):
         '1000&accesyx=1'.format(vid, calcTimeKey(int(time.time())))
     )
     r = get_content(url)
-    info = json.loads(str(r, 'utf-8'))
+    info = json.loads(r)
     info = info['msgs']
     stream_id = None
     support_stream_id = info['playurl']['dispatch'].keys()
@@ -88,14 +95,13 @@ def video_info(vid, **kwargs):
             random.random(), vid, uuid
         )
     )
-    r2 = get_content(url, decoded=False)
-    info2 = json.loads(str(r2, 'utf-8'))
-
+    r2 = get_content(url)
+    info2 = json.loads(r2)
     # hold on ! more things to do
     # to decode m3u8 (encoded)
     suffix = '&r={}&appid=500'.format(str(int(time.time() * 1000)))
-    m3u8 = get_content(info2['location']+suffix, decoded=False)
-    m3u8_list = decode(m3u8)
+    response = urlopen_with_retry(info2['location']+suffix)
+    m3u8_list = str(decrypt_m3u8(response.content), 'utf-8')
     urls = re.findall(r'^[^#][^\r]*', m3u8_list, re.MULTILINE)
     return ext, urls
 
