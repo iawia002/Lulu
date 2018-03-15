@@ -37,10 +37,10 @@ class Pinterest(VideoExtractor):
             r'</script>'
         )
         data = json.loads(data)
-        keys = list(data['resources']['data']['PinResource'].keys())
-        orig_img = data['resources']['data']['PinResource'][keys[0]]['data'][
-            'images'
-        ]['orig']['url']
+        keys = list(data['resources']['data']['PinPageResource'].keys())
+        orig_img = data['resources']['data']['PinPageResource'][keys[0]][
+            'data'
+        ]['images']['orig']['url']
         twit_img = match1(
             content,
             r'<meta property="twitter:image:src" name="twitter:image:src" '
