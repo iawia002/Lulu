@@ -718,11 +718,11 @@ def download_urls(
                     try:
                         from .processor.join_mp4 import concat_mp4
                         concat_mp4(parts, output_filepath)
-                    except:
+                    except Exception:
                         try:
                             from .processor.join_flv import concat_flv
                             concat_flv(parts, output_filepath)
-                        except:
+                        except Exception:
                             from .processor.join_ts import concat_ts
                             concat_ts(parts, output_filepath)
             except Exception:
