@@ -746,6 +746,7 @@ class TestExtractors(unittest.TestCase):
             info_only=True
         )
 
+    @skipOnCI
     def test_vimeo(self):
         extractors.vimeo.download(
             'https://vimeo.com/58388167',
