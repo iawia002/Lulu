@@ -26,8 +26,10 @@ from lulu.util import log, term
 from lulu.version import __version__
 from lulu import json_output as json_output_
 from lulu.util.strings import get_filename
-
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf8')
+try:
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf8')
+except Exception:
+    pass
 
 
 dry_run = False
@@ -712,9 +714,17 @@ def download_urls(
                     from .processor.ffmpeg import ffmpeg_concat_mp4_to_mp4
                     ffmpeg_concat_mp4_to_mp4(parts, output_filepath)
                 else:
-                    from .processor.join_mp4 import concat_mp4
-                    concat_mp4(parts, output_filepath)
-                print('Merged into {}'.format(output_file))
+                    print('Merged into {}'.format(output_file))
+                    try:
+                        from .processor.join_mp4 import concat_mp4
+                        concat_mp4(parts, output_filepath)
+                    except Exception:
+                        try:
+                            from .processor.join_flv import concat_flv
+                            concat_flv(parts, output_filepath)
+                        except Exception:
+                            from .processor.join_ts import concat_ts
+                            concat_ts(parts, output_filepath)
             except Exception:
                 raise
             else:
