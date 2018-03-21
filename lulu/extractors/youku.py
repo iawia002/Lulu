@@ -87,7 +87,7 @@ class Youku(VideoExtractor):
         self.api_error_code = None
         self.api_error_msg = None
 
-        self.ccodes = ['0507', '0508', '0512', '0513', '0514']
+        self.ccodes = ['0502', '0503', '0507', '0508', '0512', '0513', '0514']
         self.utid = None
 
     def youku_ups(self):
