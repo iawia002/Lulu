@@ -20,7 +20,9 @@ class DouYin(SimpleExtractor):
         page_content = get_content(url)
         match_rule = re.compile(r'var data = \[(.*?)\];')
         video_info = json.loads(match_rule.findall(page_content)[0])
-        urls = [video_info['video']['play_addr']['url_list'][0]]
+        #urls = [video_info['video']['play_addr']['url_list'][0]]
+        video_id = re.findall("(?<=video_id=).+?(?=\\\\u0026line=0)",page_content)[0]
+        urls = ['https://aweme.snssdk.com/aweme/v1/play/?video_id=' + video_id]
         if video_info['cha_list']:
             title = video_info['cha_list'][0]['cha_name']
         else:
