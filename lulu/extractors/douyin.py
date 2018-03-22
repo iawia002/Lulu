@@ -20,12 +20,12 @@ class DouYin(SimpleExtractor):
         page_content = get_content(url)
         match_rule = re.compile(r'var data = \[(.*?)\];')
         video_info = json.loads(match_rule.findall(page_content)[0])
-        urls = [video_info['video']['play_addr']['url_list'][0]]
+        urls = [video_info['video']['play_addr']['url_list'][0].replace('playwm', 'play')]
         if video_info['cha_list']:
             title = video_info['cha_list'][0]['cha_name']
         else:
             title = video_info['desc']
-
+            
         return {
             'urls': urls,
             'title': title,
