@@ -1,3 +1,9 @@
+# Unmaintained
+
+Sorry for this.
+
+For a similar project that is still actively developed, try Annie: <https://github.com/iawia002/annie>
+
 # Lulu
 
 [![PyPI](https://img.shields.io/pypi/v/lulu.svg)](https://pypi.python.org/pypi/lulu/)
